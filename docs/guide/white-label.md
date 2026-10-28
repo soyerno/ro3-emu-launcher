@@ -39,7 +39,7 @@ This guide covers rebranding RO3 Launcher for any private server without touchin
 
 ## 2. Visual Identity & Assets
 
-- **Main Logo:** Replace `ui.assets.logo-hero.png` with your transparent server logo.
+- **Main Logo:** Replace `ui.assets.logo-hero.png` with your transparent server logo. The shipped logo and `app.ico` are a neutral "RO3" placeholder.
 - **Windows Executable Icon:** Run `tools\update-logo.cmd <your-image.png>` to automatically produce `app.ico` and `ui.assets.logo-hero.png`.
 - **Background & Artwork:**
   - `ui.assets.bg.jpg`: Main launcher background image.
