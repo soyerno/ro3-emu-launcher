@@ -1,90 +1,139 @@
-# RO3Emu Launcher — Modern Desktop Client for Ragnarok Online 3
+<p align="center">
+  <img src="docs/assets/hero.svg" alt="RO3 Launcher: Modern Desktop Client &amp; Patcher for RO3Emu" width="100%">
+</p>
 
-Lanzador de escritorio moderno, personalizable y autocontenido para servidores privados de **Ragnarok Online 3** (RO3Emu) con interfaz visual acelerada mediante **WebView2** (HTML5/CSS3/JS), orquestador de juego, gestión integrada de túneles Cloudflare y soporte de auto-parcheo.
+<p align="center">
+  <a href="#start-in-three-steps"><img src="docs/assets/button-quickstart.svg" alt="Quick Start" height="44"></a>
+  &nbsp;
+  <a href="#why-ro3-launcher"><img src="docs/assets/button-features.svg" alt="Features" height="44"></a>
+  &nbsp;
+  <a href="https://github.com/aethai/ro3emu-server"><img src="docs/assets/button-ro3emu.svg" alt="RO3Emu Server" height="44"></a>
+</p>
 
-Repositorio oficial: [https://github.com/soyerno/ro3-emu-launcher](https://github.com/soyerno/ro3-emu-launcher)
+<p align="center">
+  <a href="https://github.com/soyerno/ro3-emu-launcher/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/soyerno/ro3-emu-launcher/ci.yml?branch=main&label=build&color=d8b46a&labelColor=1b2740" alt="Build Status"></a>
+  <img src="https://img.shields.io/badge/.NET-10.0-3fb950?labelColor=1b2740" alt=".NET 10">
+  <img src="https://img.shields.io/badge/webview2-WPF-0078d4?labelColor=1b2740" alt="WebView2">
+  <a href="https://github.com/aethai/ro3emu-server"><img src="https://img.shields.io/badge/companion-RO3Emu-d8b46a?labelColor=1b2740" alt="Companion for RO3Emu"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-8b949e?labelColor=1b2740" alt="MIT License"></a>
+</p>
 
----
+Modern, lightweight, and customizable desktop game launcher and auto-patcher for **Ragnarok Online 3 / Ragnarok Origin PC (`RO3Emu`)** private servers ([aethai/ro3emu-server](https://github.com/aethai/ro3emu-server)).
 
-## 🚀 Características Principales
+Built with a dark fantasy Nordic aesthetic, decoupled **WPF + WebView2** architecture (HTML5/CSS3/JavaScript), instant live UI reload mode, automated background Cloudflare tunnel management, and DPAPI-encrypted credential storage.
 
-- **Frontend Moderno:** Interfaz web fluida (WPF + WebView2) desacoplada de la lógica del juego.
-- **Modo Desarrollo en Vivo (Live Reload):** Modifica HTML, CSS y JS en tiempo real con recarga en caliente (`run-ui-dev.cmd`) sin tener que recompilar C#.
-- **Orquestador de Juego Inteligente:** Detección automática de la carpeta del cliente (`ro3.exe`), inyección de hooks y parcheo automático con RO3Emu.
-- **Gestión de Túneles en Segundo Plano:** Inicio y supervisión transparente de túneles `cloudflared` (HTTP/Gate/Scene) sin consolas de CMD invasivas.
-- **Autenticación y Sesión Segura:** Almacén de credenciales y sesiones persistentes cifradas con Windows DPAPI y SQLite.
-- **Control Dinámico de Registros:** Soporte para verificación remota del estado de creación de cuentas (`/api/admin/registration` y `status.json`).
-- **Publicación Single-File (.NET 10):** Empaqueta todo el launcher, dependencias y assets en un único ejecutable listo para distribuir a los jugadores.
-
----
-
-## 🛠️ Guía Rápida: Flujo de Trabajo
-
-| Script | Descripción |
-|---|---|
-| **`publish.cmd`** | Compila y empaqueta el ejecutable final en **`dist\KonsorRO.exe`** (.NET 10 self-contained, 1 archivo único). Cierra instancias previas si están bloqueadas. |
-| **`deploy-dev.cmd`** | Compila la versión Release y la copia automáticamente a la carpeta de prueba del cliente local. |
-| **`run-ui-dev.cmd`** | **Modo Desarrollo UI en Vivo**: Inicia el launcher leyendo los archivos HTML, CSS y JS directamente desde el disco sin recompilar. |
-| **`build.cmd`** | Compilación rápida incremental para verificar sintaxis y tipos en C#. |
-| **`tools\update-logo.cmd`** | Actualizador de Logo: procesa imágenes PNG/JPG para remover fondo blanco y genera `ui.assets.logo-hero.png` y `app.ico` multirresolución. |
-| **`tools\test-server.cmd`** | Ejecuta un diagnóstico rápido de endpoints HTTP, estado de registro y puertos de túneles locales. |
+> 📖 **Para leer la documentación completa en español, consulta [README.es.md](README.es.md).**
 
 ---
 
-## 📁 Estructura del Repositorio
+## Why RO3 Launcher
 
-```text
-ro3-emu-launcher/
-├── KonsorRO.slnx                 # Solución .NET 10 (VS 2026 / Rider / VS Code)
-├── KonsorRO.csproj               # Configuración del proyecto y manifiesto de recursos embebidos
-├── build.cmd                     # Script de compilación rápida
-├── publish.cmd                   # Script de publicación a dist/
-├── deploy-dev.cmd                # Compila y copia a la carpeta de juego
-├── run-ui-dev.cmd                # Ejecuta en modo desarrollo de UI (Live Reload)
-├── launcher.json                 # Configuración de URLs del servidor y repositorio
-├── news.json                     # Noticias por defecto embebidas
-├── status.json                   # Estado de registro por defecto
-├── app.ico                       # Icono oficial de Windows (16 a 256px)
-├── ui.index.html                 # Interfaz visual del launcher
-├── ui.app.css                    # Estilos visuales y diseño responsivo
-├── ui.app.js                     # Controlador JavaScript y puente WebView2
-├── ui.assets.logo-hero.png       # Logo principal
-├── lib/                          # Ensamblados binarios necesarios (Ro3Emu.Patcher.dll)
-├── Ro3Emu.Launcher/              # Código C# del lanzador:
-│   ├── LauncherController.cs     # Controlador principal (Auth, Noticias, Estado)
-│   ├── KonsorGameOrchestrator.cs # Detección e inicio de ro3.exe y parcheo RO3Emu
-│   ├── TunnelManager.cs          # Gestión en segundo plano de cloudflared
-│   ├── MainWindow.xaml / .cs     # Ventana WPF host de WebView2
-├── Ro3Emu.Launcher.Auth/         # Sistema de autenticación:
-│   ├── AuthDb.cs                 # Base de datos SQLite local cifrada
-│   ├── SessionStore.cs           # Almacén de sesión persistente con Windows DPAPI
-└── tools/
-    ├── process_logo.py           # Herramienta Python de recorte y conversión de logos
-    ├── update-logo.cmd           # Lanzador rápido de actualización de logos
-    ├── test_server.py            # Diagnóstico de endpoints y túneles
-    └── test-server.cmd           # Lanzador rápido de diagnóstico
+<table>
+  <tr>
+    <td width="50%" valign="top"><b>White-label out of the box</b><br>Rebrand your entire launcher for your private server in seconds. Server name, title, endpoints, news feed, and registration status are dynamically configured from <code>launcher.json</code> without recompiling C# code.</td>
+    <td width="50%" valign="top"><b>Live UI Development Mode</b><br>Tweak HTML5, CSS3, and JavaScript layouts with instant live hot-reload (<code>run-ui-dev.cmd</code>). Press <code>F5</code> in the launcher window to test UI modifications on the fly without waiting for rebuilds.</td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><b>Seamless RO3Emu &amp; Tunnel Orchestration</b><br>Automatically detects game client folders (<code>ro3.exe</code>), injects required Cecil hooks (<code>Ro3Emu.ClientHooks.dll</code> / <code>Ro3Emu.Loc.dll</code>), and launches silent background Cloudflare access tunnels without annoying command prompt windows.</td>
+    <td width="50%" valign="top"><b>Secure Account &amp; Session Storage</b><br>Player credentials and persistent authentication sessions are securely encrypted using Windows DPAPI and local SQLite databases. Supports remember-me, token revocation, and admin-controlled registration toggles.</td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><b>Single-file self-contained distribution</b><br>Publishes to an all-in-one single-file Windows executable (<code>dist\KonsorRO.exe</code>) with embedded runtime dependencies. Players download one standalone file, click, and play without needing .NET installed on their PC.</td>
+  </tr>
+</table>
+
+---
+
+## Start in three steps
+
+| Step | Action |
+|:---:|---|
+| **1** | **Clone the repository:**<br><code>git clone https://github.com/soyerno/ro3-emu-launcher.git</code><br><code>cd ro3-emu-launcher</code> |
+| **2** | **Configure your server endpoints:**<br>Edit <code>launcher.json</code> and point <code>server</code>, <code>repository</code>, and <code>serverName</code> to your RO3Emu server or Cloudflare tunnel. |
+| **3** | **Run or Publish:**<br>Live UI Dev: <code>run-ui-dev.cmd</code> &nbsp;·&nbsp; Build: <code>build.cmd</code> &nbsp;·&nbsp; Publish Single-File: <code>publish.cmd</code><br>Your self-contained executable is generated in <code>dist/</code>. |
+
+---
+
+## Architecture & Integration
+
+RO3 Launcher operates as an autonomous desktop companion connecting players to your `RO3Emu` server:
+
+```
+[Player / WebView2 UI (HTML5 + CSS3 + JS)]
+       │
+       │  (Two-Way JSON IPC Bridge via WebView2)
+       ▼
+[RO3 Launcher Core (C# / .NET 10)]
+       ├── Embedded Assets & Live Reload Engine
+       ├── Auth Engine (Windows DPAPI + Encrypted SQLite)
+       ├── Background Tunnel Daemon ──► [Cloudflared (Access TCP)]
+       │                                     ├── HTTP:  127.0.0.1:5380
+       │                                     ├── Micro: 127.0.0.1:20000
+       │                                     └── Game:  127.0.0.1:33100
+       └── Game Orchestrator
+               ├── Auto-Detect Client Path (ro3.exe)
+               ├── Injects Hooks (Ro3Emu.ClientHooks & Loc)
+               └── Spawns RO3Emu Join Client
 ```
 
 ---
 
-## 🎨 Desarrollo Visual (HTML / CSS / JS)
+## Configuration (`launcher.json`)
 
-Para modificar la interfaz sin tener que recompilar el ejecutable cada vez:
+The launcher reads configuration from `launcher.json` embedded at compile-time or overridden on disk in the application directory:
 
-1. Ejecuta **`run-ui-dev.cmd`**.
-2. Modifica `ui.index.html`, `ui.app.css` o `ui.app.js`.
-3. Haz clic derecho en el launcher o presiona `F5` para recargar los cambios al instante.
-4. Cuando el diseño esté listo, ejecuta **`publish.cmd`** para empaquetarlo en el ejecutable final.
+```json
+{
+  "repository": "http://127.0.0.1:5380/",
+  "channel": "live",
+  "server": "http://127.0.0.1:5380",
+  "serverName": "MyRO3 Private Server"
+}
+```
+
+### Registration Gating
+
+The launcher dynamically queries server endpoints to verify if account registration is currently active:
+- Admin control panel endpoint: `GET /api/admin/registration`
+- Static status JSON fallback: `GET /status.json`
+
+When an administrator disables registrations (`{"enabled": false}`), the launcher automatically displays a warning notice, disables registration input fields, and rejects client-side attempts gracefully.
 
 ---
 
-## ⚙️ Requisitos de Compilación
+## Visual Theming (HTML / CSS / JS)
 
-- Windows 10/11 x64
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- WebView2 Runtime (incluido por defecto en Windows 10/11)
+The UI layer lives in [`ui.index.html`](file:///E:/ro3-emu-launcher/ui.index.html), [`ui.app.css`](file:///E:/ro3-emu-launcher/ui.app.css), and [`ui.app.js`](file:///E:/ro3-emu-launcher/ui.app.js).
 
-Compilación mediante CLI:
-```powershell
-dotnet publish KonsorRO.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
-```
+1. Execute **`run-ui-dev.cmd`** to start in live reload mode.
+2. Modify styles, colors, layouts, or hero banners.
+3. Right-click or press `F5` in the launcher window to preview changes instantly.
+4. Run **`tools\update-logo.cmd`** with any PNG/JPG image to automatically trim transparency, generate hero assets, and compile a multi-resolution `app.ico` (16x16 to 256x256).
+5. Run **`publish.cmd`** when ready to bundle your customized UI into the distributed binary.
+
+---
+
+## Documentation Guides
+
+- [White-Label Customization Guide](docs/guide/white-label.md) (Theming, server branding, logo customization)
+- [Architecture & IPC Guide](docs/guide/architecture.md) (WPF host, WebView2 bridge, game orchestrator)
+- [Publishing & Distribution Guide](docs/guide/publishing.md) (Single-file compilation, self-contained packaging)
+
+---
+
+## Companion Projects
+
+- **[ro3emu-server](https://github.com/aethai/ro3emu-server)** — Open-source server emulator for Ragnarok Online 3.
+- **[ro3-cpanel](https://github.com/soyerno/ro3-cpanel)** — White-label web administration control panel for RO3Emu.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) for code conventions, workflow guidelines, and pull request rules.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
