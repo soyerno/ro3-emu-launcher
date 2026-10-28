@@ -32,7 +32,7 @@ This guide covers rebranding RO3 Launcher for any private server without touchin
 | `serverName` | `My RO3 Server` | Name shown in the window title, the logo caption, dialogs and e-mails. |
 | `language` | `en` | Default language of the interface and of host messages: `en` or `es`. Players can switch it in the launcher (the UI also offers `pt-br`, which falls back to English for texts it does not translate); their choice is remembered and wins over this default. |
 | `website`, `discord` | none | Optional `http(s)` URLs. The matching buttons (top bar and news card) are hidden when the field is empty. |
-| `statusUrl` | none | Optional URL that returns `{ "enabled": true }` or `{ "registration_enabled": true }`. When it reports `false` the launcher disables the registration form. Without it, registration is assumed open. `status.json` in this repository is a sample of the format. |
+| `statusUrl` | none | Optional public URL (no login required) that returns `{ "enabled": true }` or `{ "registration_enabled": true }`. When it reports `false` the launcher disables the registration form. Without it, registration is assumed open. `status.json` in this repository is a sample of the format. |
 | `tunnels` | `[]` | Cloudflare TCP tunnels opened with `cloudflared.exe` before launching, one per `{ hostname, port }`. Leave it empty if players reach the server directly; `cloudflared.exe` is then not needed. |
 
 ---

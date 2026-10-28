@@ -85,8 +85,8 @@ public static class Strings
 		["state.pickdir"] = ("ro3.exe not found. Choose the game folder in Settings.", "No se encontró ro3.exe. Elige la carpeta del juego en Configuración."),
 		["state.update"] = ("Version {0} is available.", "La versión {0} está disponible."),
 		["state.repair"] = ("{0} game files differ from the release.", "{0} archivos del juego difieren de la versión oficial."),
-		["state.tunnels.check"] = ("Checking the tunnels to the server...", "Verificando túneles con el servidor..."),
-		["state.tunnels.fail"] = ("Could not connect to the server. Check your internet connection.", "No se pudo conectar con el servidor. Revisa tu conexión a internet."),
+		["state.tunnels.check"] = ("Checking the tunnels to the {server} server...", "Verificando túneles con el servidor {server}..."),
+		["state.tunnels.fail"] = ("Could not connect to the {server} server. Check your internet connection.", "No se pudo conectar con el servidor {server}. Revisa tu conexión a internet."),
 		["state.patching"] = ("Patching and starting the game...", "Parcheando e iniciando el juego..."),
 		["state.running"] = ("The game is running.", "El juego está en ejecución."),
 		["state.closed"] = ("The game has closed. Ready to play again!", "El juego se ha cerrado. ¡Listo para volver a jugar!"),
@@ -107,9 +107,9 @@ public static class Strings
 		// tunnels
 		["tunnel.nocloudflared"] = ("cloudflared.exe was not found.", "No se encontró cloudflared.exe."),
 		["tunnel.ports"] = ("Checking connection ports...", "Verificando puertos de conexión..."),
-		["tunnel.opening"] = ("Opening the tunnels to the server...", "Abriendo túneles con el servidor..."),
+		["tunnel.opening"] = ("Opening the tunnels to the {server} server...", "Abriendo túneles con el servidor {server}..."),
 		["tunnel.error"] = ("Could not start the tunnel for {0}: {1}", "Error iniciando túnel para {0}: {1}"),
-		["tunnel.connected"] = ("Connected to the server.", "Conexión con el servidor establecida."),
+		["tunnel.connected"] = ("Connected to the {server} server.", "Conexión con el servidor {server} establecida."),
 		["tunnel.timeout"] = ("Timed out while connecting to the server.", "Tiempo de espera agotado al conectar con el servidor."),
 
 		// window

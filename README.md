@@ -103,7 +103,7 @@ The launcher reads configuration from `launcher.json` embedded at compile-time o
 | `serverName` | `My RO3 Server` | Name shown in the window title, captions, dialogs and e-mails. |
 | `language` | `en` | Default interface and message language: `en` or `es`. Players can switch it in the launcher. |
 | `website`, `discord` | none | Optional links; the buttons are hidden when empty. |
-| `statusUrl` | none | Optional registration gate (see below). |
+| `statusUrl` | none | Optional registration gate: a public URL, no login required (see below). |
 | `tunnels` | `[]` | Cloudflare tunnels to open, as `{ "hostname", "port" }`. Empty: no `cloudflared`. |
 
 Every field is covered in the [White-Label Customization Guide](docs/guide/white-label.md).
