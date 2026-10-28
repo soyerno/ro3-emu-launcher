@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>KonsorRO</AssemblyName>
+    <Product>KonsorRO Launcher</Product>
+  </PropertyGroup>
+</Project>

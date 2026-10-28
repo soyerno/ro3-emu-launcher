@@ -1,0 +1,23 @@
+{
+  "repository": "http://127.0.0.1:5380/",
+  "channel": "live",
+  "server": "http://127.0.0.1:5380",
+  "serverName": "KonsorRO",
+  "language": "es",
+  "website": "https://konsor.com.ar",
+  "discord": "https://discord.gg/43CdywWfM",
+  "tunnels": [
+    {
+      "hostname": "ro3-http.konsor.com.ar",
+      "port": 5380
+    },
+    {
+      "hostname": "ro3-micro.konsor.com.ar",
+      "port": 20000
+    },
+    {
+      "hostname": "ro3-game.konsor.com.ar",
+      "port": 33100
+    }
+  ]
+}
