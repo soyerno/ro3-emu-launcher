@@ -1,4 +1,4 @@
-// KonsorRO Launcher Controller Script
+// Launcher controller script
 // Manages internationalization (PT-BR, EN, ES), state, UI rendering, news, and WebView2 communications.
 
 (function () {
@@ -11,6 +11,14 @@
   var stage = null;
   var serverData = { online: false, players: null };
   var remoteNews = null;
+
+  // Injected by the host from launcher.json; absent when the page runs in a plain browser (mock mode).
+  var CFG = window.LAUNCHER_CONFIG || {};
+  var SERVER_NAME = CFG.serverName || "RO3 Server";
+
+  function fmt(text) {
+    return String(text).replace(/\{server\}/g, SERVER_NAME).replace(/\{SERVER\}/g, SERVER_NAME.toUpperCase());
+  }
 
   var I18N = {
     "pt-br": {
@@ -33,38 +41,17 @@
       notices: {
         title: "AVISOS",
         badge: "CONTEÚDO ASSINADO",
-        sub: "Anúncios oficiais da equipe KonsorRO.",
+        sub: "Anúncios oficiais da equipe {server}.",
         foot: "CANAL OFICIAL DE NOTÍCIAS · PT-BR",
         webBtn: "Site Oficial",
         discordBtn: "Discord"
       },
       defaultNews: [
         {
-          tag: "WELCOME",
+          tag: "BEM-VINDO",
           color: "blue",
-          title: "Bienvenido a KonsorRO",
-          text: "Os portões de Midgard se abrem em breve. Junte-se ao nosso Discord oficial para acompanhar tudo!",
-          date: "2026-10-19",
-          link: "https://konsor.com.ar",
-          linkText: "Visitar Site Oficial"
-        },
-        {
-          tag: "COMUNIDADE",
-          color: "orange",
-          title: "Discord Oficial",
-          text: "Participe de nossa comunidade para novidades, eventos e suporte da equipe.",
-          date: "2026-10-18",
-          link: "https://discord.gg/43CdywWfM",
-          linkText: "Entrar no Discord"
-        },
-        {
-          tag: "UPDATES",
-          color: "green",
-          title: "Atualizações automáticas",
-          text: "O inicializador baixa e atualiza todos os arquivos necessários de forma rápida e segura.",
-          date: "2026-10-15",
-          link: "https://konsor.com.ar",
-          linkText: "Ver no Site"
+          title: "Bem-vindo a {server}",
+          text: "Tudo pronto para explorar o mundo de Rune-Midgard."
         }
       ],
       auth: {
@@ -126,7 +113,7 @@
       notices: {
         title: "NOTICES",
         badge: "VERIFIED CONTENT",
-        sub: "Official announcements from the KonsorRO team.",
+        sub: "Official announcements from the {server} team.",
         foot: "OFFICIAL NEWS CHANNEL · EN",
         webBtn: "Official Web",
         discordBtn: "Discord"
@@ -135,29 +122,8 @@
         {
           tag: "WELCOME",
           color: "blue",
-          title: "Get ready for launch",
-          text: "The gates of Midgard will open soon. Join our official Discord to follow all the latest news!",
-          date: "2026-10-19",
-          link: "https://konsor.com.ar",
-          linkText: "Official Website"
-        },
-        {
-          tag: "COMMUNITY",
-          color: "orange",
-          title: "Official Discord Community",
-          text: "Join our Discord for announcements, events, guides and community support.",
-          date: "2026-10-18",
-          link: "https://discord.gg/43CdywWfM",
-          linkText: "Join Discord"
-        },
-        {
-          tag: "UPDATES",
-          color: "green",
-          title: "Automatic updates",
-          text: "The launcher downloads and keeps all necessary game files up to date automatically.",
-          date: "2026-10-15",
-          link: "https://konsor.com.ar",
-          linkText: "Learn More"
+          title: "Welcome to {server}",
+          text: "Everything is ready to explore the world of Rune-Midgard."
         }
       ],
       auth: {
@@ -218,8 +184,8 @@
       },
       notices: {
         title: "AVISOS",
-        badge: "SERVIDOR KONSORRO",
-        sub: "Anuncios oficiales del servidor privado KonsorRO.",
+        badge: "SERVIDOR {SERVER}",
+        sub: "Anuncios oficiales del servidor privado {server}.",
         foot: "CANAL OFICIAL DE NOTICIAS · ES",
         webBtn: "Web Oficial",
         discordBtn: "Discord"
@@ -228,38 +194,8 @@
         {
           tag: "BIENVENIDO",
           color: "blue",
-          title: "Bienvenido a KonsorRO",
-          text: "Servidor privado no oficial de Ragnarok Origin en konsor.com.ar. ¡Todo listo para explorar Rune-Midgard!",
-          date: "2026-10-27",
-          link: "https://konsor.com.ar",
-          linkText: "Visitar Sitio Web"
-        },
-        {
-          tag: "COMUNIDAD",
-          color: "orange",
-          title: "Discord Oficial de Konsor",
-          text: "Únete a nuestro Discord para enterarte de eventos, actualizaciones, soporte y formar grupo con otros aventureros.",
-          date: "2026-10-27",
-          link: "https://discord.gg/43CdywWfM",
-          linkText: "Unirse al Discord"
-        },
-        {
-          tag: "ESTADO",
-          color: "green",
-          title: "Servidor Operativo",
-          text: "Conexión segura mediante túneles Cloudflare. MicroGate y GameGate funcionando con normalidad.",
-          date: "2026-10-27",
-          link: "https://konsor.com.ar",
-          linkText: "Ver Estado Web"
-        },
-        {
-          tag: "GUÍAS",
-          color: "blue",
-          title: "Comandos y Ayuda",
-          text: "Escribe !help en el chat del juego para consultar los comandos disponibles. Visita konsor.com.ar para más información.",
-          date: "2026-10-25",
-          link: "https://konsor.com.ar",
-          linkText: "Guías en konsor.com.ar"
+          title: "Bienvenido a {server}",
+          text: "Todo listo para explorar el mundo de Rune-Midgard."
         }
       ],
       auth: {
@@ -303,8 +239,131 @@
     }
   };
 
-  var currentLang = localStorage.getItem("ro3_lang") || "es";
-  if (!I18N[currentLang]) currentLang = "es";
+  // The player's own choice (dropdown) wins over the launcher.json default.
+  var currentLang = normalizeLang(localStorage.getItem("ro3_lang") || CFG.language || "en");
+
+  // Texts of the static markup (data-i18n*) and of the form feedback. pt-br falls back to English.
+  var UI_TEXT = {
+    en: {
+      minimize: "Minimize",
+      close: "Close",
+      authTabLogin: "Sign in",
+      authTabRegister: "Create account",
+      userLabel: "Username or e-mail",
+      userPlaceholder: "e.g. myname or you@email.com",
+      passLabel: "Password",
+      passPlaceholder: "Your password",
+      forgot: "I forgot my password",
+      codeLabel: "Verification code",
+      codePlaceholder: "6-digit code",
+      verifyBtn: "Verify e-mail",
+      resetCodeLabel: "Recovery code",
+      newPassLabel: "New password",
+      newPassPlaceholder: "At least 6 characters",
+      resetBtn: "Reset password",
+      regDisabled: "Account creation is temporarily disabled by the administrator.",
+      regUserLabel: "Username",
+      regUserPlaceholder: "e.g. myname (3-20 characters)",
+      emailLabel: "E-mail",
+      emailPlaceholder: "you@email.com (optional)",
+      confirmLabel: "Confirm password",
+      confirmPlaceholder: "Repeat the password",
+      loggedLabel: "Account active on this PC:",
+      switchAccount: "Use another account",
+      msgHelp: "Help",
+      repairTitle: "Repair files",
+      webTitle: "Open the website",
+      discordTitle: "Join the Discord community",
+      regUnavailable: "Registration unavailable",
+      regTabTitle: "Create a new account",
+      regTabDisabled: "Account creation is temporarily disabled",
+      fbRequired: "Username, password and confirmation are required.",
+      fbUserLength: "The username must have at least 3 characters.",
+      fbPassLength: "The password must have at least 6 characters.",
+      fbPassMismatch: "The passwords do not match.",
+      fbCreating: "Creating your account on {server}...",
+      fbSigningIn: "Signing in to {server}...",
+      fbLoginMissing: "Please enter your username and password.",
+      fbForgot: "Type your e-mail in the username field (or use the Create account tab) and try again."
+    },
+    es: {
+      minimize: "Minimizar",
+      close: "Cerrar",
+      authTabLogin: "Iniciar Sesión",
+      authTabRegister: "Crear Cuenta",
+      userLabel: "Usuario o correo electrónico",
+      userPlaceholder: "Ej: minombre o tu@email.com",
+      passLabel: "Contraseña",
+      passPlaceholder: "Tu contraseña",
+      forgot: "Olvidé mi contraseña",
+      codeLabel: "Código de verificación",
+      codePlaceholder: "Código de 6 dígitos",
+      verifyBtn: "Verificar correo",
+      resetCodeLabel: "Código de recuperación",
+      newPassLabel: "Nueva contraseña",
+      newPassPlaceholder: "Mínimo 6 caracteres",
+      resetBtn: "Restablecer contraseña",
+      regDisabled: "La creación de cuentas está deshabilitada temporalmente por el administrador.",
+      regUserLabel: "Nombre de usuario",
+      regUserPlaceholder: "Ej: minombre (3-20 caracteres)",
+      emailLabel: "Correo electrónico",
+      emailPlaceholder: "tu@email.com (opcional)",
+      confirmLabel: "Confirmar contraseña",
+      confirmPlaceholder: "Repite la contraseña",
+      loggedLabel: "Cuenta activa en este PC:",
+      switchAccount: "Usar otra cuenta",
+      msgHelp: "Ayuda",
+      repairTitle: "Reparar archivos",
+      webTitle: "Abrir el sitio web",
+      discordTitle: "Unirse a la comunidad de Discord",
+      regUnavailable: "Registro no disponible",
+      regTabTitle: "Crear nueva cuenta",
+      regTabDisabled: "La creación de cuentas está deshabilitada temporalmente",
+      fbRequired: "Usuario, contraseña y confirmación son obligatorios.",
+      fbUserLength: "El usuario debe tener al menos 3 caracteres.",
+      fbPassLength: "La contraseña debe tener al menos 6 caracteres.",
+      fbPassMismatch: "Las contraseñas no coinciden.",
+      fbCreating: "Creando cuenta en {server}...",
+      fbSigningIn: "Iniciando sesión en {server}...",
+      fbLoginMissing: "Por favor ingresa usuario y contraseña.",
+      fbForgot: "Escribe tu correo en el campo de usuario (o usa la pestaña Crear Cuenta) y vuelve a intentarlo."
+    }
+  };
+
+  function ui(key) {
+    var table = UI_TEXT[currentLang] || UI_TEXT.en;
+    var text = table[key] != null ? table[key] : UI_TEXT.en[key];
+    return fmt(text != null ? text : key);
+  }
+
+  function applyStaticTexts() {
+    document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = ui(el.getAttribute("data-i18n")); });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) { el.placeholder = ui(el.getAttribute("data-i18n-placeholder")); });
+    document.querySelectorAll("[data-i18n-title]").forEach(function (el) { el.title = ui(el.getAttribute("data-i18n-title")); });
+  }
+
+  // Server name, logo caption and the website / Discord links, all from launcher.json.
+  function applyConfig() {
+    document.title = SERVER_NAME;
+    var logo = document.querySelector(".logo");
+    if (logo) logo.alt = SERVER_NAME;
+    [["tab-register", CFG.website], ["news-btn-web", CFG.website], ["tab-discord", CFG.discord], ["news-btn-discord", CFG.discord]].forEach(function (l) {
+      var el = $(l[0]);
+      if (!el) return;
+      el.href = l[1] || "#";
+      el.style.display = l[1] ? "" : "none";
+    });
+    var bar = $("news-links-bar");
+    if (bar) bar.style.display = (CFG.website || CFG.discord) ? "" : "none";
+  }
+
+  function normalizeLang(lang) {
+    lang = String(lang || "").toLowerCase();
+    if (I18N[lang]) return lang;
+    if (lang.indexOf("es") === 0) return "es";
+    if (lang.indexOf("pt") === 0) return "pt-br";
+    return "en";
+  }
 
   var COLORS = { blue: "var(--blue)", green: "var(--green)", orange: "var(--orange)", red: "var(--red)" };
 
@@ -351,10 +410,13 @@
     running: { step: 3, icon: "play" }
   };
 
-  function setLanguage(lang) {
+  function setLanguage(lang, persist) {
     if (!I18N[lang]) return;
     currentLang = lang;
-    localStorage.setItem("ro3_lang", lang);
+    if (persist) localStorage.setItem("ro3_lang", lang);
+    document.documentElement.lang = lang === "pt-br" ? "pt-BR" : lang;
+    send({ cmd: "language", lang: lang });
+    applyStaticTexts();
 
     var t = I18N[lang];
     $("current-lang").textContent = t.langCode;
@@ -367,16 +429,16 @@
     // Update tabs safely
     if ($("tab-home")) $("tab-home").textContent = t.tabs.home;
     if ($("tab-news")) $("tab-news").textContent = t.tabs.news;
-    if ($("tab-account")) $("tab-account").textContent = t.tabs.account || "CUENTA";
-    if ($("tab-register")) $("tab-register").title = (t.tabs.register || "Web Oficial") + " (konsor.com.ar)";
-    if ($("tab-discord")) $("tab-discord").title = (t.tabs.discord || "Discord Oficial") + " (discord.gg/43CdywWfM)";
+    if ($("tab-account")) $("tab-account").textContent = t.tabs.account || "ACCOUNT";
+    if ($("tab-register")) $("tab-register").title = t.tabs.register || ui("webTitle");
+    if ($("tab-discord")) $("tab-discord").title = t.tabs.discord || ui("discordTitle");
     var tabSet = $("tab-settings");
     if (tabSet) tabSet.textContent = t.tabs.settings;
 
     // Update notices card safely
     if ($("notices-title")) $("notices-title").textContent = t.notices.title;
-    if ($("notices-badge")) $("notices-badge").textContent = t.notices.badge;
-    if ($("notices-sub")) $("notices-sub").textContent = t.notices.sub;
+    if ($("notices-badge")) $("notices-badge").textContent = fmt(t.notices.badge);
+    if ($("notices-sub")) $("notices-sub").textContent = fmt(t.notices.sub);
     if ($("notices-foot")) $("notices-foot").textContent = t.notices.foot;
     if ($("lbl-news-web") && t.notices.webBtn) $("lbl-news-web").textContent = t.notices.webBtn;
     if ($("lbl-news-discord") && t.notices.discordBtn) $("lbl-news-discord").textContent = t.notices.discordBtn;
@@ -608,7 +670,9 @@
   function renderNews(items) {
     var list = $("news-list");
     list.innerHTML = "";
-    var currentNews = (items && items.length) ? items : I18N[currentLang].defaultNews;
+    var currentNews = (items && items.length) ? items : I18N[currentLang].defaultNews.map(function (n) {
+      return { tag: fmt(n.tag), color: n.color, title: fmt(n.title), text: fmt(n.text) };
+    });
     currentNews.forEach(function (n) {
       var li = document.createElement("li");
       li.style.setProperty("--c", COLORS[n.color] || COLORS.blue);
@@ -639,13 +703,6 @@
       li.appendChild(p);
 
       var linkUrl = n.link || n.url;
-      if (!linkUrl) {
-        if ((n.text && n.text.indexOf("discord.gg") !== -1) || (n.title && n.title.toLowerCase().indexOf("discord") !== -1)) {
-          linkUrl = "https://discord.gg/43CdywWfM";
-        } else if ((n.text && n.text.indexOf("konsor.com.ar") !== -1) || (n.tag && (n.tag === "BIENVENIDO" || n.tag === "WELCOME"))) {
-          linkUrl = "https://konsor.com.ar";
-        }
-      }
 
       if (linkUrl) {
         var wrap = document.createElement("div");
@@ -744,7 +801,7 @@
         var tAuth = I18N[currentLang].auth;
         if ($("btn-do-register")) {
           $("btn-do-register").disabled = !isRegistrationEnabled;
-          $("btn-do-register").textContent = isRegistrationEnabled ? tAuth.register : "Registro no disponible";
+          $("btn-do-register").textContent = isRegistrationEnabled ? tAuth.register : ui("regUnavailable");
         }
         if ($("btn-do-login")) {
           $("btn-do-login").disabled = false;
@@ -825,28 +882,28 @@
       if (banner) banner.hidden = true;
       if (btnReg) {
         btnReg.disabled = false;
-        btnReg.textContent = (I18N[currentLang] && I18N[currentLang].auth) ? I18N[currentLang].auth.register : "Crear Cuenta";
+        btnReg.textContent = (I18N[currentLang] && I18N[currentLang].auth) ? I18N[currentLang].auth.register : ui("authTabRegister");
       }
       if (userField) userField.disabled = false;
       if (emailField) emailField.disabled = false;
       if (passField) passField.disabled = false;
       if (confirmField) confirmField.disabled = false;
-      if (tabReg) tabReg.title = "Crear nueva cuenta";
+      if (tabReg) tabReg.title = ui("regTabTitle");
     } else {
       if (banner) {
         banner.hidden = false;
         var span = banner.querySelector("span:last-child");
-        if (span && message) span.textContent = message;
+        if (span) span.textContent = ui("regDisabled");
       }
       if (btnReg) {
         btnReg.disabled = true;
-        btnReg.textContent = "Registro no disponible";
+        btnReg.textContent = ui("regUnavailable");
       }
       if (userField) userField.disabled = true;
       if (emailField) emailField.disabled = true;
       if (passField) passField.disabled = true;
       if (confirmField) confirmField.disabled = true;
-      if (tabReg) tabReg.title = "La creación de cuentas está deshabilitada temporalmente";
+      if (tabReg) tabReg.title = ui("regTabDisabled");
     }
   }
 
@@ -875,7 +932,7 @@
     document.querySelectorAll(".lang-opt").forEach(function (opt) {
       opt.onclick = function (e) {
         e.stopPropagation();
-        setLanguage(opt.dataset.lang);
+        setLanguage(opt.dataset.lang, true);
         $("lang-dropdown").hidden = true;
       };
     });
@@ -890,28 +947,28 @@
     if (btnNewsWeb) {
       btnNewsWeb.onclick = function (e) {
         e.preventDefault();
-        openExternalUrl("https://konsor.com.ar");
+        if (CFG.website) openExternalUrl(CFG.website);
       };
     }
     var btnNewsDisc = $("news-btn-discord");
     if (btnNewsDisc) {
       btnNewsDisc.onclick = function (e) {
         e.preventDefault();
-        openExternalUrl("https://discord.gg/43CdywWfM");
+        if (CFG.discord) openExternalUrl(CFG.discord);
       };
     }
     var tabWebLink = $("tab-register");
     if (tabWebLink) {
       tabWebLink.onclick = function (e) {
         e.preventDefault();
-        openExternalUrl("https://konsor.com.ar");
+        if (CFG.website) openExternalUrl(CFG.website);
       };
     }
     var tabDiscLink = $("tab-discord");
     if (tabDiscLink) {
       tabDiscLink.onclick = function (e) {
         e.preventDefault();
-        openExternalUrl("https://discord.gg/43CdywWfM");
+        if (CFG.discord) openExternalUrl(CFG.discord);
       };
     }
 
@@ -958,7 +1015,7 @@
     if (btnReg) {
       btnReg.onclick = function () {
         if (!isRegistrationEnabled) {
-          setAuthFeedback("La creación de cuentas está temporalmente deshabilitada por el administrador.", "error");
+          setAuthFeedback(ui("regDisabled"), "error");
           return;
         }
         var u = ($("auth-input-reg-user") ? $("auth-input-reg-user").value : "").trim();
@@ -966,22 +1023,22 @@
         var p = $("auth-input-reg-pass") ? $("auth-input-reg-pass").value : "";
         var p2 = $("auth-input-pass-confirm") ? $("auth-input-pass-confirm").value : "";
         if (!u || !p || !p2) {
-          setAuthFeedback("Usuario, contraseña y confirmación son obligatorios.", "error");
+          setAuthFeedback(ui("fbRequired"), "error");
           return;
         }
         if (u.length < 3) {
-          setAuthFeedback("El usuario debe tener al menos 3 caracteres.", "error");
+          setAuthFeedback(ui("fbUserLength"), "error");
           return;
         }
         if (p.length < 6) {
-          setAuthFeedback("La contraseña debe tener al menos 6 caracteres.", "error");
+          setAuthFeedback(ui("fbPassLength"), "error");
           return;
         }
         if (p !== p2) {
-          setAuthFeedback("Las contraseñas no coinciden.", "error");
+          setAuthFeedback(ui("fbPassMismatch"), "error");
           return;
         }
-        setAuthFeedback("Creando cuenta en KonsorRO...", "waiting");
+        setAuthFeedback(ui("fbCreating"), "waiting");
         lastAuthUser = u;
         if ($("auth-input-user")) $("auth-input-user").value = u;
         btnReg.disabled = true;
@@ -996,10 +1053,10 @@
         var u = ($("auth-input-user") ? $("auth-input-user").value : "").trim();
         var p = $("auth-input-pass") ? $("auth-input-pass").value : "";
         if (!u || !p) {
-          setAuthFeedback("Por favor ingresa usuario y contraseña.", "error");
+          setAuthFeedback(ui("fbLoginMissing"), "error");
           return;
         }
-        setAuthFeedback("Iniciando sesión en KonsorRO...", "waiting");
+        setAuthFeedback(ui("fbSigningIn"), "waiting");
         btnLogin.disabled = true;
         btnLogin.textContent = I18N[currentLang].auth.verifying;
         send({ cmd: "auth_login_local", username: u, password: p });
@@ -1045,7 +1102,7 @@
           e = u.indexOf("@") !== -1 ? u : "";
         }
         if (!e) {
-          setAuthFeedback("Escribe tu correo en el campo de usuario (o usa la pestaña Crear Cuenta) y vuelve a intentarlo.", "error");
+          setAuthFeedback(ui("fbForgot"), "error");
           return;
         }
         send({ cmd: "auth_request_reset", email: e });
@@ -1126,6 +1183,7 @@
       host = createMockHost(params.get("mock") || "ready");
     }
     bind();
+    applyConfig();
     setLanguage(currentLang);
     send({ cmd: "ready" });
   }
