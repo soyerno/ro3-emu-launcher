@@ -38,7 +38,7 @@ Diseñado con una estética de fantasía nórdica oscura, arquitectura desacopla
     <td width="50%" valign="top"><b>Autenticación y Sesiones Seguras</b><br>Credenciales y sesiones persistentes cifradas de forma segura mediante Windows DPAPI y base de datos local SQLite. Soporte para recordar cuenta, revocación de tokens y control remoto de registros.</td>
   </tr>
   <tr>
-    <td colspan="2" valign="top"><b>Distribución en un único archivo autocontenido</b><br>Compila a un único ejecutable de Windows (<code>dist\KonsorRO.exe</code>) con todas sus dependencias embebidas (.NET 10 win-x64). Los jugadores descargan un solo archivo ejecutable, hacen doble clic y juegan sin necesidad de instalar .NET previamente.</td>
+    <td colspan="2" valign="top"><b>Distribución en un único archivo autocontenido</b><br>Compila a un único ejecutable de Windows (<code>dist\Ro3Launcher.exe</code>) con todas sus dependencias embebidas (.NET 10 win-x64). Los jugadores descargan un solo archivo ejecutable, hacen doble clic y juegan sin necesidad de instalar .NET previamente.</td>
   </tr>
 </table>
 
@@ -67,9 +67,8 @@ RO3 Launcher opera como un cliente autónomo de escritorio que conecta a los jug
        ├── Assets Embebidos y Motor Live Reload
        ├── Motor de Auth (Windows DPAPI + SQLite Cifrado)
        ├── Gestor de Túneles Oculto ──► [Cloudflared (Access TCP)]
-       │                                     ├── HTTP:  127.0.0.1:5380
-       │                                     ├── Micro: 127.0.0.1:20000
-       │                                     └── Game:  127.0.0.1:33100
+       │                                     └── un puerto local por entrada de "tunnels"
+       │                                         (opcional; ninguno si el servidor es accesible directamente)
        └── Orquestador de Juego
                ├── Detección de Ruta de Cliente (ro3.exe)
                ├── Inyección de Hooks (Ro3Emu.ClientHooks y Loc)
@@ -87,23 +86,39 @@ El lanzador lee la configuración desde `launcher.json` embebida durante la comp
   "repository": "http://127.0.0.1:5380/",
   "channel": "live",
   "server": "http://127.0.0.1:5380",
-  "serverName": "Mi Servidor Privado RO3"
+  "serverName": "Mi Servidor RO3",
+  "language": "es",
+  "website": "https://miservidor.com",
+  "discord": "https://discord.gg/tu-invitacion",
+  "statusUrl": "https://miservidor.com/status.json",
+  "tunnels": [{ "hostname": "ro3-http.miservidor.com", "port": 5380 }]
 }
 ```
 
+| Campo | Valor por defecto | Para qué sirve |
+|---|---|---|
+| `server` | `http://127.0.0.1:5380` | URL base del servidor RO3Emu (`http(s)` absoluta): inicio de sesión y registro (`/sdk/login`), ping de estado, y el servidor al que `RO3Emu.exe join` parchea el cliente. Un valor inválido detiene el lanzamiento y el inicio de sesión con un error que nombra el campo. |
+| `repository` | `http://127.0.0.1:5380/` | Repositorio de releases: `channels/*.json` y `news.json`. |
+| `channel` | `live` | Rama de parches. |
+| `serverName` | `My RO3 Server` | Nombre que se muestra en el título de la ventana, los textos, los diálogos y los correos. |
+| `language` | `en` | Idioma por defecto de la interfaz y los mensajes: `en` o `es`. Los jugadores pueden cambiarlo en el launcher. |
+| `website`, `discord` | ninguno | Enlaces opcionales; los botones se ocultan si el campo está vacío. |
+| `statusUrl` | ninguno | Control de registros opcional: una URL pública, sin login (ver abajo). |
+| `tunnels` | `[]` | Túneles de Cloudflare a abrir, como `{ "hostname", "port" }`. Vacío: sin `cloudflared`. |
+
+Cada campo está explicado en la [Guía de Marca Blanca](docs/guide/white-label.md).
+
 ### Control de Registros
 
-El launcher consulta dinámicamente si la creación de cuentas está habilitada:
-- Endpoint del panel admin: `GET /api/admin/registration`
-- Archivo estático JSON de respaldo: `GET /status.json`
+Si `statusUrl` está definido, el launcher lo consulta para saber si la creación de cuentas está habilitada. Lee `{"enabled": true|false}` o `{"registration_enabled": true|false}`.
 
-Cuando un administrador deshabilita los registros (`{"enabled": false}`), el launcher muestra automáticamente una notificación de aviso, deshabilita los campos de entrada y rechaza intentos de registro antes de enviar la petición.
+Cuando informa `false`, el launcher muestra una notificación de aviso, deshabilita los campos de entrada y rechaza intentos de registro antes de enviarlos. Sin `statusUrl`, se asume que el registro está abierto.
 
 ---
 
 ## Personalización Visual (HTML / CSS / JS)
 
-La capa visual se encuentra en [`ui.index.html`](file:///E:/ro3-emu-launcher/ui.index.html), [`ui.app.css`](file:///E:/ro3-emu-launcher/ui.app.css) y [`ui.app.js`](file:///E:/ro3-emu-launcher/ui.app.js).
+La capa visual se encuentra en [`ui.index.html`](ui.index.html), [`ui.app.css`](ui.app.css) y [`ui.app.js`](ui.app.js).
 
 1. Ejecuta **`run-ui-dev.cmd`** para iniciar en modo live reload.
 2. Modifica estilos, paletas de colores o banners.
@@ -115,9 +130,15 @@ La capa visual se encuentra en [`ui.index.html`](file:///E:/ro3-emu-launcher/ui.
 
 ## Guías de Documentación
 
-- [Guía de Marca Blanca y Personalización](docs/guide/white-label.md) (Temas, identidad de servidor, logos)
+- [Guía de Marca Blanca y Personalización](docs/guide/white-label.md) (Todos los campos de `launcher.json`, temas, textos e idiomas, forks con marca)
 - [Guía de Arquitectura e IPC](docs/guide/architecture.md) (Host WPF, puente WebView2, orquestador)
 - [Guía de Compilación y Distribución](docs/guide/publishing.md) (Compilación single-file, empaquetado)
+
+---
+
+## Forks con Marca
+
+`main` es el launcher de la comunidad y no lleva la marca de ningún servidor. Para usar tu propia configuración, noticias, logo, icono o nombre de ejecutable, mantén una rama de `main` y agrega archivos en [`brand/`](brand/README.md) con los mismos nombres que los de la raíz; el build los usa en lugar de los valores por defecto. Un fork solo agrega archivos, así que actualizarlo es un simple `git merge origin/main` sin conflictos. La rama [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) es un ejemplo de fork con marca.
 
 ---
 

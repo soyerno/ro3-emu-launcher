@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 echo ========================================================
-echo        KonsorRO DevKit - Actualizador de Logo
+echo        RO3 Launcher DevKit - Logo updater
 echo ========================================================
 echo.
 if "%~1"=="" (

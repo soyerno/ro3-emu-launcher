@@ -1,62 +1,62 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>KonsorRO - Ragnarok Origin</title>
+  <title>RO3 Launcher</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
 <header class="topbar" id="drag">
-  <img class="logo" src="assets/logo-hero.png" alt="KonsorRO" draggable="false">
+  <img class="logo" src="assets/logo-hero.png" alt="RO3 Launcher" draggable="false">
   <nav class="tabs">
     <span class="star">✦</span>
-    <button class="tab active" data-tab="home" id="tab-home" type="button">INICIO</button>
-    <button class="tab" data-tab="news" id="tab-news" type="button">NOTICIAS</button>
-    <button class="tab" data-tab="account" id="tab-account" type="button">CUENTA</button>
-    <a href="https://konsor.com.ar" class="icon-link" id="tab-register" target="_blank" title="Web Oficial (konsor.com.ar)">
+    <button class="tab active" data-tab="home" id="tab-home" type="button">HOME</button>
+    <button class="tab" data-tab="news" id="tab-news" type="button">NEWS</button>
+    <button class="tab" data-tab="account" id="tab-account" type="button">ACCOUNT</button>
+    <a href="#" class="icon-link" id="tab-register" target="_blank" data-i18n-title="webTitle" title="Website">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/></svg>
     </a>
-    <a href="https://discord.gg/43CdywWfM" class="icon-link" id="tab-discord" target="_blank" title="Discord Oficial (discord.gg/43CdywWfM)">
+    <a href="#" class="icon-link" id="tab-discord" target="_blank" data-i18n-title="discordTitle" title="Discord">
       <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
     </a>
     <span class="star">✦</span>
   </nav>
   <div class="right">
-    <span class="server" id="server"><i></i><span id="server-text"><b>Online</b> · 0 jugadores</span></span>
+    <span class="server" id="server"><i></i><span id="server-text"><b>Online</b></span></span>
     <span class="vsep"></span>
     <div class="lang-selector" id="lang-selector">
       <button class="lang-btn" id="lang-btn" type="button" title="Idioma / Language">
         <svg class="globe-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" stroke="currentColor" fill="none" stroke-width="1.2"/><ellipse cx="8" cy="8" rx="3.2" ry="7" stroke="currentColor" fill="none" stroke-width="1.1"/><path d="M1.5 5.5h13M1.5 10.5h13" stroke="currentColor" stroke-width="1.1"/></svg>
-        <span id="current-lang">ES</span>
+        <span id="current-lang">EN</span>
         <span class="chevron-down">˅</span>
       </button>
       <div class="lang-dropdown" id="lang-dropdown" hidden>
-        <button class="lang-opt active" data-lang="es" type="button">Español (ES)</button>
-        <button class="lang-opt" data-lang="en" type="button">English (EN)</button>
+        <button class="lang-opt" data-lang="es" type="button">Español (ES)</button>
+        <button class="lang-opt active" data-lang="en" type="button">English (EN)</button>
         <button class="lang-opt" data-lang="pt-br" type="button">Português (PT-BR)</button>
       </div>
     </div>
     <span class="vsep"></span>
-    <button class="wbtn" id="btn-min" type="button" title="Minimizar"><svg viewBox="0 0 16 16"><path d="M3 8h10"/></svg></button>
-    <button class="wbtn" id="btn-close" type="button" title="Cerrar"><svg viewBox="0 0 16 16"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button>
+    <button class="wbtn" id="btn-min" type="button" data-i18n-title="minimize" title="Minimize"><svg viewBox="0 0 16 16"><path d="M3 8h10"/></svg></button>
+    <button class="wbtn" id="btn-close" type="button" data-i18n-title="close" title="Close"><svg viewBox="0 0 16 16"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button>
   </div>
 </header>
 
 <section class="card notices" id="notices">
   <div class="card-head">
-    <h2><span class="star">✦</span><span id="notices-title">AVISOS</span></h2>
-    <span class="pill gold" id="notices-badge">SERVIDOR KONSORRO</span>
+    <h2><span class="star">✦</span><span id="notices-title">NOTICES</span></h2>
+    <span class="pill gold" id="notices-badge">NEWS</span>
   </div>
-  <p class="card-sub" id="notices-sub">Anuncios oficiales del servidor privado KonsorRO.</p>
+  <p class="card-sub" id="notices-sub">Official server announcements.</p>
   <hr class="gem">
 
   <div class="news-links-bar" id="news-links-bar">
-    <a href="https://konsor.com.ar" class="news-quick-btn news-quick-web" id="news-btn-web" target="_blank" title="Abrir Sitio Web Oficial">
+    <a href="#" class="news-quick-btn news-quick-web" id="news-btn-web" target="_blank" data-i18n-title="webTitle" title="Open the website">
       <svg class="news-quick-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="1.8"/><ellipse cx="12" cy="12" rx="4.5" ry="10" stroke="currentColor" fill="none" stroke-width="1.6"/><path d="M2 12h20M3.5 6.5h17M3.5 17.5h17" stroke="currentColor" stroke-width="1.6"/></svg>
-      <span id="lbl-news-web">Web Oficial</span>
+      <span id="lbl-news-web">Website</span>
       <span class="news-quick-arrow">↗</span>
     </a>
-    <a href="https://discord.gg/43CdywWfM" class="news-quick-btn news-quick-discord" id="news-btn-discord" target="_blank" title="Unirse a la Comunidad Discord">
+    <a href="#" class="news-quick-btn news-quick-discord" id="news-btn-discord" target="_blank" data-i18n-title="discordTitle" title="Join the Discord community">
       <svg class="news-quick-icon" viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="currentColor"/></svg>
       <span id="lbl-news-discord">Discord</span>
       <span class="news-quick-arrow">↗</span>
@@ -64,20 +64,20 @@
   </div>
 
   <ul class="list" id="news-list"></ul>
-  <p class="card-foot" id="notices-foot">CANAL OFICIAL DE NOTICIAS · ES</p>
+  <p class="card-foot" id="notices-foot">OFFICIAL NEWS CHANNEL · EN</p>
 </section>
 
 <section class="card settings" id="settings" hidden>
-  <div class="card-head"><h2><span class="star">✦</span><span id="settings-title">Configuración</span></h2></div>
-  <p class="card-sub" id="settings-sub">Dónde está instalado el juego en este PC.</p>
+  <div class="card-head"><h2><span class="star">✦</span><span id="settings-title">Settings</span></h2></div>
+  <p class="card-sub" id="settings-sub">Where the game is installed on this PC.</p>
   <hr class="gem">
-  <label class="field-label" id="settings-lbl-folder">Carpeta del juego</label>
+  <label class="field-label" id="settings-lbl-folder">Game folder</label>
   <div class="field" id="set-dir"></div>
   <div class="row">
-    <button class="btn-soft small" id="set-dir-change" type="button">Cambiar carpeta</button>
-    <button class="btn-soft small" id="set-open" type="button">Abrir carpeta</button>
+    <button class="btn-soft small" id="set-dir-change" type="button">Change folder</button>
+    <button class="btn-soft small" id="set-open" type="button">Open folder</button>
   </div>
-  <p class="hint" id="settings-hint">¿Ya tienes el cliente instalado? Apunta a la carpeta y solo se descargarán los archivos modificados.</p>
+  <p class="hint" id="settings-hint">Already have the client installed? Point to its folder and only the modified files will be downloaded.</p>
   <p class="card-foot" id="set-version"></p>
 </section>
 
@@ -86,11 +86,11 @@
     <div class="auth-mode-tabs" id="auth-mode-tabs">
       <button class="auth-mode-tab active" data-mode="login" id="auth-tab-login" type="button">
         <svg viewBox="0 0 24 24" class="auth-mode-icon"><path fill="currentColor" d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 12c4.42 0 8 1.8 8 4v4H4v-4c0-2.2 3.58-4 8-4z"/></svg>
-        <span>Iniciar Sesión</span>
+        <span data-i18n="authTabLogin">Sign in</span>
       </button>
       <button class="auth-mode-tab" data-mode="register" id="auth-tab-register" type="button">
         <svg viewBox="0 0 24 24" class="auth-mode-icon"><path fill="currentColor" d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm6 8.5a3.5 3.5 0 1 1-2.5 5.95l-2.4 1.4.5.9-1.3.75-2.25-3.9 1.3-.75.5.87 2.4-1.38A3.5 3.5 0 0 1 18 10.5zM5 14c2.44 1.37 4 2.2 4 4v4H3v-4c0-1.8.7-3 2-4z"/></svg>
-        <span>Crear Cuenta</span>
+        <span data-i18n="authTabRegister">Create account</span>
       </button>
     </div>
 
@@ -99,36 +99,36 @@
     <!-- MODO LOGIN -->
     <div class="auth-mode" id="auth-mode-login">
       <div class="auth-field-group">
-        <label class="field-label" for="auth-input-user">Usuario o correo electrónico</label>
-        <input class="auth-text-input" type="text" id="auth-input-user" placeholder="Ej: keldon o tu@email.com" maxlength="64" autocomplete="username">
+        <label class="field-label" for="auth-input-user" data-i18n="userLabel">Username or e-mail</label>
+        <input class="auth-text-input" type="text" id="auth-input-user" data-i18n-placeholder="userPlaceholder" placeholder="e.g. myname or you@email.com" maxlength="64" autocomplete="username">
       </div>
       <div class="auth-field-group">
-        <label class="field-label" for="auth-input-pass">Contraseña</label>
-        <input class="auth-text-input" type="password" id="auth-input-pass" placeholder="Tu contraseña" autocomplete="current-password">
+        <label class="field-label" for="auth-input-pass" data-i18n="passLabel">Password</label>
+        <input class="auth-text-input" type="password" id="auth-input-pass" data-i18n-placeholder="passPlaceholder" placeholder="Your password" autocomplete="current-password">
       </div>
       <div class="row auth-btn-row">
-        <button class="btn-primary small auth-primary" id="btn-do-login" type="button">Entrar</button>
+        <button class="btn-primary small auth-primary" id="btn-do-login" type="button">Sign in</button>
       </div>
       <div class="row auth-btn-row auth-links-row">
-        <button class="auth-link-btn" id="btn-forgot-password" type="button">Olvidé mi contraseña</button>
+        <button class="auth-link-btn" id="btn-forgot-password" type="button" data-i18n="forgot">I forgot my password</button>
       </div>
       <div class="auth-field-group" id="auth-code-group" hidden>
-        <label class="field-label" for="auth-input-code">Código de verificación</label>
-        <input class="auth-text-input" type="text" id="auth-input-code" placeholder="Código de 6 dígitos" inputmode="numeric" maxlength="6">
+        <label class="field-label" for="auth-input-code" data-i18n="codeLabel">Verification code</label>
+        <input class="auth-text-input" type="text" id="auth-input-code" data-i18n-placeholder="codePlaceholder" placeholder="6-digit code" inputmode="numeric" maxlength="6">
       </div>
       <div class="row auth-btn-row" hidden id="auth-verify-row">
-        <button class="btn-soft small" id="btn-verify-email" type="button">Verificar correo</button>
+        <button class="btn-soft small" id="btn-verify-email" type="button" data-i18n="verifyBtn">Verify e-mail</button>
       </div>
       <div class="auth-field-group" id="auth-reset-code-group" hidden>
-        <label class="field-label" for="auth-input-reset-code">Código de recuperación</label>
-        <input class="auth-text-input" type="text" id="auth-input-reset-code" placeholder="Código de 6 dígitos" inputmode="numeric" maxlength="6">
+        <label class="field-label" for="auth-input-reset-code" data-i18n="resetCodeLabel">Recovery code</label>
+        <input class="auth-text-input" type="text" id="auth-input-reset-code" data-i18n-placeholder="codePlaceholder" placeholder="6-digit code" inputmode="numeric" maxlength="6">
       </div>
       <div class="auth-field-group" id="auth-reset-pass-group" hidden>
-        <label class="field-label" for="auth-input-reset-pass">Nueva contraseña</label>
-        <input class="auth-text-input" type="password" id="auth-input-reset-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <label class="field-label" for="auth-input-reset-pass" data-i18n="newPassLabel">New password</label>
+        <input class="auth-text-input" type="password" id="auth-input-reset-pass" data-i18n-placeholder="newPassPlaceholder" placeholder="At least 6 characters" autocomplete="new-password">
       </div>
       <div class="row auth-btn-row" hidden id="auth-reset-row">
-        <button class="btn-soft small" id="btn-reset-password" type="button">Restablecer contraseña</button>
+        <button class="btn-soft small" id="btn-reset-password" type="button" data-i18n="resetBtn">Reset password</button>
       </div>
 
 
@@ -138,62 +138,62 @@
     <div class="auth-mode" id="auth-mode-register" hidden>
       <div class="auth-disabled-banner" id="auth-reg-disabled" hidden>
         <span class="auth-disabled-icon">⚠️</span>
-        <span>La creación de cuentas está deshabilitada temporalmente por el administrador.</span>
+        <span data-i18n="regDisabled">Account creation is temporarily disabled by the administrator.</span>
       </div>
       <div class="auth-field-group">
-        <label class="field-label" for="auth-input-reg-user">Nombre de usuario</label>
-        <input class="auth-text-input" type="text" id="auth-input-reg-user" placeholder="Ej: keldon (3-20 caracteres)" maxlength="20" autocomplete="username">
+        <label class="field-label" for="auth-input-reg-user" data-i18n="regUserLabel">Username</label>
+        <input class="auth-text-input" type="text" id="auth-input-reg-user" data-i18n-placeholder="regUserPlaceholder" placeholder="e.g. myname (3-20 characters)" maxlength="20" autocomplete="username">
       </div>
       <div class="auth-field-group">
-        <label class="field-label" for="auth-input-email">Correo electrónico</label>
-        <input class="auth-text-input" type="email" id="auth-input-email" placeholder="tu@email.com (opcional)" autocomplete="email">
+        <label class="field-label" for="auth-input-email" data-i18n="emailLabel">E-mail</label>
+        <input class="auth-text-input" type="email" id="auth-input-email" data-i18n-placeholder="emailPlaceholder" placeholder="you@email.com (optional)" autocomplete="email">
       </div>
       <div class="auth-field-group">
-        <label class="field-label" for="auth-input-reg-pass">Contraseña</label>
-        <input class="auth-text-input" type="password" id="auth-input-reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <label class="field-label" for="auth-input-reg-pass" data-i18n="passLabel">Password</label>
+        <input class="auth-text-input" type="password" id="auth-input-reg-pass" data-i18n-placeholder="newPassPlaceholder" placeholder="At least 6 characters" autocomplete="new-password">
       </div>
       <div class="auth-field-group" id="auth-confirm-group">
-        <label class="field-label" for="auth-input-pass-confirm">Confirmar contraseña</label>
-        <input class="auth-text-input" type="password" id="auth-input-pass-confirm" placeholder="Repite la contraseña" autocomplete="new-password">
+        <label class="field-label" for="auth-input-pass-confirm" data-i18n="confirmLabel">Confirm password</label>
+        <input class="auth-text-input" type="password" id="auth-input-pass-confirm" data-i18n-placeholder="confirmPlaceholder" placeholder="Repeat the password" autocomplete="new-password">
       </div>
       <div class="row auth-btn-row">
-        <button class="btn-primary small auth-primary" id="btn-do-register" type="button">Crear Cuenta</button>
+        <button class="btn-primary small auth-primary" id="btn-do-register" type="button">Create account</button>
       </div>
     </div>
   </div>
 
   <div class="account-logged" id="account-logged" hidden>
-    <p class="logged-label">Cuenta activa en este PC:</p>
+    <p class="logged-label" data-i18n="loggedLabel">Account active on this PC:</p>
     <div class="logged-user-row">
       <span class="logged-icon">⚔</span>
       <b class="logged-name" id="logged-username">-</b>
     </div>
-    <button class="btn-soft small" id="btn-account-switch" type="button">Usar otra cuenta</button>
+    <button class="btn-soft small" id="btn-account-switch" type="button" data-i18n="switchAccount">Use another account</button>
   </div>
 </section>
 
 <section class="dock">
   <div class="dock-status">
     <div class="progress" id="progress" hidden>
-      <div class="p-top"><b id="p-stage">Descargando</b><span id="p-pct">0%</span></div>
+      <div class="p-top"><b id="p-stage">Downloading</b><span id="p-pct">0%</span></div>
       <div class="bar"><div id="p-fill"></div></div>
       <div class="p-bottom"><span id="p-bytes"></span><span id="p-rate"></span></div>
     </div>
     <p class="message" id="message">
       <span class="msg-warn-icon" id="msg-warn-icon">⚠</span>
-      <span id="message-text">Buscando actualizaciones…</span>
-      <span class="msg-help" id="msg-help" title="Ayuda">?</span>
+      <span id="message-text">Checking for updates…</span>
+      <span class="msg-help" id="msg-help" data-i18n-title="msgHelp" title="Help">?</span>
     </p>
     <span class="dock-ver" id="ver-line">v1.0.5</span>
   </div>
   <div class="dock-actions">
-    <button class="btn-ghost" id="repair" type="button" title="Reparar archivos">
+    <button class="btn-ghost" id="repair" type="button" data-i18n-title="repairTitle" title="Repair files">
       <svg viewBox="0 0 24 24" class="icon-svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6-4.6 4.6a2 2 0 0 1-1.3.6 2 2 0 0 1-1.4-.6l-.6-.6a2 2 0 0 1 0-2.8l4.6-4.6-1.6-1.6a1 1 0 0 0-1.4 0l-1.4 1.4a4 4 0 0 0 0 5.6l.6.6-4.3 4.3a1 1 0 0 0 0 1.4l2.8 2.8a1 1 0 0 0 1.4 0l4.3-4.3.6.6a4 4 0 0 0 5.6 0l1.4-1.4a1 1 0 0 0 0-1.4l-1.6-1.6 4.6-4.6a1 1 0 0 0-1.4-1.4l-4.6 4.6z" fill="currentColor"/></svg>
-      <span class="btn-text" id="repair-label">Reparar</span>
+      <span class="btn-text" id="repair-label">Repair</span>
     </button>
     <button class="btn-primary" id="primary" type="button" disabled>
       <span class="btn-icon" id="primary-icon-wrap"></span>
-      <span class="btn-text" id="primary-label">Verificando…</span>
+      <span class="btn-text" id="primary-label">Checking…</span>
     </button>
   </div>
 </section>

@@ -20,6 +20,8 @@ public partial class MainWindow : Window
 {
 	private const string Origin = "https://launcher.ro3emu/";
 
+	private readonly LauncherConfig _config;
+
 	private readonly LauncherController _controller;
 
 	private readonly string? _uiOverride = Environment.GetEnvironmentVariable("RO3EMU_LAUNCHER_UI");
@@ -28,6 +30,8 @@ public partial class MainWindow : Window
 	public MainWindow(LauncherConfig config, string exePath)
 	{
 		InitializeComponent();
+		_config = config;
+		Title = config.ServerName;
 		try
 		{
 			Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/app.ico", UriKind.Absolute));
@@ -62,7 +66,7 @@ public partial class MainWindow : Window
 		}
 		catch (WebView2RuntimeNotFoundException)
 		{
-			if (MessageBox.Show("El launcher necesita Microsoft Edge WebView2 Runtime, que no está instalado en este equipo.\n\n¿Deseas abrir la página de descarga?", "KonsorRO", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+			if (MessageBox.Show(Strings.Get("webview2.missing"), _config.ServerName, MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
 			{
 				OpenExternal("https://go.microsoft.com/fwlink/p/?LinkId=2124703");
 			}
@@ -78,7 +82,7 @@ public partial class MainWindow : Window
 			catch
 			{
 			}
-			MessageBox.Show("Error al inicializar la interfaz del launcher: " + ex2.Message, "KonsorRO", MessageBoxButton.OK, MessageBoxImage.Hand);
+			MessageBox.Show(Strings.Get("webview2.error", ex2.Message), _config.ServerName, MessageBoxButton.OK, MessageBoxImage.Hand);
 			Application.Current.Shutdown();
 			return;
 		}
@@ -92,6 +96,13 @@ public partial class MainWindow : Window
 		settings.IsPasswordAutosaveEnabled = false;
 		settings.IsGeneralAutofillEnabled = false;
 		settings.IsNonClientRegionSupportEnabled = true;
+		await coreWebView.AddScriptToExecuteOnDocumentCreatedAsync("window.LAUNCHER_CONFIG = " + JsonSerializer.Serialize(new
+		{
+			serverName = _config.ServerName,
+			language = Strings.Language,
+			website = LauncherConfig.TryParseHttpUrl(_config.Website, out Uri? website) ? website!.AbsoluteUri : null,
+			discord = LauncherConfig.TryParseHttpUrl(_config.Discord, out Uri? discord) ? discord!.AbsoluteUri : null
+		}) + ";");
 		coreWebView.AddWebResourceRequestedFilter("https://launcher.ro3emu/*", (CoreWebView2WebResourceContext)0);
 		coreWebView.WebResourceRequested += OnWebResourceRequested;
 		coreWebView.WebMessageReceived += async (object? _, CoreWebView2WebMessageReceivedEventArgs e) =>

@@ -12,13 +12,16 @@ This document outlines architectural conventions, guardrails, and project layout
    - **IPC Bridge:** Communication between WebView2 and C# uses `chrome.webview.postMessage` / `WebMessageReceived` with structured JSON payloads.
 
 2. **White-Label Integrity:**
-   - Server endpoints, channel names, news feeds, and branding must remain dynamically configurable via `launcher.json`.
-   - Embedded resources are declared in `KonsorRO.csproj`.
+   - Server endpoints, channel names, news feeds, tunnels, language, links, and branding must remain dynamically configurable via `launcher.json`. Never hardcode a host, port, server name or brand in C#, JavaScript, scripts or CI; read the URL from `LauncherConfig` (`ServerBaseUrl`), which validates it.
+   - Player-facing text has an English and a Spanish entry: `Ro3Emu.Launcher/Strings.cs` for the host (`Strings.Get("key")`, never an inline literal), `I18N` / `UI_TEXT` and the `data-i18n*` attributes for the UI. Developer logs (`launcher.log`) are plain English.
+   - Embedded resources are declared in `Ro3Launcher.csproj`.
+   - `main` carries no server brand. Branded forks live in their own branch (for example `konsor`) and only add files under `brand/` (see `brand/README.md`); never edit a root file to brand it, so the fork keeps merging `main` without conflicts.
+   - Scripts must not hardcode the executable name; read `AssemblyName` from the build, as the `.cmd` scripts do.
 
 3. **Packaging:**
    - Single-file publish command:
      ```powershell
-     dotnet publish KonsorRO.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
+     dotnet publish Ro3Launcher.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
      ```
    - Build outputs and intermediate staging folders must never be checked into Git.
 

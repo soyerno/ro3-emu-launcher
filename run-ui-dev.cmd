@@ -1,9 +1,10 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+for /f "delims=" %%i in ('dotnet msbuild Ro3Launcher.csproj -getProperty:AssemblyName') do set "APP=%%i"
 
 echo ========================================================
-echo        KonsorRO Launcher - Modo Desarrollo UI en Vivo
+echo        RO3 Launcher - Modo Desarrollo UI en Vivo
 echo ========================================================
 echo.
 echo En este modo, el launcher lee los archivos HTML, CSS y JS
@@ -12,10 +13,10 @@ echo Puedes hacer cambios y verlos al instante sin recompilar.
 echo.
 
 :: 1. Verificar ejecutable
-if not exist "dist\KonsorRO.exe" (
+if not exist "dist\%APP%.exe" (
     echo Compilando ejecutable base por primera vez...
-    dotnet build KonsorRO.csproj -c Release
-    dotnet publish KonsorRO.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
+    dotnet build Ro3Launcher.csproj -c Release
+    dotnet publish Ro3Launcher.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
 )
 
 :: 2. Configurar variable de entorno para sobreescribir la UI interna
@@ -25,7 +26,7 @@ echo [OK] Variable RO3EMU_LAUNCHER_UI configurada a:
 echo      "%RO3EMU_LAUNCHER_UI%"
 echo.
 echo Iniciando launcher en modo desarrollo...
-start "" "dist\KonsorRO.exe"
+start "" "dist\%APP%.exe"
 
 echo.
 echo Launcher iniciado. Puedes editar los archivos en:

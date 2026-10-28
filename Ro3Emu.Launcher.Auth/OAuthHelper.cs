@@ -1,4 +1,5 @@
 using System;
+using Ro3Emu.Launcher;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -50,7 +51,7 @@ public static class OAuthHelper
 		}
 		catch (HttpListenerException ex)
 		{
-			return new AuthResult(Success: false, $"No se pudo iniciar el escucha local de autenticación (puerto {5385} ocupado): {ex.Message}");
+			return new AuthResult(Success: false, Strings.Get("oauth.listen", 5385, ex.Message));
 		}
 		try
 		{
@@ -63,7 +64,7 @@ public static class OAuthHelper
 			Task<HttpListenerContext> contextTask = listener.GetContextAsync();
 			if (await Task.WhenAny(contextTask, Task.Delay(-1, linkedCts.Token)).ConfigureAwait(continueOnCapturedContext: false) != contextTask)
 			{
-				return new AuthResult(Success: false, "El tiempo de espera para iniciar sesión con " + provider + " ha expirado o fue cancelado.");
+				return new AuthResult(Success: false, Strings.Get("oauth.timeout", provider));
 			}
 			HttpListenerContext httpListenerContext = await contextTask.ConfigureAwait(continueOnCapturedContext: false);
 			NameValueCollection queryString = httpListenerContext.Request.QueryString;
@@ -73,11 +74,11 @@ public static class OAuthHelper
 			await SendBrowserResponseAsync(httpListenerContext.Response, error == null && code != null, provider).ConfigureAwait(continueOnCapturedContext: false);
 			if (!string.IsNullOrEmpty(error))
 			{
-				return new AuthResult(Success: false, "Inicio de sesión cancelado o denegado por " + provider + ": " + error);
+				return new AuthResult(Success: false, Strings.Get("oauth.denied", provider, error));
 			}
 			if (receivedState != state || string.IsNullOrEmpty(code))
 			{
-				return new AuthResult(Success: false, "Fallo de validación de seguridad (state inválido o código ausente).");
+				return new AuthResult(Success: false, Strings.Get("oauth.state"));
 			}
 			using HttpClient http = new HttpClient();
 			Dictionary<string, string> nameValueCollection = new Dictionary<string, string>
@@ -93,7 +94,7 @@ public static class OAuthHelper
 			using JsonDocument tokenDoc = JsonDocument.Parse(text);
 			if (!tokenResp.IsSuccessStatusCode || !tokenDoc.RootElement.TryGetProperty("access_token", out var value2))
 			{
-				return new AuthResult(Success: false, "Error al canjear token con " + provider + ": " + text);
+				return new AuthResult(Success: false, Strings.Get("oauth.exchange", provider, text));
 			}
 			string parameter = value2.GetString();
 			using HttpRequestMessage userReq = new HttpRequestMessage(HttpMethod.Get, userInfoEndpoint);
@@ -123,7 +124,7 @@ public static class OAuthHelper
 			}
 			if (string.IsNullOrEmpty(text2))
 			{
-				return new AuthResult(Success: false, "No se pudo obtener el identificador de usuario desde " + provider + ".");
+				return new AuthResult(Success: false, Strings.Get("oauth.noid", provider));
 			}
 			return await AuthDb.RegisterOrLoginOAuthAsync(provider, text2, text3 ?? "", suggestedName).ConfigureAwait(continueOnCapturedContext: false);
 		}
@@ -150,9 +151,9 @@ public static class OAuthHelper
 	private static async Task SendBrowserResponseAsync(HttpListenerResponse response, bool success, string provider)
 	{
 		string value = (success ? "#4ade80" : "#ef4444");
-		string value2 = (success ? "¡Autenticación Exitosa!" : "Autenticación Cancelada");
-		string value3 = (success ? ("Tu cuenta de " + provider.ToUpperInvariant() + " ha sido verificada. Puedes cerrar esta pestaña y volver al launcher.") : ("No se pudo completar el acceso con " + provider + ". Inténtalo nuevamente desde el launcher."));
-		string s = $"<!doctype html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>KonsorRO - {value2}</title>\n  <style>\n    body {{\n      margin: 0; padding: 0;\n      background: #14171c;\n      color: #e2e8f0;\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      display: flex; align-items: center; justify-content: center; height: 100vh;\n    }}\n    .card {{\n      background: #1b1f26;\n      border: 1px solid #2d3748;\n      border-radius: 12px;\n      padding: 36px 48px;\n      text-align: center;\n      box-shadow: 0 10px 25px rgba(0,0,0,0.5);\n      max-width: 420px;\n    }}\n    h1 {{ color: {value}; font-size: 22px; margin: 0 0 12px 0; }}\n    p {{ font-size: 14px; line-height: 1.6; color: #94a3b8; margin: 0; }}\n    .sub {{ margin-top: 20px; font-size: 12px; color: #64748b; }}\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h1>{value2}</h1>\n    <p>{value3}</p>\n    <p class=\"sub\">Esta ventana se puede cerrar.</p>\n  </div>\n  <script>setTimeout(function(){{ window.close(); }}, 4000);</script>\n</body>\n</html>";
+		string value2 = (success ? Strings.Get("oauth.page.ok") : Strings.Get("oauth.page.cancel"));
+		string value3 = (success ? Strings.Get("oauth.page.okdesc", provider.ToUpperInvariant()) : Strings.Get("oauth.page.faildesc", provider));
+		string s = $"<!doctype html>\n<html lang=\"{Strings.Language}\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>{WebUtility.HtmlEncode(Strings.ServerName)} - {value2}</title>\n  <style>\n    body {{\n      margin: 0; padding: 0;\n      background: #14171c;\n      color: #e2e8f0;\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      display: flex; align-items: center; justify-content: center; height: 100vh;\n    }}\n    .card {{\n      background: #1b1f26;\n      border: 1px solid #2d3748;\n      border-radius: 12px;\n      padding: 36px 48px;\n      text-align: center;\n      box-shadow: 0 10px 25px rgba(0,0,0,0.5);\n      max-width: 420px;\n    }}\n    h1 {{ color: {value}; font-size: 22px; margin: 0 0 12px 0; }}\n    p {{ font-size: 14px; line-height: 1.6; color: #94a3b8; margin: 0; }}\n    .sub {{ margin-top: 20px; font-size: 12px; color: #64748b; }}\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h1>{value2}</h1>\n    <p>{value3}</p>\n    <p class=\"sub\">Esta ventana se puede cerrar.</p>\n  </div>\n  <script>setTimeout(function(){{ window.close(); }}, 4000);</script>\n</body>\n</html>";
 		byte[] bytes = Encoding.UTF8.GetBytes(s);
 		response.ContentType = "text/html; charset=utf-8";
 		response.ContentLength64 = bytes.Length;

@@ -1,42 +1,22 @@
 {
-  "server": "KonsorRO",
-  "updated": "2026-10-27T18:45:00Z",
+  "server": "My RO3 Server",
+  "updated": "2026-10-28T00:00:00Z",
   "items": [
     {
-      "tag": "BIENVENIDO",
+      "tag": "WELCOME",
       "color": "blue",
-      "title": "Bienvenido a KonsorRO",
-      "text": "Servidor privado no oficial de Ragnarok Origin. ¡Todo listo para explorar el mundo de Midgard en español y sin lag!",
-      "date": "2026-10-27",
-      "link": "https://konsor.com.ar",
-      "linkText": "Visitar Sitio Web"
+      "title": "Welcome to My RO3 Server",
+      "text": "This is the default announcement feed. Edit news.json next to the launcher, or host it at the root of your repository, to publish your own news.",
+      "date": "2026-10-28"
     },
     {
-      "tag": "COMUNIDAD",
-      "color": "orange",
-      "title": "Discord Oficial de Konsor",
-      "text": "Únete a nuestro Discord para enterarte de eventos, actualizaciones, soporte y formar grupo con otros aventureros.",
-      "date": "2026-10-27",
-      "link": "https://discord.gg/43CdywWfM",
-      "linkText": "Unirse al Discord"
-    },
-    {
-      "tag": "ESTADO",
+      "tag": "GUIDE",
       "color": "green",
-      "title": "Servidor Operativo",
-      "text": "Conexión segura mediante túneles Cloudflare. MicroGate y GameGate funcionando con normalidad.",
-      "date": "2026-10-27",
-      "link": "https://konsor.com.ar",
-      "linkText": "Ver Estado Web"
-    },
-    {
-      "tag": "GUÍAS",
-      "color": "blue",
-      "title": "Comandos y Ayuda",
-      "text": "Escribe !help en el chat del juego para consultar los comandos disponibles. Visita konsor.com.ar para más información.",
-      "date": "2026-10-25",
-      "link": "https://konsor.com.ar",
-      "linkText": "Guías en konsor.com.ar"
+      "title": "Make this launcher yours",
+      "text": "Point launcher.json at your server, set your server name, language and links, and replace the logo and artwork. No code changes needed.",
+      "date": "2026-10-28",
+      "link": "https://github.com/soyerno/ro3-emu-launcher/blob/main/docs/guide/white-label.md",
+      "linkText": "White-label guide"
     }
   ]
 }

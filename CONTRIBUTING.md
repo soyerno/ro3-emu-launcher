@@ -28,7 +28,7 @@ Please maintain a respectful, constructive, and collaborative tone in all discus
 
 4. **Building:**
    ```bash
-   dotnet build KonsorRO.csproj
+   dotnet build Ro3Launcher.csproj
    ```
 
 ---
@@ -44,6 +44,6 @@ Please maintain a respectful, constructive, and collaborative tone in all discus
 ## Pull Request Process
 
 1. Create a feature branch: `git checkout -b feat/my-feature`.
-2. Verify compilation with `dotnet build KonsorRO.csproj -c Release`.
+2. Verify compilation with `dotnet build Ro3Launcher.csproj -c Release`.
 3. Ensure no temporary files or binary artifacts (`bin/`, `obj/`, `dist/`) are staged.
 4. Submit a clear, well-described Pull Request referencing any relevant issues.

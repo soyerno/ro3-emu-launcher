@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ro3Launcher</AssemblyName>
+    <Product>RO3 Launcher</Product>
+    <Description>White-label community launcher for RO3Emu servers</Description>
+    <Version>1.0.0</Version>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>True</UseWPF>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <!-- A branded fork adds brand\brand.props (AssemblyName, Product, ...) and brand\<file> overrides; main never edits them. -->
+  <Import Project="brand\brand.props" Condition="Exists('brand\brand.props')" />
+  <PropertyGroup>
+    <AppIconFile Condition="Exists('brand\app.ico')">brand\app.ico</AppIconFile>
+    <AppIconFile Condition="'$(AppIconFile)' == ''">app.ico</AppIconFile>
+    <ApplicationIcon>$(AppIconFile)</ApplicationIcon>
+    <RootNamespace>Ro3Emu.Launcher</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="launcher.json" />
+    <None Remove="ui.app.css" />
+    <None Remove="ui.app.js" />
+    <None Remove="ui.assets.hero-art.jpg" />
+    <None Remove="ui.assets.discord-banner.jpg" />
+    <None Remove="ui.assets.btn-blue.png" />
+    <None Remove="ui.assets.btn-cream.png" />
+    <None Remove="ui.assets.icon-wrench.png" />
+    <None Remove="ui.assets.logo-hero.png" />
+    <None Remove="ui.index.html" />
+    <None Remove="news.json" />
+    <None Remove="status.json" />
+    <EmbeddedResource Include="brand\news.json" LogicalName="news.json" Condition="Exists('brand\news.json')" />
+    <EmbeddedResource Include="news.json" LogicalName="news.json" Condition="!Exists('brand\news.json')" />
+    <EmbeddedResource Include="brand\status.json" LogicalName="status.json" Condition="Exists('brand\status.json')" />
+    <EmbeddedResource Include="status.json" LogicalName="status.json" Condition="!Exists('brand\status.json')" />
+    <EmbeddedResource Include="brand\launcher.json" LogicalName="launcher.json" Condition="Exists('brand\launcher.json')" />
+    <EmbeddedResource Include="launcher.json" LogicalName="launcher.json" Condition="!Exists('brand\launcher.json')" />
+    <EmbeddedResource Include="ui.app.css" LogicalName="ui/app.css" />
+    <EmbeddedResource Include="ui.app.js" LogicalName="ui/app.js" />
+    <EmbeddedResource Include="brand\ui.assets.hero-art.jpg" LogicalName="ui/assets/hero-art.jpg" Condition="Exists('brand\ui.assets.hero-art.jpg')" />
+    <EmbeddedResource Include="ui.assets.hero-art.jpg" LogicalName="ui/assets/hero-art.jpg" Condition="!Exists('brand\ui.assets.hero-art.jpg')" />
+    <EmbeddedResource Include="brand\ui.assets.discord-banner.jpg" LogicalName="ui/assets/discord-banner.jpg" Condition="Exists('brand\ui.assets.discord-banner.jpg')" />
+    <EmbeddedResource Include="ui.assets.discord-banner.jpg" LogicalName="ui/assets/discord-banner.jpg" Condition="!Exists('brand\ui.assets.discord-banner.jpg')" />
+    <EmbeddedResource Include="ui.assets.btn-blue.png" LogicalName="ui/assets/btn-blue.png" />
+    <EmbeddedResource Include="ui.assets.btn-cream.png" LogicalName="ui/assets/btn-cream.png" />
+    <EmbeddedResource Include="ui.assets.icon-wrench.png" LogicalName="ui/assets/icon-wrench.png" />
+    <EmbeddedResource Include="brand\ui.assets.logo-hero.png" LogicalName="ui/assets/logo-hero.png" Condition="Exists('brand\ui.assets.logo-hero.png')" />
+    <EmbeddedResource Include="ui.assets.logo-hero.png" LogicalName="ui/assets/logo-hero.png" Condition="!Exists('brand\ui.assets.logo-hero.png')" />
+    <EmbeddedResource Include="ui.index.html" LogicalName="ui/index.html" />
+    <Resource Include="$(AppIconFile)" LogicalName="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <Reference Include="Ro3Emu.Patcher">
+      <HintPath Condition="Exists('lib\Ro3Emu.Patcher.dll')">lib\Ro3Emu.Patcher.dll</HintPath>
+      <HintPath Condition="!Exists('lib\Ro3Emu.Patcher.dll')">E:\Ro3Emu.Patcher.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="ShowResources">
+    <Message Importance="High" Text="RES: %(EmbeddedResource.Identity) -> %(EmbeddedResource.LogicalName)" />
+  </Target>
+</Project>

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ro3Emu.Launcher;
 
-public sealed class KonsorGameOrchestrator
+public sealed class GameOrchestrator
 {
     public static string? FindRO3Emu(string? baseDir = null)
     {
@@ -18,9 +18,7 @@ public sealed class KonsorGameOrchestrator
             Path.Combine(baseDirectory, "RO3Emu.exe"),
             Path.Combine(AppContext.BaseDirectory, "RO3Emu.exe"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RO3Emu.exe"),
-            Path.Combine(baseDirectory, "..", "RO3Emu.exe"),
-            @"E:\Genesis Launcher - DEV\RO3Emu.exe",
-            @"E:\Genesis Launcher\RO3Emu.exe"
+            Path.Combine(baseDirectory, "..", "RO3Emu.exe")
         };
 
         foreach (var c in candidates)
@@ -37,9 +35,7 @@ public sealed class KonsorGameOrchestrator
         {
             Path.Combine(baseDirectory, "RO3Emu.settings.json"),
             Path.Combine(AppContext.BaseDirectory, "RO3Emu.settings.json"),
-            Path.Combine(baseDirectory, "..", "RO3Emu.settings.json"),
-            @"E:\Genesis Launcher - DEV\RO3Emu.settings.json",
-            @"E:\Genesis Launcher\RO3Emu.settings.json"
+            Path.Combine(baseDirectory, "..", "RO3Emu.settings.json")
         };
 
         foreach (var c in candidates)
@@ -149,33 +145,42 @@ public sealed class KonsorGameOrchestrator
         catch { }
     }
 
-    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null)
+    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null)
     {
         if (!IsValidGameDir(gameDir))
         {
-            return "No se encontró ro3.exe en la carpeta seleccionada.";
+            return Strings.Get("game.noclient");
+        }
+
+        if (!LauncherConfig.TryParseHttpUrl(serverUrl, out Uri? server))
+        {
+            return Strings.Get("config.server.invalid", serverUrl ?? "");
         }
 
         string? ro3emu = FindRO3Emu(baseDir);
         if (string.IsNullOrEmpty(ro3emu))
         {
-            return "No se encontró RO3Emu.exe. Asegúrate de extraer todos los archivos del parche.";
+            return Strings.Get("game.noro3emu");
         }
 
         SaveGameDirectory(gameDir, baseDir);
 
-        onLog?.Invoke("Parcheando e iniciando el juego con RO3Emu...");
+        onLog?.Invoke(Strings.Get("game.patching"));
 
         var psi = new ProcessStartInfo
         {
             FileName = ro3emu,
-            Arguments = $"join http://127.0.0.1:5380 --client \"{gameDir}\" --yes",
             CreateNoWindow = true,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             WorkingDirectory = Path.GetDirectoryName(ro3emu) ?? gameDir
         };
+
+        foreach (string arg in new[] { "join", server!.AbsoluteUri.TrimEnd('/'), "--client", gameDir, "--yes" })
+        {
+            psi.ArgumentList.Add(arg);
+        }
 
         if (!string.IsNullOrWhiteSpace(loginAccount))
         {
@@ -231,14 +236,14 @@ public sealed class KonsorGameOrchestrator
                         }
                     }
                 }
-                return $"RO3Emu terminó con código de error {process.ExitCode}{details}";
+                return Strings.Get("game.exit", process.ExitCode, details);
             }
 
-            return null; // Éxito
+            return null; // Success
         }
         catch (Exception ex)
         {
-            return $"Error al ejecutar RO3Emu: {ex.Message}";
+            return Strings.Get("game.error", ex.Message);
         }
     }
 
@@ -247,10 +252,10 @@ public sealed class KonsorGameOrchestrator
         string? ro3emu = FindRO3Emu(baseDir);
         if (string.IsNullOrEmpty(ro3emu))
         {
-            return "No se encontró RO3Emu.exe.";
+            return Strings.Get("game.noro3emu.short");
         }
 
-        onLog?.Invoke("Restaurando archivos oficiales del cliente...");
+        onLog?.Invoke(Strings.Get("game.restoring"));
 
         var psi = new ProcessStartInfo
         {
@@ -280,7 +285,7 @@ public sealed class KonsorGameOrchestrator
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
 
-            return process.ExitCode == 0 ? null : $"Restore terminó con código {process.ExitCode}";
+            return process.ExitCode == 0 ? null : Strings.Get("game.restore.exit", process.ExitCode);
         }
         catch (Exception ex)
         {

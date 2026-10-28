@@ -1,4 +1,5 @@
 using System;
+using Ro3Emu.Launcher;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
@@ -63,17 +64,17 @@ public static class EmailService
 
 	public static async Task<(bool Sent, string Message)> SendVerificationEmailAsync(string toEmail, string username, string code)
 	{
-		string subject = "[Ragnarok Online 3] Código de Activación de Cuenta";
-		string bodyText = $"Hola {username},\n\nTu código de verificación para activar tu cuenta de Ragnarok Online 3 es:\n\n{code}\n\nEste código es válido por 15 minutos.\n";
-		string bodyHtml = $"<div style=\"font-family: Arial, sans-serif; background-color: #14171c; color: #f1f5f9; padding: 30px; border-radius: 8px;\">\n  <h2 style=\"color: #f59e0b; margin-top: 0;\">¡Bienvenido a Ragnarok Online 3!</h2>\n  <p>Hola <strong>{WebUtility.HtmlEncode(username)}</strong>,</p>\n  <p>Para activar tu cuenta y poder ingresar al juego, ingresa el siguiente código de 6 dígitos en el launcher:</p>\n  <div style=\"background-color: #1e293b; border: 1px solid #334155; padding: 15px 25px; display: inline-block; border-radius: 6px; margin: 15px 0;\">\n    <span style=\"font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #38bdf8;\">{code}</span>\n  </div>\n  <p style=\"color: #94a3b8; font-size: 13px;\">Este código expira en 15 minutos.</p>\n  <hr style=\"border: 0; border-top: 1px solid #334155; margin: 25px 0;\" />\n  <p style=\"color: #64748b; font-size: 11px;\">Ragnarok Online 3 Server Emulator · Mensaje generado automáticamente.</p>\n</div>";
+		string subject = Strings.Get("email.verify.subject");
+		string bodyText = Strings.Get("email.verify.text", username, code);
+		string bodyHtml = $"<div style=\"font-family: Arial, sans-serif; background-color: #14171c; color: #f1f5f9; padding: 30px; border-radius: 8px;\">\n  <h2 style=\"color: #f59e0b; margin-top: 0;\">{WebUtility.HtmlEncode(Strings.Get("email.verify.title"))}</h2>\n  <p>{Strings.Get("email.hello")} <strong>{WebUtility.HtmlEncode(username)}</strong>,</p>\n  <p>{Strings.Get("email.verify.intro")}</p>\n  <div style=\"background-color: #1e293b; border: 1px solid #334155; padding: 15px 25px; display: inline-block; border-radius: 6px; margin: 15px 0;\">\n    <span style=\"font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #38bdf8;\">{code}</span>\n  </div>\n  <p style=\"color: #94a3b8; font-size: 13px;\">{Strings.Get("email.verify.expiry")}</p>\n  <hr style=\"border: 0; border-top: 1px solid #334155; margin: 25px 0;\" />\n  <p style=\"color: #64748b; font-size: 11px;\">{WebUtility.HtmlEncode(Strings.Get("email.footer"))}</p>\n</div>";
 		return await SendAsync(toEmail, subject, bodyText, bodyHtml, code, "ACTIVACION").ConfigureAwait(continueOnCapturedContext: false);
 	}
 
 	public static async Task<(bool Sent, string Message)> SendPasswordResetEmailAsync(string toEmail, string username, string code)
 	{
-		string subject = "[Ragnarok Online 3] Código de Restablecimiento de Contraseña";
-		string bodyText = $"Hola {username},\n\nHemos recibido una solicitud para restablecer tu contraseña. Tu código de recuperación es:\n\n{code}\n\nEste código expira en 15 minutos.\nSi no solicitaste este cambio, puedes ignorar este mensaje.\n";
-		string bodyHtml = $"<div style=\"font-family: Arial, sans-serif; background-color: #14171c; color: #f1f5f9; padding: 30px; border-radius: 8px;\">\n  <h2 style=\"color: #ef4444; margin-top: 0;\">Restablecimiento de Contraseña</h2>\n  <p>Hola <strong>{WebUtility.HtmlEncode(username)}</strong>,</p>\n  <p>Hemos recibido una solicitud para cambiar tu contraseña en Ragnarok Online 3.</p>\n  <p>Ingresa el siguiente código de 6 dígitos en el launcher para definir tu nueva contraseña:</p>\n  <div style=\"background-color: #1e293b; border: 1px solid #334155; padding: 15px 25px; display: inline-block; border-radius: 6px; margin: 15px 0;\">\n    <span style=\"font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #f87171;\">{code}</span>\n  </div>\n  <p style=\"color: #94a3b8; font-size: 13px;\">Este código expira en 15 minutos. Si no realizaste esta solicitud, tu cuenta sigue segura.</p>\n  <hr style=\"border: 0; border-top: 1px solid #334155; margin: 25px 0;\" />\n  <p style=\"color: #64748b; font-size: 11px;\">Ragnarok Online 3 Server Emulator · Mensaje generado automáticamente.</p>\n</div>";
+		string subject = Strings.Get("email.reset.subject");
+		string bodyText = Strings.Get("email.reset.text", username, code);
+		string bodyHtml = $"<div style=\"font-family: Arial, sans-serif; background-color: #14171c; color: #f1f5f9; padding: 30px; border-radius: 8px;\">\n  <h2 style=\"color: #ef4444; margin-top: 0;\">{WebUtility.HtmlEncode(Strings.Get("email.reset.title"))}</h2>\n  <p>{Strings.Get("email.hello")} <strong>{WebUtility.HtmlEncode(username)}</strong>,</p>\n  <p>{WebUtility.HtmlEncode(Strings.Get("email.reset.intro1"))}</p>\n  <p>{Strings.Get("email.reset.intro2")}</p>\n  <div style=\"background-color: #1e293b; border: 1px solid #334155; padding: 15px 25px; display: inline-block; border-radius: 6px; margin: 15px 0;\">\n    <span style=\"font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #f87171;\">{code}</span>\n  </div>\n  <p style=\"color: #94a3b8; font-size: 13px;\">{Strings.Get("email.reset.expiry")}</p>\n  <hr style=\"border: 0; border-top: 1px solid #334155; margin: 25px 0;\" />\n  <p style=\"color: #64748b; font-size: 11px;\">{WebUtility.HtmlEncode(Strings.Get("email.footer"))}</p>\n</div>";
 		return await SendAsync(toEmail, subject, bodyText, bodyHtml, code, "RECUPERACION").ConfigureAwait(continueOnCapturedContext: false);
 	}
 
@@ -92,13 +93,13 @@ public static class EmailService
 		}
 		if (!hasSmtp)
 		{
-			return (Sent: true, Message: "[DEV] Código generado: " + code + " (guardado en data/sent_emails.log). Configura data/smtp_config.json para envío real.");
+			return (Sent: true, Message: Strings.Get("email.dev", code));
 		}
 		try
 		{
 			using MailMessage msg = new MailMessage
 			{
-				From = new MailAddress(cfg.FromAddress, cfg.FromName),
+				From = new MailAddress(string.IsNullOrWhiteSpace(cfg.FromAddress) ? cfg.Username : cfg.FromAddress, string.IsNullOrWhiteSpace(cfg.FromName) ? Strings.ServerName : cfg.FromName),
 				Subject = subject,
 				Body = bodyText,
 				IsBodyHtml = false
@@ -128,7 +129,7 @@ public static class EmailService
 			catch
 			{
 			}
-			return (Sent: false, Message: "Error al enviar correo vía SMTP: " + ex.Message + " (Código disponible en data/sent_emails.log)");
+			return (Sent: false, Message: Strings.Get("email.smtp.error", ex.Message));
 		}
 	}
 }

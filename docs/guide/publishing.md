@@ -23,7 +23,7 @@ publish.cmd
 This runs the .NET publication pipeline with the following parameters:
 
 ```powershell
-dotnet publish KonsorRO.csproj \
+dotnet publish Ro3Launcher.csproj \
   -c Release \
   -r win-x64 \
   --self-contained \
@@ -35,7 +35,7 @@ dotnet publish KonsorRO.csproj \
 ### Result Artifacts
 The finished binary is generated at:
 ```text
-dist\KonsorRO.exe
+dist\Ro3Launcher.exe
 ```
 
 This executable embeds:
@@ -45,3 +45,5 @@ This executable embeds:
 - Default configuration (`launcher.json`) and news (`news.json`)
 
 Players simply download the executable and launch it directly.
+
+The executable is named after the build's `AssemblyName` (`Ro3Launcher` by default). A branded fork can rename it in `brand/brand.props`; the `.cmd` scripts and `tools\package-patch.cmd` pick the name up automatically (see [`brand/README.md`](../../brand/README.md)).
