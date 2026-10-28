@@ -242,8 +242,50 @@
   // The player's own choice (dropdown) wins over the launcher.json default.
   var currentLang = normalizeLang(localStorage.getItem("ro3_lang") || CFG.language || "en");
 
-  // Texts of the static markup (data-i18n*) and of the form feedback. pt-br falls back to English.
+  // Texts of the static markup (data-i18n*) and of the form feedback. A missing key falls back to English.
   var UI_TEXT = {
+    "pt-br": {
+      minimize: "Minimizar",
+      close: "Fechar",
+      authTabLogin: "Entrar",
+      authTabRegister: "Criar conta",
+      userLabel: "Usuário ou e-mail",
+      userPlaceholder: "Ex.: meunome ou voce@email.com",
+      passLabel: "Senha",
+      passPlaceholder: "Sua senha",
+      forgot: "Esqueci minha senha",
+      codeLabel: "Código de verificação",
+      codePlaceholder: "Código de 6 dígitos",
+      verifyBtn: "Verificar e-mail",
+      resetCodeLabel: "Código de recuperação",
+      newPassLabel: "Nova senha",
+      newPassPlaceholder: "Mínimo de 6 caracteres",
+      resetBtn: "Redefinir senha",
+      regDisabled: "A criação de contas está temporariamente desativada pelo administrador.",
+      regUserLabel: "Nome de usuário",
+      regUserPlaceholder: "Ex.: meunome (3 a 20 caracteres)",
+      emailLabel: "E-mail",
+      emailPlaceholder: "voce@email.com (opcional)",
+      confirmLabel: "Confirmar senha",
+      confirmPlaceholder: "Repita a senha",
+      loggedLabel: "Conta ativa neste PC:",
+      switchAccount: "Usar outra conta",
+      msgHelp: "Ajuda",
+      repairTitle: "Reparar arquivos",
+      webTitle: "Abrir o site",
+      discordTitle: "Entrar na comunidade do Discord",
+      regUnavailable: "Registro indisponível",
+      regTabTitle: "Criar nova conta",
+      regTabDisabled: "A criação de contas está temporariamente desativada",
+      fbRequired: "Usuário, senha e confirmação são obrigatórios.",
+      fbUserLength: "O usuário deve ter pelo menos 3 caracteres.",
+      fbPassLength: "A senha deve ter pelo menos 6 caracteres.",
+      fbPassMismatch: "As senhas não coincidem.",
+      fbCreating: "Criando sua conta em {server}...",
+      fbSigningIn: "Entrando em {server}...",
+      fbLoginMissing: "Informe usuário e senha.",
+      fbForgot: "Digite seu e-mail no campo de usuário (ou use a aba Criar conta) e tente novamente."
+    },
     en: {
       minimize: "Minimize",
       close: "Close",
