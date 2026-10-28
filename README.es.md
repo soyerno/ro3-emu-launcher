@@ -128,6 +128,12 @@ La capa visual se encuentra en [`ui.index.html`](ui.index.html), [`ui.app.css`](
 
 ---
 
+## Prueba de Humo (Windows)
+
+`tools\smoke-test.cmd` revisa un build de punta a punta antes de distribuirlo: requisitos (.NET y WebView2), `publish`, el `launcher.json` efectivo (`brand\launcher.json` si existe: URLs, DNS de cada túnel, `statusUrl`), los túneles en sí (los abre unos segundos y los cierra) y el estado del servidor. Solo lee de la red y nunca inicia sesión ni toca un cliente de juego. Con `-Launch` abre el launcher al final y muestra `launcher.log`; también imprime la lista corta de chequeos manuales.
+
+---
+
 ## Guías de Documentación
 
 - [Guía de Marca Blanca y Personalización](docs/guide/white-label.md) (Todos los campos de `launcher.json`, temas, textos e idiomas, forks con marca)

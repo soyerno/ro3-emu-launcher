@@ -45,5 +45,6 @@ Please maintain a respectful, constructive, and collaborative tone in all discus
 
 1. Create a feature branch: `git checkout -b feat/my-feature`.
 2. Verify compilation with `dotnet build Ro3Launcher.csproj -c Release`.
+   For a change that touches launching, tunnels or configuration, also run `tools\smoke-test.cmd` on Windows and paste its summary in the pull request.
 3. Ensure no temporary files or binary artifacts (`bin/`, `obj/`, `dist/`) are staged.
 4. Submit a clear, well-described Pull Request referencing any relevant issues.

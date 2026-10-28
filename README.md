@@ -128,6 +128,12 @@ The UI layer lives in [`ui.index.html`](ui.index.html), [`ui.app.css`](ui.app.cs
 
 ---
 
+## Smoke Test (Windows)
+
+`tools\smoke-test.cmd` checks a build end to end before you ship it: .NET and WebView2 prerequisites, `publish`, the effective `launcher.json` (`brand\launcher.json` when present: URLs, DNS of every tunnel, `statusUrl`), the tunnels themselves (it opens them for a few seconds and closes them) and the server status. It only reads from the network and never signs in or touches a game client. Add `-Launch` to open the launcher afterwards and print `launcher.log`; it also prints the short manual checklist.
+
+---
+
 ## Documentation Guides
 
 - [White-Label Customization Guide](docs/guide/white-label.md) (Every `launcher.json` field, theming, texts and languages, branded forks)
