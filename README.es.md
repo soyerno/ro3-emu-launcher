@@ -38,7 +38,7 @@ Diseñado con una estética de fantasía nórdica oscura, arquitectura desacopla
     <td width="50%" valign="top"><b>Autenticación y Sesiones Seguras</b><br>Credenciales y sesiones persistentes cifradas de forma segura mediante Windows DPAPI y base de datos local SQLite. Soporte para recordar cuenta, revocación de tokens y control remoto de registros.</td>
   </tr>
   <tr>
-    <td colspan="2" valign="top"><b>Distribución en un único archivo autocontenido</b><br>Compila a un único ejecutable de Windows (<code>dist\KonsorRO.exe</code>) con todas sus dependencias embebidas (.NET 10 win-x64). Los jugadores descargan un solo archivo ejecutable, hacen doble clic y juegan sin necesidad de instalar .NET previamente.</td>
+    <td colspan="2" valign="top"><b>Distribución en un único archivo autocontenido</b><br>Compila a un único ejecutable de Windows (<code>dist\Ro3Launcher.exe</code>) con todas sus dependencias embebidas (.NET 10 win-x64). Los jugadores descargan un solo archivo ejecutable, hacen doble clic y juegan sin necesidad de instalar .NET previamente.</td>
   </tr>
 </table>
 

@@ -21,7 +21,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore KonsorRO.csproj
+        run: dotnet restore Ro3Launcher.csproj
 
       - name: Build project
-        run: dotnet build KonsorRO.csproj -c Release --no-restore
+        run: dotnet build Ro3Launcher.csproj -c Release --no-restore

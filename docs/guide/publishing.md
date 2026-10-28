@@ -23,7 +23,7 @@ publish.cmd
 This runs the .NET publication pipeline with the following parameters:
 
 ```powershell
-dotnet publish KonsorRO.csproj \
+dotnet publish Ro3Launcher.csproj \
   -c Release \
   -r win-x64 \
   --self-contained \
@@ -35,7 +35,7 @@ dotnet publish KonsorRO.csproj \
 ### Result Artifacts
 The finished binary is generated at:
 ```text
-dist\KonsorRO.exe
+dist\Ro3Launcher.exe
 ```
 
 This executable embeds:

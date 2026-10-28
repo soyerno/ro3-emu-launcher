@@ -12,7 +12,7 @@ public sealed class SmtpSettings
 
 	public bool EnableSsl { get; set; } = true;
 
-	public string FromAddress { get; set; } = "soporte@konsor.com.ar";
+	public string FromAddress { get; set; } = "";
 
-	public string FromName { get; set; } = "KonsorRO";
+	public string FromName { get; set; } = "";
 }

@@ -1,55 +1,61 @@
+#!/usr/bin/env python3
+"""Packages the published launcher and the files it needs next to it into a patch ZIP.
+
+Usage: python tools/package-patch.py [--src dist] [--out ro3-launcher-patch.zip] [--name ro3-launcher]
+
+--src   folder holding the published launcher (publish.cmd writes dist) plus RO3Emu.exe
+--out   ZIP to write
+--name  top-level folder inside the ZIP
+"""
+import argparse
 import os
+import sys
 import zipfile
-import shutil
 
-src_dir = r"E:\Genesis Launcher - DEV"
-dest_files = [
-    r"E:\konsor-ro3\site\download\konsor-ro3-patch.zip",
-    r"E:\KonsorRO_Release\konsor-ro3-patch.zip",
-    os.path.expanduser(r"~\Downloads\konsor-ro3-patch.zip")
+# (path relative to --src, required)
+FILES = [
+    ("Ro3Launcher.exe", True),
+    ("RO3Emu.exe", True),
+    ("launcher.json", True),
+    ("news.json", False),
+    ("cloudflared.exe", False),
+    ("WebView2Loader.dll", False),
+    ("e_sqlite3.dll", False),
+    ("D3DCompiler_47_cor3.dll", False),
+    ("PenImc_cor3.dll", False),
+    ("PresentationNative_cor3.dll", False),
+    ("vcruntime140_cor3.dll", False),
+    ("wpfgfx_cor3.dll", False),
+    (os.path.join("client", "Ro3Emu.ClientHooks.dll"), False),
+    (os.path.join("client", "Ro3Emu.Loc.dll"), False),
+    (os.path.join("assets", "hero-art.jpg"), False),
 ]
 
-for d in dest_files:
-    os.makedirs(os.path.dirname(d), exist_ok=True)
 
-files_to_pack = [
-    ('KonsorRO.exe', 'konsor-ro3/KonsorRO.exe'),
-    ('RO3Emu.exe', 'konsor-ro3/RO3Emu.exe'),
-    ('cloudflared.exe', 'konsor-ro3/cloudflared.exe'),
-    ('WebView2Loader.dll', 'konsor-ro3/WebView2Loader.dll'),
-    ('e_sqlite3.dll', 'konsor-ro3/e_sqlite3.dll'),
-    ('D3DCompiler_47_cor3.dll', 'konsor-ro3/D3DCompiler_47_cor3.dll'),
-    ('PenImc_cor3.dll', 'konsor-ro3/PenImc_cor3.dll'),
-    ('PresentationNative_cor3.dll', 'konsor-ro3/PresentationNative_cor3.dll'),
-    ('vcruntime140_cor3.dll', 'konsor-ro3/vcruntime140_cor3.dll'),
-    ('wpfgfx_cor3.dll', 'konsor-ro3/wpfgfx_cor3.dll'),
-    ('launcher.json', 'konsor-ro3/launcher.json'),
-    ('news.json', 'konsor-ro3/news.json'),
-    ('LEEME.txt', 'konsor-ro3/LEEME.txt'),
-    ('run_konsor_ro3.bat', 'konsor-ro3/run_konsor_ro3.bat'),
-    ('konsor.ps1', 'konsor-ro3/konsor.ps1'),
-    ('restore_official.bat', 'konsor-ro3/restore_official.bat'),
-    (os.path.join('client', 'Ro3Emu.ClientHooks.dll'), 'konsor-ro3/client/Ro3Emu.ClientHooks.dll'),
-    (os.path.join('client', 'Ro3Emu.Loc.dll'), 'konsor-ro3/client/Ro3Emu.Loc.dll'),
-]
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--src", default="dist")
+    parser.add_argument("--out", default="ro3-launcher-patch.zip")
+    parser.add_argument("--name", default="ro3-launcher")
+    args = parser.parse_args()
 
-hero_art = os.path.join(src_dir, 'assets', 'hero-art.jpg')
-if os.path.exists(hero_art):
-    files_to_pack.append((os.path.join('assets', 'hero-art.jpg'), 'konsor-ro3/assets/hero-art.jpg'))
+    missing = [rel for rel, required in FILES if required and not os.path.exists(os.path.join(args.src, rel))]
+    if missing:
+        print(f"[ERROR] Required files not found in {args.src}: {', '.join(missing)}")
+        return 1
 
-primary_zip = dest_files[0]
-print(f"Generando {primary_zip}...")
-with zipfile.ZipFile(primary_zip, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-    for src_rel, arcname in files_to_pack:
-        full_src = os.path.join(src_dir, src_rel)
-        if os.path.exists(full_src):
-            z.write(full_src, arcname)
-        else:
-            print(f"[AVISO] Archivo no encontrado: {full_src}")
+    print(f"Writing {args.out}...")
+    with zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for rel, _ in FILES:
+            full = os.path.join(args.src, rel)
+            if os.path.exists(full):
+                z.write(full, f"{args.name}/{rel.replace(os.sep, '/')}")
+            else:
+                print(f"[WARN] Not found, skipped: {full}")
 
-size_mb = os.path.getsize(primary_zip) / (1024 * 1024)
-print(f"[OK] Archivo principal generado ({size_mb:.2f} MB).")
+    print(f"[OK] {args.out} ({os.path.getsize(args.out) / (1024 * 1024):.2f} MB)")
+    return 0
 
-for copy_dest in dest_files[1:]:
-    shutil.copy2(primary_zip, copy_dest)
-    print(f"[OK] Copiado a: {copy_dest}")
+
+if __name__ == "__main__":
+    sys.exit(main())

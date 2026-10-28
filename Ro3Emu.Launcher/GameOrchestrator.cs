@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ro3Emu.Launcher;
 
-public sealed class KonsorGameOrchestrator
+public sealed class GameOrchestrator
 {
     public static string? FindRO3Emu(string? baseDir = null)
     {

@@ -106,8 +106,8 @@ public sealed class LauncherController : IDisposable
 
 	private static string FindDefaultClientDirectory(string exePath)
 	{
-		string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(exePath));
-		if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+		string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(exePath));
+		if (!string.IsNullOrEmpty(detected) && GameOrchestrator.IsValidGameDir(detected))
 		{
 			return detected;
 		}
@@ -742,8 +742,8 @@ public sealed class LauncherController : IDisposable
 		bool hasExe = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
 		if (!hasExe)
 		{
-			string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
-			if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+			string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
+			if (!string.IsNullOrEmpty(detected) && GameOrchestrator.IsValidGameDir(detected))
 			{
 				_layout = new InstallLayout(detected, (string?)null);
 				_settings.ClientDirectory = detected;
@@ -891,10 +891,10 @@ public sealed class LauncherController : IDisposable
 	{
 		string gameDir = _layout.GameDirectory;
 		Trace($"PlayAsync iniciado con carpeta: '{gameDir}'");
-		if (!KonsorGameOrchestrator.IsValidGameDir(gameDir))
+		if (!GameOrchestrator.IsValidGameDir(gameDir))
 		{
-			string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
-			if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+			string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
+			if (!string.IsNullOrEmpty(detected) && GameOrchestrator.IsValidGameDir(detected))
 			{
 				gameDir = detected;
 				_layout = new InstallLayout(gameDir, (string?)null);
@@ -907,7 +907,7 @@ public sealed class LauncherController : IDisposable
 				Trace("ro3.exe no encontrado automáticamente, abriendo diálogo de selección...");
 				await ChangeDirectoryAsync();
 				gameDir = _layout.GameDirectory;
-				if (!KonsorGameOrchestrator.IsValidGameDir(gameDir))
+				if (!GameOrchestrator.IsValidGameDir(gameDir))
 				{
 					PostState("install", "No se encontró ro3.exe. Elige la carpeta del juego en Configuración.");
 					return;
@@ -939,7 +939,7 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", "Parcheando e iniciando el juego...");
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
 		Trace($"Llamando a JoinAndLaunchAsync con gameDir='{gameDir}', account='{accountToUse}'...");
-		string? err = await KonsorGameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg));
+		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg));
 		if (err != null)
 		{
 			Trace($"JoinAndLaunchAsync devolvió error: {err}");
@@ -953,7 +953,7 @@ public sealed class LauncherController : IDisposable
 
 		_ = Task.Run(async () =>
 		{
-			await KonsorGameOrchestrator.MonitorGameProcessAsync(() =>
+			await GameOrchestrator.MonitorGameProcessAsync(() =>
 			{
 				Trace("Proceso ro3.exe finalizado.");
 				PostState("ready", "El juego se ha cerrado. ¡Listo para volver a jugar!");
@@ -980,7 +980,7 @@ public sealed class LauncherController : IDisposable
 	{
 		PostState("repair", "Restaurando cliente a servidores oficiales...");
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
-		string? err = await KonsorGameOrchestrator.RestoreOfficialAsync(_layout.GameDirectory, baseDir, msg => PostState("repair", msg));
+		string? err = await GameOrchestrator.RestoreOfficialAsync(_layout.GameDirectory, baseDir, msg => PostState("repair", msg));
 		if (err == null)
 		{
 			PostState("ready", "Cliente restaurado correctamente a la versión oficial.");
@@ -1073,7 +1073,7 @@ public sealed class LauncherController : IDisposable
 			try
 			{
 				using HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, ep);
-				req.Headers.Add("User-Agent", "KonsorRO-Launcher");
+				req.Headers.Add("User-Agent", "Ro3Launcher");
 				using HttpResponseMessage resp = await _http.SendAsync(req, _life.Token);
 				if (resp.IsSuccessStatusCode)
 				{

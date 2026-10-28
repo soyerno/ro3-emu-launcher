@@ -98,7 +98,7 @@ public static class EmailService
 		{
 			using MailMessage msg = new MailMessage
 			{
-				From = new MailAddress(cfg.FromAddress, cfg.FromName),
+				From = new MailAddress(string.IsNullOrWhiteSpace(cfg.FromAddress) ? cfg.Username : cfg.FromAddress, cfg.FromName),
 				Subject = subject,
 				Body = bodyText,
 				IsBodyHtml = false

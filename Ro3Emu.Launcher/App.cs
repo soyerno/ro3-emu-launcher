@@ -21,7 +21,7 @@ public class App : Application
 			Shutdown();
 			return;
 		}
-		string text = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "KonsorRO.exe");
+		string text = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Ro3Launcher.exe");
 		SelfUpdate.DeleteLeftovers(text);
 		LauncherConfig config = LauncherConfig.Load(Path.Combine(Path.GetDirectoryName(text), "launcher.json"));
 		MainWindow = new MainWindow(config, text);

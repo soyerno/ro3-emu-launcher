@@ -2,10 +2,10 @@
 setlocal
 cd /d "%~dp0"
 echo ========================================================
-echo        KonsorRO Launcher - Compilacion Rapida
+echo        RO3 Launcher - Compilacion Rapida
 echo ========================================================
 echo.
-dotnet build KonsorRO.csproj -c Release
+dotnet build Ro3Launcher.csproj -c Release
 if %ERRORLEVEL% equ 0 (
     echo.
     echo [OK] Compilacion completada con exito sin errores.

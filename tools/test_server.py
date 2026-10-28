@@ -1,78 +1,82 @@
 #!/usr/bin/env python3
-"""
-KonsorRO DevKit - Verificador de Conectividad y Endpoints
-Comprueba el estado de la web, panel admin, registro y túneles locales.
-"""
+"""RO3 Launcher DevKit - server connectivity check.
 
-import urllib.request
-import urllib.parse
+Usage: python tools/test_server.py [SERVER_URL] [--micro-port 20000] [--game-port 33100]
+
+SERVER_URL defaults to the "server" of launcher.json next to the repository root.
+Checks the HTTP endpoints the launcher uses and the TCP ports of the server host.
+"""
+import argparse
 import json
+import os
 import socket
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 
-HEADERS = {"User-Agent": "KonsorRO-Launcher-DevKit/1.0"}
+HEADERS = {"User-Agent": "Ro3Launcher-DevKit/1.0"}
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def check_http(name, url, expected_codes=(200,)):
+
+def load_launcher_json():
+    try:
+        with open(os.path.join(ROOT, "launcher.json"), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def check_http(name, url):
     try:
         req = urllib.request.Request(url, headers=HEADERS)
         with urllib.request.urlopen(req, timeout=5) as resp:
-            data = resp.read().decode('utf-8')
             print(f" [OK] {name}: HTTP {resp.status}")
-            try:
-                js = json.loads(data)
-                return js
-            except Exception:
-                return data
+            return True
     except urllib.error.HTTPError as e:
-        if e.code in expected_codes:
-            print(f" [OK] {name}: HTTP {e.code} (esperado)")
-        else:
-            print(f" [WARN] {name}: HTTP {e.code}")
-        try:
-            return json.loads(e.read().decode('utf-8'))
-        except Exception:
-            return None
+        print(f" [WARN] {name}: HTTP {e.code}")
     except Exception as e:
-        print(f" [FALLO] {name}: {e}")
-        return None
+        print(f" [FAIL] {name}: {e}")
+    return False
+
 
 def check_port(host, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(2.0)
     try:
-        s.connect((host, port))
-        s.close()
-        return True
-    except Exception:
+        with socket.create_connection((host, port), timeout=2.0):
+            return True
+    except OSError:
         return False
 
+
 def main():
-    print("========================================================")
-    print("     KonsorRO DevKit - Diagnostico de Servidor")
-    print("========================================================\n")
+    config = load_launcher_json()
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("server", nargs="?", default=config.get("server"))
+    parser.add_argument("--micro-port", type=int, default=20000)
+    parser.add_argument("--game-port", type=int, default=33100)
+    args = parser.parse_args()
 
-    print("[1] Endpoints Publicos Web:")
-    status = check_http("Status Servidor (konsor.com.ar/api/status)", "https://konsor.com.ar/api/status")
-    if status and isinstance(status, dict):
-        print(f"     -> Online: {status.get('online')}, Jugadores: {status.get('players')}")
+    parsed = urllib.parse.urlparse(args.server or "")
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        print('Pass a server URL (http(s)://host:port) or set "server" in launcher.json.')
+        return 1
 
-    reg_status = check_http("Estado Registro (konsor.com.ar/api/admin/registration)", "https://konsor.com.ar/api/admin/registration")
-    if reg_status and isinstance(reg_status, dict):
-        print(f"     -> Registro habilitado: {reg_status.get('enabled')}")
+    server = args.server.rstrip("/")
+    repository = (config.get("repository") or server + "/").rstrip("/")
+    print(f"Checking {server}\n")
 
-    check_http("Status JSON estatico", "https://konsor.com.ar/status.json")
-    check_http("Noticias JSON", "https://konsor.com.ar/news.json")
+    print("[1] HTTP endpoints:")
+    check_http("Server status", server + "/ro3emu/status")
+    check_http("Gate key", server + "/ro3emu/gate-key.pem")
+    check_http("News feed", repository + "/news.json")
 
-    print("\n[2] Puertos de Tuneles Locales Cloudflare:")
-    ports = [(5380, "HTTP / Login"), (20000, "Microservicios"), (33100, "Juego TCP")]
-    for p, desc in ports:
-        active = check_port("127.0.0.1", p)
-        state = "[OK] Activo" if active else "[INFO] Inactivo (se activa al abrir el launcher)"
-        print(f"     Puerto {p:5d} ({desc}): {state}")
+    print("\n[2] TCP ports on the server host:")
+    for port, desc in ((parsed.port or (443 if parsed.scheme == "https" else 80), "HTTP"), (args.micro_port, "MicroGate"), (args.game_port, "GameGate")):
+        state = "open" if check_port(parsed.hostname, port) else "closed or unreachable"
+        print(f"     {desc:<10} {parsed.hostname}:{port} -> {state}")
 
-    print("\n========================================================")
-    print(" Diagnostico completado.")
-    print("========================================================")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

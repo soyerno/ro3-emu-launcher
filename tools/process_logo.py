@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-KonsorRO DevKit - Procesador de Logos e Iconos
+RO3 Launcher DevKit - Logo and icon processor
 Toma cualquier imagen (PNG, JPG, WEBP), remueve el fondo claro mediante flood-fill
 de precisión, recorta al contenido útil y genera tanto el PNG transparente del
 launcher como el icono de Windows app.ico con resoluciones múltiples.
@@ -88,12 +88,8 @@ def process_logo(input_path, output_dir):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        default_in = r"C:\Users\Erno\Downloads\KonsorLogo.jpg"
-        if os.path.exists(default_in):
-            input_file = default_in
-        else:
-            print("Uso: python process_logo.py <ruta_imagen>")
-            sys.exit(1)
+        print("Usage: python process_logo.py <image_path>")
+        sys.exit(1)
     else:
         input_file = sys.argv[1]
 

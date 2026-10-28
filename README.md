@@ -38,7 +38,7 @@ Built with a dark fantasy Nordic aesthetic, decoupled **WPF + WebView2** archite
     <td width="50%" valign="top"><b>Secure Account &amp; Session Storage</b><br>Player credentials and persistent authentication sessions are securely encrypted using Windows DPAPI and local SQLite databases. Supports remember-me, token revocation, and admin-controlled registration toggles.</td>
   </tr>
   <tr>
-    <td colspan="2" valign="top"><b>Single-file self-contained distribution</b><br>Publishes to an all-in-one single-file Windows executable (<code>dist\KonsorRO.exe</code>) with embedded runtime dependencies. Players download one standalone file, click, and play without needing .NET installed on their PC.</td>
+    <td colspan="2" valign="top"><b>Single-file self-contained distribution</b><br>Publishes to an all-in-one single-file Windows executable (<code>dist\Ro3Launcher.exe</code>) with embedded runtime dependencies. Players download one standalone file, click, and play without needing .NET installed on their PC.</td>
   </tr>
 </table>
 

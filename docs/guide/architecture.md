@@ -22,7 +22,7 @@ RO3 Launcher pairs a lightweight native Windows host (.NET 10 WPF) with a modern
 │  ├── LauncherController (Message Router & State)       │
 │  ├── TunnelManager (Cloudflared Daemon Supervision)    │
 │  ├── AuthDb & SessionStore (Windows DPAPI + SQLite)    │
-│  └── KonsorGameOrchestrator (ro3.exe & Cecil Hooks)    │
+│  └── GameOrchestrator (ro3.exe & Cecil Hooks)    │
 └────────────────────────────────────────────────────────┘
 ```
 

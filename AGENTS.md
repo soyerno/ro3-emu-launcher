@@ -13,12 +13,12 @@ This document outlines architectural conventions, guardrails, and project layout
 
 2. **White-Label Integrity:**
    - Server endpoints, channel names, news feeds, and branding must remain dynamically configurable via `launcher.json`.
-   - Embedded resources are declared in `KonsorRO.csproj`.
+   - Embedded resources are declared in `Ro3Launcher.csproj`.
 
 3. **Packaging:**
    - Single-file publish command:
      ```powershell
-     dotnet publish KonsorRO.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
+     dotnet publish Ro3Launcher.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
      ```
    - Build outputs and intermediate staging folders must never be checked into Git.
 
