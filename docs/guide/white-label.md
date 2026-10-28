@@ -27,7 +27,7 @@ This guide covers rebranding RO3 Launcher for any private server without touchin
 | Field | Default | What it does |
 |---|---|---|
 | `server` | `http://127.0.0.1:5380` | Base URL of the RO3Emu server (or its Cloudflare tunnel). The launcher signs in and registers accounts at `<server>/sdk/login`, pings `<server>/ro3emu/status`, and passes this URL to `RO3Emu.exe join`, which patches the client (login, gift codes) to talk to this server. It must be an absolute `http(s)` URL; otherwise sign in, registration and launch stop with an error that names the field. |
-| `repository` | `http://127.0.0.1:5380/` | Release repository: `channels/*.json` for auto-updates and `news.json` for announcements. Must be an absolute URL. |
+| `repository` | `http://127.0.0.1:5380/` | Release repository: `channels/*.json` for auto-updates and `news.json` for announcements. Must be an absolute `http(s)` URL; otherwise the launcher still opens but update checks stop with an error that names the field. |
 | `channel` | `live` | Patch branch (`live`, `beta`, `test`). |
 | `serverName` | `My RO3 Server` | Name shown in the window title, the logo caption, dialogs and e-mails. |
 | `language` | `en` | Default language of the interface and of host messages: `en` or `es`. Players can switch it in the launcher (the UI also offers `pt-br`, which falls back to English for texts it does not translate); their choice is remembered and wins over this default. |

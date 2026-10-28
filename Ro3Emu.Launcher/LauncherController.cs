@@ -100,7 +100,8 @@ public sealed class LauncherController : IDisposable
 		_post = post;
 		_pickFolder = pickFolder;
 		_minimize = minimize;
-		_repo = new RepositoryClient(new Uri(config.Repository), (HttpMessageHandler)null);
+		// An invalid "repository" must not crash the start: the launcher opens and CheckAsync reports it.
+		_repo = new RepositoryClient(config.RepositoryUri ?? new Uri(LauncherConfig.DefaultRepository), (HttpMessageHandler)null);
 		_layout = new InstallLayout(_settings.ClientDirectory ?? FindDefaultClientDirectory(exePath), (string)null);
 	}
 
@@ -747,6 +748,13 @@ public sealed class LauncherController : IDisposable
 
 	private async Task CheckAsync()
 	{
+		if (_config.RepositoryError is { } repositoryError)
+		{
+			Trace(repositoryError);
+			PostState("error", repositoryError);
+			return;
+		}
+
 		bool hasExe = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
 		if (!hasExe)
 		{
