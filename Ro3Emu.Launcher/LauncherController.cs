@@ -1,0 +1,1258 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
+using Ro3Emu.Launcher.Auth;
+using Ro3Emu.Patcher;
+
+namespace Ro3Emu.Launcher;
+
+public sealed class LauncherController : IDisposable
+{
+	private sealed class SpeedMeter
+	{
+		private readonly Stopwatch _clock = Stopwatch.StartNew();
+
+		private readonly Queue<(double At, long Bytes)> _samples = new Queue<(double, long)>();
+
+		public (double Rate, double Eta) Sample(long done, long total)
+		{
+			double totalSeconds = _clock.Elapsed.TotalSeconds;
+			_samples.Enqueue((totalSeconds, done));
+			while (_samples.Count > 2 && totalSeconds - _samples.Peek().At > 5.0)
+			{
+				_samples.Dequeue();
+			}
+			(double, long) tuple = _samples.Peek();
+			double num = totalSeconds - tuple.Item1;
+			if (num < 1.0)
+			{
+				return (Rate: 0.0, Eta: 0.0);
+			}
+			double num2 = (double)(done - tuple.Item2) / num;
+			if (!(num2 <= 0.0))
+			{
+				return (Rate: num2, Eta: (double)(total - done) / num2);
+			}
+			return (Rate: 0.0, Eta: 0.0);
+		}
+	}
+
+	private readonly LauncherConfig _config;
+
+	private readonly string _exePath;
+
+	private readonly Action<object> _post;
+
+	private readonly Func<string, string?> _pickFolder;
+
+	private readonly Action _minimize;
+
+	private readonly UserSettings _settings = UserSettings.Load();
+
+	private readonly RepositoryClient _repo;
+
+	private readonly HttpClient _http = new HttpClient
+	{
+		Timeout = TimeSpan.FromSeconds(5L)
+	};
+
+	private readonly string _version = typeof(LauncherController).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+
+	private readonly CancellationTokenSource _life = new CancellationTokenSource();
+
+	private InstallLayout _layout;
+
+	private ChannelInfo? _channel;
+
+	private LocalState? _installed;
+
+	private string _phase = "checking";
+
+	private CancellationTokenSource? _work;
+
+	private bool _started;
+
+	private string? _sdkToken;
+
+	private string? _sdkAccount;
+	private bool _registrationEnabled = true;
+	private readonly TunnelManager _tunnels = new TunnelManager();
+
+	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
+	{
+		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b0: Expected Obj, but got Unknown
+		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d1: Expected Obj, but got Unknown
+		_config = config;
+		_exePath = exePath;
+		_post = post;
+		_pickFolder = pickFolder;
+		_minimize = minimize;
+		_repo = new RepositoryClient(new Uri(config.Repository), (HttpMessageHandler)null);
+		_layout = new InstallLayout(_settings.ClientDirectory ?? FindDefaultClientDirectory(exePath), (string)null);
+	}
+
+	private static string FindDefaultClientDirectory(string exePath)
+	{
+		string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(exePath));
+		if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+		{
+			return detected;
+		}
+		string directoryName = Path.GetDirectoryName(exePath) ?? "";
+		if (File.Exists(Path.Combine(directoryName, "ro3.exe")))
+		{
+			return directoryName;
+		}
+		string pRoo = Path.Combine(directoryName, "ROO_PC");
+		if (File.Exists(Path.Combine(pRoo, "ro3.exe")))
+		{
+			return pRoo;
+		}
+		string pParentRoo = Path.Combine(directoryName, "..", "ROO_PC");
+		if (File.Exists(Path.Combine(pParentRoo, "ro3.exe")))
+		{
+			return Path.GetFullPath(pParentRoo);
+		}
+		string text = Path.Combine(directoryName, "Client", "Ragnarok3");
+		if (File.Exists(Path.Combine(text, "ro3.exe")))
+		{
+			return text;
+		}
+		string text2 = Path.Combine(directoryName, "Ragnarok3");
+		if (File.Exists(Path.Combine(text2, "ro3.exe")))
+		{
+			return text2;
+		}
+		string text3 = Path.Combine(directoryName, "Client");
+		if (File.Exists(Path.Combine(text3, "ro3.exe")))
+		{
+			return text3;
+		}
+		string text4 = Path.GetDirectoryName(directoryName) ?? "";
+		if (File.Exists(Path.Combine(text4, "ro3.exe")))
+		{
+			return text4;
+		}
+		string text5 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "RO3Emu-win-x64");
+		if (File.Exists(Path.Combine(text5, "ro3.exe")))
+		{
+			return text5;
+		}
+		return directoryName;
+	}
+
+	public async Task HandleMessageAsync(JsonElement message)
+	{
+		string text = (message.TryGetProperty("cmd", out var value) ? value.GetString() : null);
+		if (text == null)
+		{
+			return;
+		}
+		switch (text)
+		{
+		case "auth_register_local":
+		{
+			string text9 = (message.TryGetProperty("username", out var value11) ? value11.GetString() : null);
+			string text10 = (message.TryGetProperty("password", out var value12) ? value12.GetString() : null);
+			string email = (message.TryGetProperty("email", out var value13) ? value13.GetString() : null);
+			string confirm = (message.TryGetProperty("confirmPassword", out var value14) ? value14.GetString() : null);
+			AuthResult authResult7 = await RegisterAsync(text9 ?? "", text10 ?? "", email, confirm);
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult7.Success,
+				message = authResult7.Message,
+				username = authResult7.Username
+			});
+			break;
+		}
+		case "auth_login_local":
+		{
+			string text5 = (message.TryGetProperty("username", out var value7) ? value7.GetString() : null);
+			string text6 = (message.TryGetProperty("password", out var value8) ? value8.GetString() : null);
+			AuthResult authResult5 = await LoginAsync(text5 ?? "", text6 ?? "");
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult5.Success,
+				message = authResult5.Message,
+				username = authResult5.Username
+			});
+			break;
+		}
+		case "auth_verify_email":
+		{
+			string text7 = (message.TryGetProperty("username", out var value9) ? value9.GetString() : null);
+			string text8 = (message.TryGetProperty("code", out var value10) ? value10.GetString() : null);
+			AuthResult authResult6 = await VerifyEmailAsync(text7 ?? "", text8 ?? "");
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult6.Success,
+				message = authResult6.Message,
+				username = authResult6.Username
+			});
+			break;
+		}
+		case "auth_request_reset":
+		{
+			AuthResult authResult4 = await AuthDb.RequestPasswordResetAsync((message.TryGetProperty("email", out var value6) ? value6.GetString() : null) ?? "");
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult4.Success,
+				message = authResult4.Message,
+				username = authResult4.Username
+			});
+			break;
+		}
+		case "auth_reset_password":
+		{
+			object obj = (message.TryGetProperty("username", out var value2) ? value2.GetString() : null);
+			string text2 = (message.TryGetProperty("code", out var value3) ? value3.GetString() : null);
+			string text3 = (message.TryGetProperty("password", out var value4) ? value4.GetString() : null);
+			string text4 = (message.TryGetProperty("confirmPassword", out var value5) ? value5.GetString() : null);
+			if (obj == null)
+			{
+				obj = "";
+			}
+			AuthResult authResult3 = await AuthDb.ResetPasswordAsync((string)obj, text2 ?? "", text3 ?? "", text4 ?? "");
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult3.Success,
+				message = authResult3.Message,
+				username = authResult3.Username
+			});
+			break;
+		}
+		case "auth_google":
+		{
+			_post(new
+			{
+				type = "auth_status",
+				status = "waiting",
+				message = "Abriendo Google en tu navegador..."
+			});
+			AuthResult authResult2 = await OAuthHelper.StartGoogleAuthAsync(_life.Token);
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult2.Success,
+				message = authResult2.Message,
+				username = authResult2.Username,
+				provider = "google"
+			});
+			break;
+		}
+		case "auth_microsoft":
+		{
+			_post(new
+			{
+				type = "auth_status",
+				status = "waiting",
+				message = "Abriendo Microsoft en tu navegador..."
+			});
+			AuthResult authResult = await OAuthHelper.StartMicrosoftAuthAsync(_life.Token);
+			_post(new
+			{
+				type = "auth_result",
+				success = authResult.Success,
+				message = authResult.Message,
+				username = authResult.Username,
+				provider = "microsoft"
+			});
+			break;
+		}
+		case "auth_switch_account":
+		{
+			_sdkToken = null;
+			_sdkAccount = null;
+			SessionStore.Clear();
+			_post(new
+			{
+				type = "auth_current",
+				username = (string?)null
+			});
+			break;
+		}
+		case "auth_get_registration_status":
+			await CheckRegistrationStatusAsync();
+			break;
+		case "auth_get_last":
+			await PostInitialAuthAsync();
+			break;
+		case "openUrl":
+		{
+			if (message.TryGetProperty("url", out var urlProp) && urlProp.GetString() is string u)
+			{
+				if (Uri.TryCreate(u, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+				{
+					try
+					{
+						Process.Start(new ProcessStartInfo(uri.AbsoluteUri)
+						{
+							UseShellExecute = true
+						});
+					}
+					catch
+					{
+					}
+				}
+			}
+			break;
+		}
+		default:
+			await HandleAsync(text);
+			break;
+		}
+	}
+
+	public async Task HandleAsync(string cmd)
+	{
+		switch (cmd)
+		{
+		case "ready":
+			PostSettings();
+			if (!_started)
+			{
+				_started = true;
+				_ = StartTunnelsAndPingAsync();
+				_ = LoadNewsAsync();
+				_ = InitializeSessionAsync();
+				_ = CheckRegistrationStatusAsync();
+			}
+			await CheckAsync();
+			break;
+		case "primary":
+		{
+			if (_work != null)
+			{
+				break;
+			}
+			string phase = _phase;
+			if (phase == "ready" || phase == "running")
+			{
+				await PlayAsync();
+				break;
+			}
+			if (_phase == "install" && !File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe")))
+			{
+				await ChangeDirectoryAsync();
+				if (File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe")))
+				{
+					await PlayAsync();
+				}
+				break;
+			}
+			bool flag;
+			switch (_phase)
+			{
+			case "install":
+			case "update":
+			case "repair":
+				flag = true;
+				break;
+			default:
+				flag = false;
+				break;
+			}
+			if (flag)
+			{
+				await UpdateAsync(_phase == "repair");
+			}
+			else
+			{
+				await CheckAsync();
+			}
+			break;
+		}
+		case "repair":
+			await RestoreOfficialAsync();
+			break;
+		case "pause":
+			_work?.Cancel();
+			break;
+		case "changeDir":
+			await ChangeDirectoryAsync();
+			break;
+		case "openDir":
+			if (Directory.Exists(_layout.GameDirectory))
+			{
+				Process.Start(new ProcessStartInfo("explorer.exe", "\"" + _layout.GameDirectory + "\"")
+				{
+					UseShellExecute = true
+				});
+			}
+			break;
+		}
+	}
+
+	private void PostSettings()
+	{
+		_post(new
+		{
+			type = "settings",
+			dir = _layout.GameDirectory,
+			launcher = _version
+		});
+	}
+
+	private async Task InitializeSessionAsync()
+	{
+		try
+		{
+			await AuthDb.InitializeAsync().ConfigureAwait(false);
+			SessionStore.StoredSession? session = SessionStore.Load();
+			if (session != null && !string.IsNullOrEmpty(session.Account))
+			{
+				_sdkAccount = session.Account;
+				_post(new
+				{
+					type = "auth_current",
+					username = _sdkAccount
+				});
+				_ = LoginAsync(session.Account, session.Password);
+			}
+			else
+			{
+				string? last = await AuthDb.GetLastAccountAsync().ConfigureAwait(false);
+				if (!string.IsNullOrEmpty(last))
+				{
+					_post(new
+					{
+						type = "auth_current",
+						username = last
+					});
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Trace("InitializeSessionAsync error: " + ex.Message);
+		}
+	}
+
+	private async Task PostInitialAuthAsync()
+	{
+		string? text = _sdkAccount;
+		if (string.IsNullOrEmpty(text))
+		{
+			SessionStore.StoredSession? session = SessionStore.Load();
+			if (session != null && !string.IsNullOrEmpty(session.Account))
+			{
+				text = session.Account;
+			}
+			else
+			{
+				text = await AuthDb.GetLastAccountAsync().ConfigureAwait(false);
+			}
+		}
+		_post(new
+		{
+			type = "auth_current",
+			username = text
+		});
+	}
+
+	private async Task<AuthResult> LoginAsync(string identity, string password)
+	{
+		if (string.IsNullOrWhiteSpace(identity) || string.IsNullOrWhiteSpace(password))
+		{
+			return new AuthResult(Success: false, "Por favor ingresa usuario y contraseña.", identity);
+		}
+
+		identity = identity.Trim();
+
+		string[] endpoints = {
+			"http://127.0.0.1:5380/sdk/login",
+			(_config.Server?.TrimEnd('/') ?? "http://127.0.0.1:5380") + "/sdk/login"
+		};
+
+		foreach (string ep in endpoints.Distinct())
+		{
+			try
+			{
+				using FormUrlEncodedContent form = new FormUrlEncodedContent(new[]
+				{
+					new KeyValuePair<string, string>("identity", identity),
+					new KeyValuePair<string, string>("credential", password)
+				});
+
+				using HttpResponseMessage response = await _http.PostAsync(ep, form, _life.Token);
+				if (response.IsSuccessStatusCode)
+				{
+					string body = await response.Content.ReadAsStringAsync(_life.Token);
+					using JsonDocument doc = JsonDocument.Parse(body);
+					int code = doc.RootElement.TryGetProperty("code", out var codeVal) ? codeVal.GetInt32() : -1;
+
+					if (code == 0)
+					{
+						string? token = null;
+						if (doc.RootElement.TryGetProperty("data", out var dataVal) &&
+							dataVal.TryGetProperty("token", out var tokVal))
+						{
+							token = tokVal.GetString();
+						}
+
+						_sdkToken = token;
+						_sdkAccount = identity;
+						SessionStore.Save(identity, password);
+						_ = AuthDb.RecordLoginAsync(identity);
+						Trace($"Login exitoso para {identity} via {ep}");
+						return new AuthResult(Success: true, $"¡Bienvenido a KonsorRO, {identity}!", identity);
+					}
+					else if (code == 401)
+					{
+						return new AuthResult(Success: false, "Usuario no encontrado o contraseña incorrecta.", identity);
+					}
+					else if (code == 403)
+					{
+						return new AuthResult(Success: false, "Acceso no permitido o cuenta bloqueada.", identity);
+					}
+				}
+			}
+			catch (Exception ex) when (!(ex is OperationCanceledException))
+			{
+				Trace($"Login falló en {ep}: {ex.Message}");
+			}
+		}
+
+		// Fallback offline a AuthDb local
+		try
+		{
+			AuthResult local = await AuthDb.VerifyLocalAsync(identity, password);
+			if (local.Success && local.Username != null)
+			{
+				_sdkAccount = local.Username;
+				SessionStore.Save(local.Username, password);
+				Trace($"Login offline local para {local.Username}");
+				return new AuthResult(Success: true, $"Sesión iniciada sin conexión como {local.Username}.", local.Username);
+			}
+		}
+		catch { }
+
+		return new AuthResult(Success: false, "No se pudo conectar al servidor de KonsorRO. Verifica tu conexión a internet.", identity);
+	}
+
+	private async Task<AuthResult> RegisterAsync(string username, string password, string? email, string? confirm)
+	{
+		if (!_registrationEnabled)
+		{
+			return new AuthResult(Success: false, "La creación de cuentas está temporalmente deshabilitada por el administrador.", username);
+		}
+
+		username = (username ?? "").Trim();
+		password = password ?? "";
+
+		if (string.IsNullOrWhiteSpace(username))
+		{
+			return new AuthResult(Success: false, "Por favor ingresa un nombre de usuario.", username);
+		}
+		if (username.Length < 3 || username.Length > 20)
+		{
+			return new AuthResult(Success: false, "El nombre de usuario debe tener entre 3 y 20 caracteres.", username);
+		}
+		if (password.Length < 6)
+		{
+			return new AuthResult(Success: false, "La contraseña debe tener al menos 6 caracteres.", username);
+		}
+		if (password != confirm)
+		{
+			return new AuthResult(Success: false, "Las contraseñas no coinciden.", username);
+		}
+
+		string[] registerEndpoints = {
+			"https://konsor.com.ar/api/login",
+			"http://127.0.0.1:5380/sdk/login"
+		};
+
+		foreach (string ep in registerEndpoints)
+		{
+			try
+			{
+				var pairs = new List<KeyValuePair<string, string>>
+				{
+					new KeyValuePair<string, string>("identity", username),
+					new KeyValuePair<string, string>("credential", password)
+				};
+				if (!string.IsNullOrEmpty(email))
+				{
+					pairs.Add(new KeyValuePair<string, string>("email", email));
+				}
+
+				using FormUrlEncodedContent form = new FormUrlEncodedContent(pairs);
+				using HttpResponseMessage response = await _http.PostAsync(ep, form, _life.Token);
+				if (response.IsSuccessStatusCode)
+				{
+					string body = await response.Content.ReadAsStringAsync(_life.Token);
+					using JsonDocument doc = JsonDocument.Parse(body);
+					int code = doc.RootElement.TryGetProperty("code", out var codeVal) ? codeVal.GetInt32() : -1;
+
+					if (code == 0)
+					{
+						string? token = null;
+						if (doc.RootElement.TryGetProperty("data", out var dataVal) &&
+							dataVal.TryGetProperty("token", out var tokVal))
+						{
+							token = tokVal.GetString();
+						}
+
+						_sdkToken = token;
+						_sdkAccount = username;
+						SessionStore.Save(username, password);
+						_ = AuthDb.RecordLoginAsync(username);
+						try
+						{
+							_ = AuthDb.RegisterLocalAsync(username, password, email, confirm);
+						}
+						catch { }
+
+						Trace($"Registro exitoso para {username} via {ep}");
+						return new AuthResult(Success: true, $"¡Cuenta '{username}' creada con éxito! Ya puedes jugar.", username);
+					}
+					else if (code == 409)
+					{
+						return new AuthResult(Success: false, $"El nombre de usuario '{username}' ya está registrado por otro jugador.", username);
+					}
+					else if (code == 401)
+					{
+						return new AuthResult(Success: false, $"El nombre de usuario '{username}' ya existe o no se permite el registro.", username);
+					}
+					else if (code == 403)
+					{
+						return new AuthResult(Success: false, "El registro de cuentas está temporalmente deshabilitado.", username);
+					}
+				}
+			}
+			catch (Exception ex) when (!(ex is OperationCanceledException))
+			{
+				Trace($"Registro falló en {ep}: {ex.Message}");
+			}
+		}
+
+		return new AuthResult(Success: false, "No se pudo conectar al servidor de registro. Verifica tu conexión a internet.", username);
+	}
+
+	private async Task<AuthResult> VerifyEmailAsync(string username, string code)
+	{
+		string text = _config.Server?.TrimEnd('/');
+		if (!string.IsNullOrEmpty(text))
+		{
+			try
+			{
+				using StringContent payload = new StringContent(JsonSerializer.Serialize(new { username, code }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
+				using HttpResponseMessage response = await _http.PostAsync(text + "/api/auth/verify", payload, _life.Token);
+				using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
+				int num = (jsonDocument.RootElement.TryGetProperty("code", out var value) ? value.GetInt32() : (-1));
+				string message = (jsonDocument.RootElement.TryGetProperty("message", out var value2) ? (value2.GetString() ?? "") : "");
+				string username2 = (jsonDocument.RootElement.TryGetProperty("username", out var value3) ? (value3.GetString() ?? username) : username);
+				return new AuthResult(num == 0, message, username2);
+			}
+			catch (Exception ex) when (!(ex is OperationCanceledException))
+			{
+			}
+		}
+		return await AuthDb.VerifyEmailAsync(username, code);
+	}
+
+	private async Task FetchSdkTokenAsync(string username, string password)
+	{
+		_ = 1;
+		try
+		{
+			string text = _config.Server?.TrimEnd('/');
+			if (string.IsNullOrEmpty(text))
+			{
+				return;
+			}
+			using MultipartFormDataContent form = new MultipartFormDataContent
+			{
+				{
+					new StringContent(username),
+					"identity"
+				},
+				{
+					new StringContent(password),
+					"credential"
+				}
+			};
+			using HttpResponseMessage response = await _http.PostAsync(text + "/sdk/login", form, _life.Token);
+			if (!response.IsSuccessStatusCode)
+			{
+				return;
+			}
+			using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
+			if (jsonDocument.RootElement.TryGetProperty("code", out var value) && value.GetInt32() == 0 && jsonDocument.RootElement.TryGetProperty("data", out var value2) && value2.TryGetProperty("token", out var value3))
+			{
+				_sdkToken = value3.GetString();
+				_sdkAccount = username;
+			}
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	private void PostState(string phase, string? message = null)
+	{
+		_phase = phase;
+		Action<object> post = _post;
+		LocalState? installed = _installed;
+		string installed2 = ((installed != null) ? installed.Version : null);
+		ChannelInfo? channel = _channel;
+		post(new
+		{
+			type = "state",
+			phase = phase,
+			installed = installed2,
+			remote = ((channel != null) ? channel.Version : null),
+			message = message
+		});
+	}
+
+	private void Trace(string message)
+	{
+		try
+		{
+			File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
+		}
+		catch
+		{
+		}
+	}
+
+	private async Task CheckAsync()
+	{
+		bool hasExe = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
+		if (!hasExe)
+		{
+			string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
+			if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+			{
+				_layout = new InstallLayout(detected, (string?)null);
+				_settings.ClientDirectory = detected;
+				_settings.Save();
+				PostSettings();
+				hasExe = true;
+			}
+		}
+
+		_installed = new Updater(_layout, _repo).LoadState();
+		if (hasExe || _installed != null)
+		{
+			PostState("ready", "¡Listo para jugar!");
+		}
+		else
+		{
+			PostState("install", "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+			return;
+		}
+
+		try
+		{
+			using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(2L));
+			using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(_life.Token, timeoutCts.Token);
+			Updater updater = new Updater(_layout, _repo);
+			UpdateCheck check = await updater.CheckAsync(_config.Channel, linked.Token);
+			_channel = check.Channel;
+			_installed = check.Installed;
+			LauncherRelease launcher = _channel.Launcher;
+			if (launcher != null && SelfUpdate.IsNewer(launcher.Version, _version))
+			{
+				PostState("checking", "Actualizando el lanzador a " + launcher.Version + "…");
+				if (await SelfUpdate.ApplyAsync(_repo, launcher, _version, _exePath, linked.Token))
+				{
+					SelfUpdate.Restart(_exePath, "");
+					((DispatcherObject)Application.Current).Dispatcher.Invoke((Action)(() =>
+					{
+						Application.Current.Shutdown();
+					}));
+					return;
+				}
+			}
+			if (check.Installed == null)
+			{
+				bool flag = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
+				if (flag)
+				{
+					PostState("ready", "¡Listo para jugar!");
+				}
+				else
+				{
+					PostState("install", "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+				}
+				return;
+			}
+			if (check.UpdateRequired)
+			{
+				PostState("update", "Versión " + _channel.Version + " disponible.");
+				return;
+			}
+			List<string> list = updater.QuickVerify(check.Installed, Path.GetFileName(_exePath));
+			if (list != null && list.Count > 0)
+			{
+				PostState("repair", $"{list.Count} archivos difieren de la versión oficial.");
+			}
+			else
+			{
+				PostState("ready");
+			}
+		}
+		catch (Exception ex)
+		{
+			Trace("CheckAsync fallback: " + ex.Message);
+			bool flag2 = (_installed != null) | hasExe;
+			PostState(flag2 ? "ready" : "install", flag2 ? "¡Listo para jugar!" : "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+		}
+	}
+
+	private async Task UpdateAsync(bool verifyAll)
+	{
+		if (_channel == null)
+		{
+			await CheckAsync();
+			if (_channel == null)
+			{
+				return;
+			}
+		}
+		Directory.CreateDirectory(_layout.GameDirectory);
+		_work = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
+		PostState("updating");
+		SpeedMeter meter = new SpeedMeter();
+		ThrottledProgress progress = new ThrottledProgress((UpdateProgress p) =>
+		{
+			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0008: Invalid comparison between Unknown and I4
+			//IL_005a: Unknown result type (might be due to invalid IL or missing references)
+			//IL_005f: Unknown result type (might be due to invalid IL or missing references)
+			double rate;
+			double eta;
+			if ((int)p.Stage == 1)
+			{
+				(rate, eta) = meter.Sample(p.BytesDone, p.BytesTotal);
+			}
+			else
+			{
+				rate = 0.0;
+				eta = 0.0;
+			}
+			_post(new
+			{
+				type = "progress",
+				stage = ((object)p.Stage/*cast due to constrained. prefix*/).ToString().ToLowerInvariant(),
+				done = p.BytesDone,
+				total = p.BytesTotal,
+				rate = rate,
+				eta = eta
+			});
+		});
+		try
+		{
+			Updater updater = new Updater(_layout, _repo);
+			ChannelInfo channel = _channel;
+			CancellationToken token = _work.Token;
+			await Task.Run(() => updater.UpdateAsync(channel, verifyAll, (IProgress<UpdateProgress>)progress, token));
+			_work.Dispose();
+			_work = null;
+			await CheckAsync();
+		}
+		catch (OperationCanceledException)
+		{
+			_work?.Dispose();
+			_work = null;
+			PostState((_installed == null) ? "install" : "update", "Paused. Downloaded parts are kept; continue any time.");
+		}
+		catch (Exception ex2)
+		{
+			_work?.Dispose();
+			_work = null;
+			PostState("error", ex2.Message);
+		}
+	}
+
+	private async Task PlayAsync()
+	{
+		string gameDir = _layout.GameDirectory;
+		Trace($"PlayAsync iniciado con carpeta: '{gameDir}'");
+		if (!KonsorGameOrchestrator.IsValidGameDir(gameDir))
+		{
+			string? detected = KonsorGameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
+			if (!string.IsNullOrEmpty(detected) && KonsorGameOrchestrator.IsValidGameDir(detected))
+			{
+				gameDir = detected;
+				_layout = new InstallLayout(gameDir, (string?)null);
+				_settings.ClientDirectory = gameDir;
+				_settings.Save();
+				PostSettings();
+			}
+			else
+			{
+				Trace("ro3.exe no encontrado automáticamente, abriendo diálogo de selección...");
+				await ChangeDirectoryAsync();
+				gameDir = _layout.GameDirectory;
+				if (!KonsorGameOrchestrator.IsValidGameDir(gameDir))
+				{
+					PostState("install", "No se encontró ro3.exe. Elige la carpeta del juego en Configuración.");
+					return;
+				}
+			}
+		}
+
+		PostState("launching", "Verificando túneles con el servidor Konsor...");
+		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
+		
+		if (!_tunnels.IsConnected)
+		{
+			bool tunnelOk = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
+			if (!tunnelOk)
+			{
+				Trace("No se pudieron conectar los túneles.");
+				PostState("error", "No se pudo conectar con el servidor Konsor. Revisa tu conexión a internet.");
+				return;
+			}
+		}
+
+		PostState("launching", "Parcheando e iniciando el juego...");
+		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
+		Trace($"Llamando a JoinAndLaunchAsync con gameDir='{gameDir}', account='{accountToUse}'...");
+		string? err = await KonsorGameOrchestrator.JoinAndLaunchAsync(gameDir, baseDir, accountToUse, msg => PostState("launching", msg));
+		if (err != null)
+		{
+			Trace($"JoinAndLaunchAsync devolvió error: {err}");
+			PostState("error", err);
+			return;
+		}
+
+		Trace("Juego iniciado con éxito.");
+		PostState("running", "El juego está en ejecución.");
+		_minimize();
+
+		_ = Task.Run(async () =>
+		{
+			await KonsorGameOrchestrator.MonitorGameProcessAsync(() =>
+			{
+				Trace("Proceso ro3.exe finalizado.");
+				PostState("ready", "El juego se ha cerrado. ¡Listo para volver a jugar!");
+			}, _life.Token);
+		});
+	}
+	private async Task StartTunnelsAndPingAsync()
+	{
+		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
+		Trace("Iniciando túneles Cloudflare con Konsor...");
+		try
+		{
+			bool ok = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => Trace($"tunnel: {msg}"));
+			if (ok) Trace("Túneles Konsor activos y conectados.");
+		}
+		catch (Exception ex)
+		{
+			Trace($"Error al iniciar túneles: {ex.Message}");
+		}
+		_ = PingLoopAsync();
+	}
+
+	private async Task RestoreOfficialAsync()
+	{
+		PostState("repair", "Restaurando cliente a servidores oficiales...");
+		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
+		string? err = await KonsorGameOrchestrator.RestoreOfficialAsync(_layout.GameDirectory, baseDir, msg => PostState("repair", msg));
+		if (err == null)
+		{
+			PostState("ready", "Cliente restaurado correctamente a la versión oficial.");
+		}
+		else
+		{
+			PostState("error", "Error al restaurar: " + err);
+		}
+	}
+
+
+	private async Task<string?> FetchLaunchCodeAsync(string? token)
+	{
+		if (string.IsNullOrEmpty(token))
+		{
+			return null;
+		}
+		string server = _config.Server?.TrimEnd('/');
+		if (string.IsNullOrEmpty(server))
+		{
+			return null;
+		}
+		try
+		{
+			using StringContent payload = new StringContent(JsonSerializer.Serialize(new { token }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
+			using HttpResponseMessage response = await _http.PostAsync(server + "/api/auth/launchcode", payload, _life.Token);
+			Trace($"launchcode: {(int)response.StatusCode} from {server}");
+			if (!response.IsSuccessStatusCode)
+			{
+				return null;
+			}
+			using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
+			if (jsonDocument.RootElement.TryGetProperty("code", out var value) && value.GetInt32() == 0 && jsonDocument.RootElement.TryGetProperty("data", out var value2) && value2.TryGetProperty("launch_code", out var value3))
+			{
+				return value3.GetString();
+			}
+			Trace("launchcode: body code != 0");
+		}
+		catch (Exception ex)
+		{
+			Trace("launchcode failed: " + ex.GetType().Name + ": " + ex.Message);
+		}
+		return null;
+	}
+
+	private async Task TryRestoreSessionAsync()
+	{
+		if (string.IsNullOrEmpty(_sdkToken))
+		{
+			SessionStore.StoredSession storedSession = SessionStore.Load();
+			if ((object)storedSession != null && !(await LoginAsync(storedSession.Account, storedSession.Password)).Success)
+			{
+				SessionStore.Clear();
+			}
+		}
+	}
+
+	private async Task ChangeDirectoryAsync()
+	{
+		if (_work != null)
+		{
+			return;
+		}
+		string text = _pickFolder("Game folder (an existing ROO_PC folder or an empty one)");
+		if (text != null)
+		{
+			if (!File.Exists(Path.Combine(text, "ro3.exe")) && Directory.EnumerateFileSystemEntries(text).Any())
+			{
+				text = Path.Combine(text, "RO3Emu");
+			}
+			_settings.ClientDirectory = text;
+			_settings.Save();
+			_layout = new InstallLayout(text, (string)null);
+			_installed = null;
+			PostSettings();
+			await CheckAsync();
+		}
+	}
+
+	private async Task CheckRegistrationStatusAsync()
+	{
+		string[] endpoints = {
+			"https://konsor.com.ar/api/admin/registration",
+			"https://konsor.com.ar/status.json",
+			"http://127.0.0.1:8095/api/admin/registration"
+		};
+
+		foreach (string ep in endpoints)
+		{
+			try
+			{
+				using HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, ep);
+				req.Headers.Add("User-Agent", "KonsorRO-Launcher");
+				using HttpResponseMessage resp = await _http.SendAsync(req, _life.Token);
+				if (resp.IsSuccessStatusCode)
+				{
+					string json = await resp.Content.ReadAsStringAsync(_life.Token);
+					using JsonDocument doc = JsonDocument.Parse(json);
+					bool enabled = true;
+					if (doc.RootElement.TryGetProperty("enabled", out var prop))
+					{
+						enabled = prop.GetBoolean();
+					}
+					else if (doc.RootElement.TryGetProperty("registration_enabled", out var prop2))
+					{
+						enabled = prop2.GetBoolean();
+					}
+
+					if (_registrationEnabled != enabled)
+					{
+						_registrationEnabled = enabled;
+						Trace($"Estado de registro actualizado: enabled={_registrationEnabled}");
+					}
+
+					PostRegistrationStatus();
+					return;
+				}
+			}
+			catch { }
+		}
+
+		PostRegistrationStatus();
+	}
+
+	private void PostRegistrationStatus()
+	{
+		_post(new
+		{
+			type = "registration_status",
+			enabled = _registrationEnabled,
+			message = _registrationEnabled
+				? "Registro disponible"
+				: "La creación de cuentas está temporalmente deshabilitada por el administrador."
+		});
+	}
+
+	private async Task PingLoopAsync()
+	{
+		if (string.IsNullOrEmpty(_config.Server))
+		{
+			return;
+		}
+		string server = _config.Server.TrimEnd('/');
+		while (!_life.IsCancellationRequested)
+		{
+			bool online = false;
+			int? players = null;
+			try
+			{
+				using HttpResponseMessage status = await _http.GetAsync(server + "/ro3emu/status", _life.Token);
+				if (status.IsSuccessStatusCode)
+				{
+					online = true;
+					using JsonDocument jsonDocument = JsonDocument.Parse(await status.Content.ReadAsStringAsync(_life.Token));
+					if (jsonDocument.RootElement.TryGetProperty("players", out var value))
+					{
+						players = value.GetInt32();
+					}
+				}
+				else
+				{
+					using HttpResponseMessage httpResponseMessage = await _http.GetAsync(server + "/ro3emu/gate-key.pem", _life.Token);
+					online = httpResponseMessage.IsSuccessStatusCode;
+				}
+			}
+			catch (Exception)
+			{
+			}
+			if (_life.IsCancellationRequested)
+			{
+				break;
+			}
+			_post(new
+			{
+				type = "server",
+				online = online,
+				players = players
+			});
+			_ = CheckRegistrationStatusAsync();
+			try
+			{
+				await Task.Delay(TimeSpan.FromSeconds(30L), _life.Token);
+			}
+			catch (TaskCanceledException)
+			{
+				break;
+			}
+		}
+	}
+
+	private async Task LoadNewsAsync()
+	{
+		string[] candidateUrls =
+		{
+			"https://konsor.com.ar/news.json",
+			"http://127.0.0.1:5380/news.json"
+		};
+
+		foreach (string url in candidateUrls)
+		{
+			try
+			{
+				using HttpResponseMessage res = await _http.GetAsync(url, _life.Token);
+				if (res.IsSuccessStatusCode)
+				{
+					string json = await res.Content.ReadAsStringAsync(_life.Token);
+					using JsonDocument doc = JsonDocument.Parse(json);
+					if (doc.RootElement.TryGetProperty("items", out var items))
+					{
+						_post(new
+						{
+							type = "news",
+							items = items.Clone()
+						});
+						return;
+					}
+				}
+			}
+			catch { }
+		}
+
+		try
+		{
+			string localNews = Path.Combine(Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory, "news.json");
+			if (File.Exists(localNews))
+			{
+				using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(localNews));
+				if (doc.RootElement.TryGetProperty("items", out var items))
+				{
+					_post(new
+					{
+						type = "news",
+						items = items.Clone()
+					});
+					return;
+				}
+			}
+		}
+		catch { }
+
+		try
+		{
+			using Stream? stream = typeof(LauncherController).Assembly.GetManifestResourceStream("news.json");
+			if (stream != null)
+			{
+				using JsonDocument doc = JsonDocument.Parse(stream);
+				if (doc.RootElement.TryGetProperty("items", out var items))
+				{
+					_post(new
+					{
+						type = "news",
+						items = items.Clone()
+					});
+					return;
+				}
+			}
+		}
+		catch { }
+
+		try
+		{
+			byte[]? array = await _repo.TryGetBytesAsync("news.json", _life.Token);
+			if (array != null)
+			{
+				using JsonDocument jsonDocument = JsonDocument.Parse((ReadOnlyMemory<byte>)array, default(JsonDocumentOptions));
+				if (jsonDocument.RootElement.TryGetProperty("items", out var value))
+				{
+					_post(new
+					{
+						type = "news",
+						items = value.Clone()
+					});
+				}
+			}
+		}
+		catch { }
+	}
+
+	public void Dispose()
+	{
+		_life.Cancel();
+		_work?.Cancel();
+		_tunnels.Dispose();
+	}
+}

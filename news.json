@@ -1,0 +1,42 @@
+{
+  "server": "KonsorRO",
+  "updated": "2026-10-27T18:45:00Z",
+  "items": [
+    {
+      "tag": "BIENVENIDO",
+      "color": "blue",
+      "title": "Bienvenido a KonsorRO",
+      "text": "Servidor privado no oficial de Ragnarok Origin. ¡Todo listo para explorar el mundo de Midgard en español y sin lag!",
+      "date": "2026-10-27",
+      "link": "https://konsor.com.ar",
+      "linkText": "Visitar Sitio Web"
+    },
+    {
+      "tag": "COMUNIDAD",
+      "color": "orange",
+      "title": "Discord Oficial de Konsor",
+      "text": "Únete a nuestro Discord para enterarte de eventos, actualizaciones, soporte y formar grupo con otros aventureros.",
+      "date": "2026-10-27",
+      "link": "https://discord.gg/43CdywWfM",
+      "linkText": "Unirse al Discord"
+    },
+    {
+      "tag": "ESTADO",
+      "color": "green",
+      "title": "Servidor Operativo",
+      "text": "Conexión segura mediante túneles Cloudflare. MicroGate y GameGate funcionando con normalidad.",
+      "date": "2026-10-27",
+      "link": "https://konsor.com.ar",
+      "linkText": "Ver Estado Web"
+    },
+    {
+      "tag": "GUÍAS",
+      "color": "blue",
+      "title": "Comandos y Ayuda",
+      "text": "Escribe !help en el chat del juego para consultar los comandos disponibles. Visita konsor.com.ar para más información.",
+      "date": "2026-10-25",
+      "link": "https://konsor.com.ar",
+      "linkText": "Guías en konsor.com.ar"
+    }
+  ]
+}

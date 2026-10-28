@@ -1,0 +1,6 @@
+{
+  "repository": "http://127.0.0.1:5380/",
+  "channel": "live",
+  "server": "http://127.0.0.1:5380",
+  "serverName": "KonsorRO"
+}
