@@ -22,7 +22,8 @@ RO3 Launcher pairs a lightweight native Windows host (.NET 10 WPF) with a modern
 │  ├── LauncherController (Message Router & State)       │
 │  ├── TunnelManager (Cloudflared Daemon Supervision)    │
 │  ├── AuthDb & SessionStore (Windows DPAPI + SQLite)    │
-│  └── GameOrchestrator (ro3.exe & Cecil Hooks)    │
+│  ├── Strings (EN/ES host messages, launcher.json lang) │
+│  └── GameOrchestrator (ro3.exe & Cecil Hooks)          │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -38,8 +39,15 @@ Messages sent between the UI and C# host are structured JSON objects containing 
 - `register`: Submits account registration details.
 - `browse_folder`: Opens a native Windows folder browser dialog to select the game directory.
 - `open_url`: Opens external URLs (Discord, Website, Forums) in the default system browser.
+- `language`: Tells the host which language the player picked (`{ "cmd": "language", "lang": "es" }`) so host messages follow the UI.
 
 ### Host to UI Notifications
 - `state_change`: Updates UI state (`checking`, `ready`, `patching`, `playing`, `error`).
 - `progress`: Broadcasts download, chunk verification, and patch percentages.
 - `news_loaded`: Feeds remote or cached server announcements to the news carousel.
+
+---
+
+## Configuration Hand-off
+
+Before the page loads, the host injects `window.LAUNCHER_CONFIG = { serverName, language, website, discord }` (from `launcher.json`) with `AddScriptToExecuteOnDocumentCreatedAsync`. The UI reads it for the title, logo caption, default language and link buttons; when it is absent (the page opened in a plain browser for UI work) it falls back to neutral defaults.

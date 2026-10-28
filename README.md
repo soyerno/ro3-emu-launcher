@@ -67,9 +67,8 @@ RO3 Launcher operates as an autonomous desktop companion connecting players to y
        ├── Embedded Assets & Live Reload Engine
        ├── Auth Engine (Windows DPAPI + Encrypted SQLite)
        ├── Background Tunnel Daemon ──► [Cloudflared (Access TCP)]
-       │                                     ├── HTTP:  127.0.0.1:5380
-       │                                     ├── Micro: 127.0.0.1:20000
-       │                                     └── Game:  127.0.0.1:33100
+       │                                     └── one local port per entry of "tunnels"
+       │                                         (optional; none when the server is reachable directly)
        └── Game Orchestrator
                ├── Auto-Detect Client Path (ro3.exe)
                ├── Injects Hooks (Ro3Emu.ClientHooks & Loc)
@@ -87,23 +86,39 @@ The launcher reads configuration from `launcher.json` embedded at compile-time o
   "repository": "http://127.0.0.1:5380/",
   "channel": "live",
   "server": "http://127.0.0.1:5380",
-  "serverName": "MyRO3 Private Server"
+  "serverName": "My RO3 Server",
+  "language": "en",
+  "website": "https://myserver.com",
+  "discord": "https://discord.gg/your-invite",
+  "statusUrl": "https://myserver.com/status.json",
+  "tunnels": [{ "hostname": "ro3-http.myserver.com", "port": 5380 }]
 }
 ```
 
+| Field | Default | Purpose |
+|---|---|---|
+| `server` | `http://127.0.0.1:5380` | RO3Emu server base URL (absolute `http(s)`): sign in/registration (`/sdk/login`), status ping, and the server `RO3Emu.exe join` patches the client for. An invalid value stops launch and sign in with an error naming the field. |
+| `repository` | `http://127.0.0.1:5380/` | Release repository: `channels/*.json` and `news.json`. |
+| `channel` | `live` | Patch branch. |
+| `serverName` | `My RO3 Server` | Name shown in the window title, captions, dialogs and e-mails. |
+| `language` | `en` | Default interface and message language: `en` or `es`. Players can switch it in the launcher. |
+| `website`, `discord` | none | Optional links; the buttons are hidden when empty. |
+| `statusUrl` | none | Optional registration gate (see below). |
+| `tunnels` | `[]` | Cloudflare tunnels to open, as `{ "hostname", "port" }`. Empty: no `cloudflared`. |
+
+Every field is covered in the [White-Label Customization Guide](docs/guide/white-label.md).
+
 ### Registration Gating
 
-The launcher dynamically queries server endpoints to verify if account registration is currently active:
-- Admin control panel endpoint: `GET /api/admin/registration`
-- Static status JSON fallback: `GET /status.json`
+If `statusUrl` is set, the launcher fetches it to check whether account registration is open. It reads `{"enabled": true|false}` or `{"registration_enabled": true|false}`.
 
-When an administrator disables registrations (`{"enabled": false}`), the launcher automatically displays a warning notice, disables registration input fields, and rejects client-side attempts gracefully.
+When it reports `false`, the launcher displays a warning notice, disables the registration fields, and rejects client-side attempts gracefully. Without `statusUrl`, registration is assumed open.
 
 ---
 
 ## Visual Theming (HTML / CSS / JS)
 
-The UI layer lives in [`ui.index.html`](file:///E:/ro3-emu-launcher/ui.index.html), [`ui.app.css`](file:///E:/ro3-emu-launcher/ui.app.css), and [`ui.app.js`](file:///E:/ro3-emu-launcher/ui.app.js).
+The UI layer lives in [`ui.index.html`](ui.index.html), [`ui.app.css`](ui.app.css), and [`ui.app.js`](ui.app.js).
 
 1. Execute **`run-ui-dev.cmd`** to start in live reload mode.
 2. Modify styles, colors, layouts, or hero banners.
@@ -115,9 +130,15 @@ The UI layer lives in [`ui.index.html`](file:///E:/ro3-emu-launcher/ui.index.htm
 
 ## Documentation Guides
 
-- [White-Label Customization Guide](docs/guide/white-label.md) (Theming, server branding, logo customization)
+- [White-Label Customization Guide](docs/guide/white-label.md) (Every `launcher.json` field, theming, texts and languages, branded forks)
 - [Architecture & IPC Guide](docs/guide/architecture.md) (WPF host, WebView2 bridge, game orchestrator)
 - [Publishing & Distribution Guide](docs/guide/publishing.md) (Single-file compilation, self-contained packaging)
+
+---
+
+## Branded Forks
+
+`main` is the community launcher and carries no server's brand. The [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) branch is an example of a branded fork.
 
 ---
 
