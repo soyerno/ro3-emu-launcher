@@ -30,7 +30,7 @@ This guide covers rebranding RO3 Launcher for any private server without touchin
 | `repository` | `http://127.0.0.1:5380/` | Release repository: `channels/*.json` for auto-updates and `news.json` for announcements. Must be an absolute `http(s)` URL; otherwise the launcher still opens but update checks stop with an error that names the field. |
 | `channel` | `live` | Patch branch (`live`, `beta`, `test`). |
 | `serverName` | `My RO3 Server` | Name shown in the window title, the logo caption, dialogs and e-mails. |
-| `language` | `en` | Default language of the interface and of host messages: `en` or `es`. Players can switch it in the launcher (the UI also offers `pt-br`, which falls back to English for texts it does not translate); their choice is remembered and wins over this default. |
+| `language` | `en` | Default language of the interface and of host messages: `en` or `es`. Players can switch it in the launcher (the UI also offers `pt-br`; the messages the host itself produces, such as sign-in results, launch status and e-mails, are English or Spanish only, so a Portuguese player sees those in English); their choice is remembered and wins over this default. |
 | `website`, `discord` | none | Optional `http(s)` URLs. The matching buttons (top bar and news card) are hidden when the field is empty. |
 | `statusUrl` | none | Optional public URL (no login required) that returns `{ "enabled": true }` or `{ "registration_enabled": true }`. When it reports `false` the launcher disables the registration form. Without it, registration is assumed open. `status.json` in this repository is a sample of the format. |
 | `tunnels` | `[]` | Cloudflare TCP tunnels opened with `cloudflared.exe` before launching, one per `{ hostname, port }`. Leave it empty if players reach the server directly; `cloudflared.exe` is then not needed. |
@@ -81,7 +81,7 @@ The launcher shows, in this order of preference:
 Player-facing text lives in two places, each with an English and a Spanish entry:
 
 - **Host messages** (sign-in and registration results, launch status, dialogs, e-mails): `Ro3Emu.Launcher/Strings.cs`. `{server}` expands to `serverName`; `{0}`, `{1}` are arguments. Call `Strings.Get("key", args)`; never write a literal in the code.
-- **Interface**: `I18N` and `UI_TEXT` in `ui.app.js`, plus the `data-i18n*` attributes in `ui.index.html`.
+- **Interface** (English, Spanish and Portuguese): `I18N` and `UI_TEXT` in `ui.app.js`, plus the `data-i18n*` attributes in `ui.index.html`.
 
 To change a wording, edit the entry for each language. To add a language, add its code to `Strings.Normalize` and a column to the table, and add a block to `I18N` and `UI_TEXT`.
 
