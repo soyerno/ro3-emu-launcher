@@ -752,7 +752,8 @@
         }
         setAuthFeedback(m.message, m.success ? "success" : "error");
         var msg = (m.message || "").toLowerCase();
-        var needsCode = msg.indexOf("código") >= 0 || msg.indexOf("codigo") >= 0 || msg.indexOf("verificar") >= 0;
+        var needsCode = msg.indexOf("código") >= 0 || msg.indexOf("codigo") >= 0 || msg.indexOf("verificar") >= 0 ||
+                       msg.indexOf("code") >= 0 || msg.indexOf("verify") >= 0;
         if (needsCode) {
           if ($("auth-code-group")) $("auth-code-group").hidden = false;
           if ($("btn-verify-email")) $("btn-verify-email").hidden = false;

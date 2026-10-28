@@ -24,6 +24,7 @@ public class App : Application
 		string text = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Ro3Launcher.exe");
 		SelfUpdate.DeleteLeftovers(text);
 		LauncherConfig config = LauncherConfig.Load(Path.Combine(Path.GetDirectoryName(text), "launcher.json"));
+		Strings.Configure(config.Language, config.ServerName);
 		MainWindow = new MainWindow(config, text);
 		MainWindow.Show();
 	}

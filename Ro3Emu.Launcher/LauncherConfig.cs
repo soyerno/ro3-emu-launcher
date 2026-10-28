@@ -26,6 +26,17 @@ public sealed class LauncherConfig
 	[JsonPropertyName("serverName")]
 	public string ServerName { get; set; } = "My RO3 Server";
 
+	/// <summary>Default UI and message language: "en" or "es". Players can switch it in the launcher.</summary>
+	[JsonPropertyName("language")]
+	public string Language { get; set; } = Strings.DefaultLanguage;
+
+	/// <summary>Optional website and Discord invite URLs; the matching buttons are hidden when empty.</summary>
+	[JsonPropertyName("website")]
+	public string? Website { get; set; }
+
+	[JsonPropertyName("discord")]
+	public string? Discord { get; set; }
+
 	/// <summary>Optional URL returning { "enabled": bool } or { "registration_enabled": bool }. Empty: registration is assumed open.</summary>
 	[JsonPropertyName("statusUrl")]
 	public string? StatusUrl { get; set; }
@@ -42,7 +53,7 @@ public sealed class LauncherConfig
 	[JsonIgnore]
 	public string? ServerError => TryParseHttpUrl(Server, out _)
 		? null
-		: $"launcher.json \"server\" must be an absolute http(s) URL such as https://game.example.com:5380 (found: {(string.IsNullOrWhiteSpace(Server) ? "nothing" : $"\"{Server}\"")}).";
+		: Strings.Get("config.server.invalid", Server ?? "");
 
 	public static bool TryParseHttpUrl(string? value, out Uri? uri)
 	{

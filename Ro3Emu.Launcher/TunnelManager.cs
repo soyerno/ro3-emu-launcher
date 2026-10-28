@@ -66,11 +66,11 @@ public sealed class TunnelManager : IDisposable
         string? cloudflared = FindCloudflared(baseDir);
         if (string.IsNullOrEmpty(cloudflared))
         {
-            onStatus?.Invoke("No se encontró cloudflared.exe");
+            onStatus?.Invoke(Strings.Get("tunnel.nocloudflared"));
             return false;
         }
 
-        onStatus?.Invoke("Verificando puertos de conexión...");
+        onStatus?.Invoke(Strings.Get("tunnel.ports"));
 
         foreach (var t in _tunnels)
         {
@@ -82,7 +82,7 @@ public sealed class TunnelManager : IDisposable
             }
         }
 
-        onStatus?.Invoke("Abriendo túneles con el servidor Konsor...");
+        onStatus?.Invoke(Strings.Get("tunnel.opening"));
 
         lock (_gate)
         {
@@ -112,7 +112,7 @@ public sealed class TunnelManager : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    onStatus?.Invoke($"Error iniciando túnel para {t.Hostname}: {ex.Message}");
+                    onStatus?.Invoke(Strings.Get("tunnel.error", t.Hostname, ex.Message));
                     return false;
                 }
             }
@@ -136,14 +136,14 @@ public sealed class TunnelManager : IDisposable
             if (allOpen)
             {
                 IsConnected = true;
-                onStatus?.Invoke("Conexión con el servidor Konsor establecida.");
+                onStatus?.Invoke(Strings.Get("tunnel.connected"));
                 return true;
             }
 
             await Task.Delay(300, ct);
         }
 
-        onStatus?.Invoke("Tiempo de espera agotado al conectar con el servidor.");
+        onStatus?.Invoke(Strings.Get("tunnel.timeout"));
         return false;
     }
 
@@ -151,7 +151,7 @@ public sealed class TunnelManager : IDisposable
     {
         if (Uri.CheckHostName(t.Hostname) != UriHostNameType.Dns || t.Port is < 1 or > 65535)
         {
-            return $"launcher.json \"tunnels\" entry is invalid (hostname \"{t.Hostname}\", port {t.Port}).";
+            return Strings.Get("config.tunnel.invalid", t.Hostname, t.Port);
         }
         return null;
     }

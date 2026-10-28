@@ -149,23 +149,23 @@ public sealed class GameOrchestrator
     {
         if (!IsValidGameDir(gameDir))
         {
-            return "No se encontró ro3.exe en la carpeta seleccionada.";
+            return Strings.Get("game.noclient");
         }
 
         if (!LauncherConfig.TryParseHttpUrl(serverUrl, out Uri? server))
         {
-            return $"launcher.json \"server\" must be an absolute http(s) URL (found: \"{serverUrl}\").";
+            return Strings.Get("config.server.invalid", serverUrl ?? "");
         }
 
         string? ro3emu = FindRO3Emu(baseDir);
         if (string.IsNullOrEmpty(ro3emu))
         {
-            return "No se encontró RO3Emu.exe. Asegúrate de extraer todos los archivos del parche.";
+            return Strings.Get("game.noro3emu");
         }
 
         SaveGameDirectory(gameDir, baseDir);
 
-        onLog?.Invoke("Parcheando e iniciando el juego con RO3Emu...");
+        onLog?.Invoke(Strings.Get("game.patching"));
 
         var psi = new ProcessStartInfo
         {
@@ -236,14 +236,14 @@ public sealed class GameOrchestrator
                         }
                     }
                 }
-                return $"RO3Emu terminó con código de error {process.ExitCode}{details}";
+                return Strings.Get("game.exit", process.ExitCode, details);
             }
 
-            return null; // Éxito
+            return null; // Success
         }
         catch (Exception ex)
         {
-            return $"Error al ejecutar RO3Emu: {ex.Message}";
+            return Strings.Get("game.error", ex.Message);
         }
     }
 
@@ -252,10 +252,10 @@ public sealed class GameOrchestrator
         string? ro3emu = FindRO3Emu(baseDir);
         if (string.IsNullOrEmpty(ro3emu))
         {
-            return "No se encontró RO3Emu.exe.";
+            return Strings.Get("game.noro3emu.short");
         }
 
-        onLog?.Invoke("Restaurando archivos oficiales del cliente...");
+        onLog?.Invoke(Strings.Get("game.restoring"));
 
         var psi = new ProcessStartInfo
         {
@@ -285,7 +285,7 @@ public sealed class GameOrchestrator
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
 
-            return process.ExitCode == 0 ? null : $"Restore terminó con código {process.ExitCode}";
+            return process.ExitCode == 0 ? null : Strings.Get("game.restore.exit", process.ExitCode);
         }
         catch (Exception ex)
         {

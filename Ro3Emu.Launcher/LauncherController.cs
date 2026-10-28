@@ -292,6 +292,14 @@ public sealed class LauncherController : IDisposable
 		case "auth_get_registration_status":
 			await CheckRegistrationStatusAsync();
 			break;
+		case "language":
+		{
+			if (message.TryGetProperty("lang", out var langProp))
+			{
+				Strings.SetLanguage(langProp.GetString());
+			}
+			break;
+		}
 		case "auth_get_last":
 			await PostInitialAuthAsync();
 			break;
@@ -472,7 +480,7 @@ public sealed class LauncherController : IDisposable
 	{
 		if (string.IsNullOrWhiteSpace(identity) || string.IsNullOrWhiteSpace(password))
 		{
-			return new AuthResult(Success: false, "Por favor ingresa usuario y contraseña.", identity);
+			return new AuthResult(Success: false, Strings.Get("login.missing"), identity);
 		}
 
 		identity = identity.Trim();
@@ -513,22 +521,22 @@ public sealed class LauncherController : IDisposable
 						_sdkAccount = identity;
 						SessionStore.Save(identity, password);
 						_ = AuthDb.RecordLoginAsync(identity);
-						Trace($"Login exitoso para {identity} via {ep}");
-						return new AuthResult(Success: true, $"¡Bienvenido a KonsorRO, {identity}!", identity);
+						Trace($"Sign-in succeeded for {identity} via {ep}");
+						return new AuthResult(Success: true, Strings.Get("login.welcome", identity), identity);
 					}
 					else if (code == 401)
 					{
-						return new AuthResult(Success: false, "Usuario no encontrado o contraseña incorrecta.", identity);
+						return new AuthResult(Success: false, Strings.Get("login.invalid"), identity);
 					}
 					else if (code == 403)
 					{
-						return new AuthResult(Success: false, "Acceso no permitido o cuenta bloqueada.", identity);
+						return new AuthResult(Success: false, Strings.Get("login.forbidden"), identity);
 					}
 				}
 			}
 			catch (Exception ex) when (!(ex is OperationCanceledException))
 			{
-				Trace($"Login falló en {ep}: {ex.Message}");
+				Trace($"Sign-in failed at {ep}: {ex.Message}");
 			}
 		}
 
@@ -540,20 +548,20 @@ public sealed class LauncherController : IDisposable
 			{
 				_sdkAccount = local.Username;
 				SessionStore.Save(local.Username, password);
-				Trace($"Login offline local para {local.Username}");
-				return new AuthResult(Success: true, $"Sesión iniciada sin conexión como {local.Username}.", local.Username);
+				Trace($"Offline local sign-in for {local.Username}");
+				return new AuthResult(Success: true, Strings.Get("login.offline", local.Username), local.Username);
 			}
 		}
 		catch { }
 
-		return new AuthResult(Success: false, "No se pudo conectar al servidor de KonsorRO. Verifica tu conexión a internet.", identity);
+		return new AuthResult(Success: false, Strings.Get("login.unreachable"), identity);
 	}
 
 	private async Task<AuthResult> RegisterAsync(string username, string password, string? email, string? confirm)
 	{
 		if (!_registrationEnabled)
 		{
-			return new AuthResult(Success: false, "La creación de cuentas está temporalmente deshabilitada por el administrador.", username);
+			return new AuthResult(Success: false, Strings.Get("reg.disabled"), username);
 		}
 
 		username = (username ?? "").Trim();
@@ -561,19 +569,19 @@ public sealed class LauncherController : IDisposable
 
 		if (string.IsNullOrWhiteSpace(username))
 		{
-			return new AuthResult(Success: false, "Por favor ingresa un nombre de usuario.", username);
+			return new AuthResult(Success: false, Strings.Get("reg.user.missing"), username);
 		}
 		if (username.Length < 3 || username.Length > 20)
 		{
-			return new AuthResult(Success: false, "El nombre de usuario debe tener entre 3 y 20 caracteres.", username);
+			return new AuthResult(Success: false, Strings.Get("reg.user.length"), username);
 		}
 		if (password.Length < 6)
 		{
-			return new AuthResult(Success: false, "La contraseña debe tener al menos 6 caracteres.", username);
+			return new AuthResult(Success: false, Strings.Get("reg.pass.length"), username);
 		}
 		if (password != confirm)
 		{
-			return new AuthResult(Success: false, "Las contraseñas no coinciden.", username);
+			return new AuthResult(Success: false, Strings.Get("reg.pass.mismatch"), username);
 		}
 
 		string? server = _config.ServerBaseUrl;
@@ -623,30 +631,30 @@ public sealed class LauncherController : IDisposable
 						}
 						catch { }
 
-						Trace($"Registro exitoso para {username} via {ep}");
-						return new AuthResult(Success: true, $"¡Cuenta '{username}' creada con éxito! Ya puedes jugar.", username);
+						Trace($"Registration succeeded for {username} via {ep}");
+						return new AuthResult(Success: true, Strings.Get("reg.ok", username), username);
 					}
 					else if (code == 409)
 					{
-						return new AuthResult(Success: false, $"El nombre de usuario '{username}' ya está registrado por otro jugador.", username);
+						return new AuthResult(Success: false, Strings.Get("reg.conflict", username), username);
 					}
 					else if (code == 401)
 					{
-						return new AuthResult(Success: false, $"El nombre de usuario '{username}' ya existe o no se permite el registro.", username);
+						return new AuthResult(Success: false, Strings.Get("reg.exists", username), username);
 					}
 					else if (code == 403)
 					{
-						return new AuthResult(Success: false, "El registro de cuentas está temporalmente deshabilitado.", username);
+						return new AuthResult(Success: false, Strings.Get("reg.disabled.short"), username);
 					}
 				}
 			}
 			catch (Exception ex) when (!(ex is OperationCanceledException))
 			{
-				Trace($"Registro falló en {ep}: {ex.Message}");
+				Trace($"Registration failed at {ep}: {ex.Message}");
 			}
 		}
 
-		return new AuthResult(Success: false, "No se pudo conectar al servidor de registro. Verifica tu conexión a internet.", username);
+		return new AuthResult(Success: false, Strings.Get("reg.unreachable"), username);
 	}
 
 	private async Task<AuthResult> VerifyEmailAsync(string username, string code)
@@ -756,11 +764,11 @@ public sealed class LauncherController : IDisposable
 		_installed = new Updater(_layout, _repo).LoadState();
 		if (hasExe || _installed != null)
 		{
-			PostState("ready", "¡Listo para jugar!");
+			PostState("ready", Strings.Get("state.ready"));
 		}
 		else
 		{
-			PostState("install", "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+			PostState("install", Strings.Get("state.noclient"));
 			return;
 		}
 
@@ -791,23 +799,23 @@ public sealed class LauncherController : IDisposable
 				bool flag = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
 				if (flag)
 				{
-					PostState("ready", "¡Listo para jugar!");
+					PostState("ready", Strings.Get("state.ready"));
 				}
 				else
 				{
-					PostState("install", "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+					PostState("install", Strings.Get("state.noclient"));
 				}
 				return;
 			}
 			if (check.UpdateRequired)
 			{
-				PostState("update", "Versión " + _channel.Version + " disponible.");
+				PostState("update", Strings.Get("state.update", _channel.Version));
 				return;
 			}
 			List<string> list = updater.QuickVerify(check.Installed, Path.GetFileName(_exePath));
 			if (list != null && list.Count > 0)
 			{
-				PostState("repair", $"{list.Count} archivos difieren de la versión oficial.");
+				PostState("repair", Strings.Get("state.repair", list.Count));
 			}
 			else
 			{
@@ -818,7 +826,7 @@ public sealed class LauncherController : IDisposable
 		{
 			Trace("CheckAsync fallback: " + ex.Message);
 			bool flag2 = (_installed != null) | hasExe;
-			PostState(flag2 ? "ready" : "install", flag2 ? "¡Listo para jugar!" : "No se encontró ro3.exe. Haz clic en Jugar para elegir la carpeta del juego.");
+			PostState(flag2 ? "ready" : "install", flag2 ? Strings.Get("state.ready") : Strings.Get("state.noclient"));
 		}
 	}
 
@@ -890,7 +898,7 @@ public sealed class LauncherController : IDisposable
 	private async Task PlayAsync()
 	{
 		string gameDir = _layout.GameDirectory;
-		Trace($"PlayAsync iniciado con carpeta: '{gameDir}'");
+		Trace($"PlayAsync started with folder: '{gameDir}'");
 		if (!GameOrchestrator.IsValidGameDir(gameDir))
 		{
 			string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
@@ -904,12 +912,12 @@ public sealed class LauncherController : IDisposable
 			}
 			else
 			{
-				Trace("ro3.exe no encontrado automáticamente, abriendo diálogo de selección...");
+				Trace("ro3.exe not found automatically, opening the folder picker...");
 				await ChangeDirectoryAsync();
 				gameDir = _layout.GameDirectory;
 				if (!GameOrchestrator.IsValidGameDir(gameDir))
 				{
-					PostState("install", "No se encontró ro3.exe. Elige la carpeta del juego en Configuración.");
+					PostState("install", Strings.Get("state.pickdir"));
 					return;
 				}
 			}
@@ -926,68 +934,68 @@ public sealed class LauncherController : IDisposable
 
 		if (_tunnels.HasTunnels && !_tunnels.IsConnected)
 		{
-			PostState("launching", "Verificando túneles con el servidor Konsor...");
+			PostState("launching", Strings.Get("state.tunnels.check"));
 			bool tunnelOk = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
 			if (!tunnelOk)
 			{
-				Trace("No se pudieron conectar los túneles.");
-				PostState("error", "No se pudo conectar con el servidor Konsor. Revisa tu conexión a internet.");
+				Trace("The tunnels could not connect.");
+				PostState("error", Strings.Get("state.tunnels.fail"));
 				return;
 			}
 		}
 
-		PostState("launching", "Parcheando e iniciando el juego...");
+		PostState("launching", Strings.Get("state.patching"));
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
-		Trace($"Llamando a JoinAndLaunchAsync con gameDir='{gameDir}', account='{accountToUse}'...");
+		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
 		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg));
 		if (err != null)
 		{
-			Trace($"JoinAndLaunchAsync devolvió error: {err}");
+			Trace($"JoinAndLaunchAsync returned an error: {err}");
 			PostState("error", err);
 			return;
 		}
 
-		Trace("Juego iniciado con éxito.");
-		PostState("running", "El juego está en ejecución.");
+		Trace("Game started.");
+		PostState("running", Strings.Get("state.running"));
 		_minimize();
 
 		_ = Task.Run(async () =>
 		{
 			await GameOrchestrator.MonitorGameProcessAsync(() =>
 			{
-				Trace("Proceso ro3.exe finalizado.");
-				PostState("ready", "El juego se ha cerrado. ¡Listo para volver a jugar!");
+				Trace("ro3.exe process ended.");
+				PostState("ready", Strings.Get("state.closed"));
 			}, _life.Token);
 		});
 	}
 	private async Task StartTunnelsAndPingAsync()
 	{
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
-		Trace("Iniciando túneles Cloudflare con Konsor...");
+		Trace("Starting the Cloudflare tunnels...");
 		try
 		{
 			bool ok = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => Trace($"tunnel: {msg}"));
-			if (ok) Trace("Túneles Konsor activos y conectados.");
+			if (ok) Trace("Tunnels active and connected.");
 		}
 		catch (Exception ex)
 		{
-			Trace($"Error al iniciar túneles: {ex.Message}");
+			Trace($"Could not start the tunnels: {ex.Message}");
 		}
 		_ = PingLoopAsync();
 	}
 
 	private async Task RestoreOfficialAsync()
 	{
-		PostState("repair", "Restaurando cliente a servidores oficiales...");
+		PostState("repair", Strings.Get("state.restoring"));
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
 		string? err = await GameOrchestrator.RestoreOfficialAsync(_layout.GameDirectory, baseDir, msg => PostState("repair", msg));
 		if (err == null)
 		{
-			PostState("ready", "Cliente restaurado correctamente a la versión oficial.");
+			PostState("ready", Strings.Get("state.restored"));
 		}
 		else
 		{
-			PostState("error", "Error al restaurar: " + err);
+			PostState("error", Strings.Get("state.restore.error", err));
 		}
 	}
 
@@ -1092,7 +1100,7 @@ public sealed class LauncherController : IDisposable
 					if (_registrationEnabled != enabled)
 					{
 						_registrationEnabled = enabled;
-						Trace($"Estado de registro actualizado: enabled={_registrationEnabled}");
+						Trace($"Registration status updated: enabled={_registrationEnabled}");
 					}
 
 					PostRegistrationStatus();
@@ -1112,8 +1120,8 @@ public sealed class LauncherController : IDisposable
 			type = "registration_status",
 			enabled = _registrationEnabled,
 			message = _registrationEnabled
-				? "Registro disponible"
-				: "La creación de cuentas está temporalmente deshabilitada por el administrador."
+				? Strings.Get("reg.available")
+				: Strings.Get("reg.disabled")
 		});
 	}
 

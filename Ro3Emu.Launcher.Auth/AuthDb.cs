@@ -1,4 +1,5 @@
 using System;
+using Ro3Emu.Launcher;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -117,15 +118,15 @@ public static class AuthDb
 		username = (username ?? "").Trim();
 		if (username.Length < 3 || username.Length > 20)
 		{
-			return new AuthResult(Success: false, "El nombre de usuario debe tener entre 3 y 20 caracteres.");
+			return new AuthResult(Success: false, Strings.Get("db.user.length"));
 		}
 		if (!Regex.IsMatch(username, "^[a-zA-Z0-9_\\-]+$"))
 		{
-			return new AuthResult(Success: false, "El nombre de usuario solo puede contener letras, números, guiones y guiones bajos.");
+			return new AuthResult(Success: false, Strings.Get("db.user.chars"));
 		}
 		if (string.IsNullOrEmpty(confirmPassword) || !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(password), Encoding.UTF8.GetBytes(confirmPassword)))
 		{
-			return new AuthResult(Success: false, "Las contraseñas no coinciden.");
+			return new AuthResult(Success: false, Strings.Get("db.pass.mismatch"));
 		}
 		(bool, string) tuple = ValidateEmail(email);
 		if (!tuple.Item1)
@@ -160,16 +161,16 @@ public static class AuthDb
 				{
 					await ((DbCommand)(object)cmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
 					await LogAttemptAsync(conn, null, username, "local", success: true, "REGISTER_OK", now).ConfigureAwait(continueOnCapturedContext: false);
-					authResult = new AuthResult(Success: true, "¡Cuenta '" + username + "' registrada correctamente!", username, email, "local");
+					authResult = new AuthResult(Success: true, Strings.Get("db.registered", username), username, email, "local");
 				}
 				catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
 				{
 					await LogAttemptAsync(conn, null, username, "local", success: false, "USERNAME_TAKEN", now).ConfigureAwait(continueOnCapturedContext: false);
-					authResult = new AuthResult(Success: false, "El nombre de usuario ya está en uso. Por favor, elige otro.");
+					authResult = new AuthResult(Success: false, Strings.Get("db.user.taken"));
 				}
 				catch (Exception ex)
 				{
-					authResult = new AuthResult(Success: false, "Error al registrar cuenta: " + ex.Message);
+					authResult = new AuthResult(Success: false, Strings.Get("db.register.error", ex.Message));
 				}
 			}
 			finally
@@ -221,11 +222,11 @@ public static class AuthDb
 						((DbDataReader)(object)reader).Close();
 						if (flag)
 						{
-							authResult = new AuthResult(Success: true, "El correo ya está verificado.", username, text, "local");
+							authResult = new AuthResult(Success: true, Strings.Get("db.email.verified"), username, text, "local");
 						}
 						else
 						{
-							authResult = ((!string.IsNullOrWhiteSpace(text)) ? (await CreateAndSendTokenAsync(conn, @int, username, text, "verify_email").ConfigureAwait(continueOnCapturedContext: false)) : new AuthResult(Success: false, "La cuenta no tiene un correo válido."));
+							authResult = ((!string.IsNullOrWhiteSpace(text)) ? (await CreateAndSendTokenAsync(conn, @int, username, text, "verify_email").ConfigureAwait(continueOnCapturedContext: false)) : new AuthResult(Success: false, Strings.Get("db.email.none")));
 						}
 					}
 				}
@@ -334,7 +335,7 @@ public static class AuthDb
 		}
 		if (newPassword != confirmPassword)
 		{
-			return new AuthResult(Success: false, "Las contraseñas no coinciden.");
+			return new AuthResult(Success: false, Strings.Get("db.pass.mismatch"));
 		}
 		AuthResult authResult = await ConsumeTokenAsync(username, code, "reset_password", activate: false).ConfigureAwait(continueOnCapturedContext: false);
 		if (!authResult.Success)
@@ -357,7 +358,7 @@ public static class AuthDb
 				cmd.Parameters.AddWithValue("@s", (object)Convert.ToHexString(salt));
 				cmd.Parameters.AddWithValue("@u", (object)username.Trim());
 				await ((DbCommand)(object)cmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
-				authResult2 = new AuthResult(Success: true, "Contraseña restablecida correctamente.", username, null, "local");
+				authResult2 = new AuthResult(Success: true, Strings.Get("db.pass.reset"), username, null, "local");
 			}
 			finally
 			{
@@ -429,13 +430,13 @@ public static class AuthDb
 						{
 							goto IL_04f4;
 						}
-						authResult = new AuthResult(Success: false, "La cuenta está temporalmente bloqueada por demasiados intentos.");
+						authResult = new AuthResult(Success: false, Strings.Get("db.locked"));
 					}
 					goto end_IL_02cd;
 					IL_04f4:
 					if (!flag)
 					{
-						authResult = new AuthResult(Success: false, "Debes verificar tu correo antes de iniciar sesión.", realUsername, email, "local");
+						authResult = new AuthResult(Success: false, Strings.Get("db.verify.first"), realUsername, email, "local");
 					}
 					else
 					{
@@ -456,7 +457,7 @@ public static class AuthDb
 								}
 								await ((DbCommand)(object)failCmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
 								await LogAttemptAsync(conn, id, username, "local", success: false, "BAD_PASSWORD", now).ConfigureAwait(continueOnCapturedContext: false);
-								authResult2 = new AuthResult(Success: false, (nextFailures >= 5) ? "Cuenta bloqueada temporalmente por demasiados intentos." : "Contraseña incorrecta.");
+								authResult2 = new AuthResult(Success: false, (nextFailures >= 5) ? Strings.Get("db.locked.now") : Strings.Get("db.pass.wrong"));
 							}
 							finally
 							{
@@ -478,7 +479,7 @@ public static class AuthDb
 								updateCmd.Parameters.AddWithValue("@id", (object)id);
 								await ((DbCommand)(object)updateCmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
 								await LogAttemptAsync(conn, id, realUsername, "local", success: true, "LOGIN_OK", now).ConfigureAwait(continueOnCapturedContext: false);
-								authResult2 = new AuthResult(Success: true, "Inicio de sesión exitoso.", realUsername, email, "local");
+								authResult2 = new AuthResult(Success: true, Strings.Get("db.signed.in"), realUsername, email, "local");
 							}
 							finally
 							{
@@ -557,7 +558,7 @@ public static class AuthDb
 							updateCmd.Parameters.AddWithValue("@id", (object)existingId);
 							await ((DbCommand)(object)updateCmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
 							await LogAttemptAsync(conn, existingId, existingUsername, provider, success: true, "OAUTH_LOGIN_OK", now).ConfigureAwait(continueOnCapturedContext: false);
-							authResult = new AuthResult(Success: true, "¡Bienvenido de nuevo, " + existingUsername + "!", existingUsername, existingEmail, provider);
+							authResult = new AuthResult(Success: true, Strings.Get("db.welcome.back", existingUsername), existingUsername, existingEmail, provider);
 						}
 						finally
 						{
@@ -612,7 +613,7 @@ public static class AuthDb
 				insertCmd.Parameters.AddWithValue("@now", (object)now);
 				await ((DbCommand)(object)insertCmd).ExecuteNonQueryAsync().ConfigureAwait(continueOnCapturedContext: false);
 				await LogAttemptAsync(conn, null, finalUsername, provider, success: true, "OAUTH_REGISTER_OK", now).ConfigureAwait(continueOnCapturedContext: false);
-				authResult3 = new AuthResult(Success: true, $"¡Cuenta creada exitosamente con {provider} como '{finalUsername}'!", finalUsername, email, provider);
+				authResult3 = new AuthResult(Success: true, Strings.Get("db.oauth.created", provider, finalUsername), finalUsername, email, provider);
 			}
 			finally
 			{
@@ -792,7 +793,7 @@ public static class AuthDb
 				{
 					if (!(await ((DbDataReader)(object)reader).ReadAsync().ConfigureAwait(continueOnCapturedContext: false)))
 					{
-						authResult = new AuthResult(Success: false, "Código inválido, usado o expirado.");
+						authResult = new AuthResult(Success: false, Strings.Get("db.code.invalid"));
 					}
 					else
 					{
@@ -831,7 +832,7 @@ public static class AuthDb
 									}
 								}
 								await tx.CommitAsync().ConfigureAwait(continueOnCapturedContext: false);
-								authResult2 = new AuthResult(Success: true, activate ? "Correo verificado. Ya puedes iniciar sesión." : "Código de recuperación validado.", username, email, "local");
+								authResult2 = new AuthResult(Success: true, activate ? Strings.Get("db.code.activated") : Strings.Get("db.code.recovery"), username, email, "local");
 							}
 							finally
 							{
@@ -877,19 +878,19 @@ public static class AuthDb
 	{
 		if (string.IsNullOrWhiteSpace(email))
 		{
-			return (Valid: false, Message: "El correo electrónico es obligatorio.");
+			return (Valid: false, Message: Strings.Get("db.email.required"));
 		}
 		try
 		{
 			if (!string.Equals(new MailAddress(email.Trim()).Address, email.Trim(), StringComparison.OrdinalIgnoreCase))
 			{
-				return (Valid: false, Message: "El correo electrónico no es válido.");
+				return (Valid: false, Message: Strings.Get("db.email.invalid"));
 			}
 			return (Valid: true, Message: "");
 		}
 		catch
 		{
-			return (Valid: false, Message: "El correo electrónico no es válido.");
+			return (Valid: false, Message: Strings.Get("db.email.invalid"));
 		}
 	}
 
@@ -898,17 +899,17 @@ public static class AuthDb
 		error = "";
 		if (password.Length < 6)
 		{
-			error = "La contraseña debe tener al menos 6 caracteres.";
+			error = Strings.Get("db.pass.min");
 			return false;
 		}
 		if (password.Count(char.IsDigit) < 2)
 		{
-			error = "La contraseña debe contener al menos 2 números.";
+			error = Strings.Get("db.pass.numbers");
 			return false;
 		}
 		if (!password.Any((char c) => !char.IsLetterOrDigit(c)))
 		{
-			error = "La contraseña debe contener al menos 1 símbolo especial.";
+			error = Strings.Get("db.pass.symbol");
 			return false;
 		}
 		return true;
