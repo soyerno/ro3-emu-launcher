@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,18 +12,18 @@ namespace Ro3Emu.Launcher;
 
 public sealed class TunnelManager : IDisposable
 {
-    public record TunnelSpec(string Hostname, int Port);
-
-    public static readonly IReadOnlyList<TunnelSpec> Tunnels = new[]
-    {
-        new TunnelSpec("ro3-http.konsor.com.ar", 5380),
-        new TunnelSpec("ro3-micro.konsor.com.ar", 20000),
-        new TunnelSpec("ro3-game.konsor.com.ar", 33100)
-    };
-
+    private readonly IReadOnlyList<TunnelSpec> _tunnels;
     private readonly List<Process> _processes = new();
     private readonly Lock _gate = new();
     private bool _disposed;
+
+    public TunnelManager(IReadOnlyList<TunnelSpec> tunnels)
+    {
+        _tunnels = tunnels;
+    }
+
+    /// <summary>False when launcher.json lists no tunnels: the server is reached directly.</summary>
+    public bool HasTunnels => _tunnels.Count > 0;
 
     public bool IsConnected { get; private set; }
 
@@ -34,9 +35,7 @@ public sealed class TunnelManager : IDisposable
             Path.Combine(baseDirectory, "cloudflared.exe"),
             Path.Combine(AppContext.BaseDirectory, "cloudflared.exe"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cloudflared.exe"),
-            Path.Combine(baseDirectory, "..", "cloudflared.exe"),
-            @"E:\Genesis Launcher - DEV\cloudflared.exe",
-            @"E:\Genesis Launcher\cloudflared.exe"
+            Path.Combine(baseDirectory, "..", "cloudflared.exe")
         };
 
         foreach (var c in candidates)
@@ -48,6 +47,22 @@ public sealed class TunnelManager : IDisposable
 
     public async Task<bool> StartTunnelsAsync(string? baseDir = null, CancellationToken ct = default, Action<string>? onStatus = null)
     {
+        if (!HasTunnels)
+        {
+            IsConnected = true;
+            return true;
+        }
+
+        foreach (var t in _tunnels)
+        {
+            string? invalid = Validate(t);
+            if (invalid != null)
+            {
+                onStatus?.Invoke(invalid);
+                return false;
+            }
+        }
+
         string? cloudflared = FindCloudflared(baseDir);
         if (string.IsNullOrEmpty(cloudflared))
         {
@@ -57,7 +72,7 @@ public sealed class TunnelManager : IDisposable
 
         onStatus?.Invoke("Verificando puertos de conexión...");
 
-        foreach (var t in Tunnels)
+        foreach (var t in _tunnels)
         {
             if (TestLocalPort(t.Port))
             {
@@ -73,16 +88,19 @@ public sealed class TunnelManager : IDisposable
         {
             StopTunnelsInternal();
 
-            foreach (var t in Tunnels)
+            foreach (var t in _tunnels)
             {
                 var psi = new ProcessStartInfo
                 {
                     FileName = cloudflared,
-                    Arguments = $"access tcp --hostname {t.Hostname} --url 127.0.0.1:{t.Port}",
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
+                foreach (string arg in new[] { "access", "tcp", "--hostname", t.Hostname, "--url", $"127.0.0.1:{t.Port}" })
+                {
+                    psi.ArgumentList.Add(arg);
+                }
 
                 try
                 {
@@ -100,13 +118,13 @@ public sealed class TunnelManager : IDisposable
             }
         }
 
-        // Wait for all 3 ports to be listening
+        // Wait for every tunnel port to be listening
         DateTime deadline = DateTime.UtcNow.AddSeconds(20);
         while (DateTime.UtcNow < deadline)
         {
             ct.ThrowIfCancellationRequested();
             bool allOpen = true;
-            foreach (var t in Tunnels)
+            foreach (var t in _tunnels)
             {
                 if (!TestLocalPort(t.Port))
                 {
@@ -127,6 +145,15 @@ public sealed class TunnelManager : IDisposable
 
         onStatus?.Invoke("Tiempo de espera agotado al conectar con el servidor.");
         return false;
+    }
+
+    private static string? Validate(TunnelSpec t)
+    {
+        if (Uri.CheckHostName(t.Hostname) != UriHostNameType.Dns || t.Port is < 1 or > 65535)
+        {
+            return $"launcher.json \"tunnels\" entry is invalid (hostname \"{t.Hostname}\", port {t.Port}).";
+        }
+        return null;
     }
 
     public static bool TestLocalPort(int port)
@@ -195,3 +222,7 @@ public sealed class TunnelManager : IDisposable
         StopTunnels();
     }
 }
+
+public sealed record TunnelSpec(
+    [property: JsonPropertyName("hostname")] string Hostname,
+    [property: JsonPropertyName("port")] int Port);

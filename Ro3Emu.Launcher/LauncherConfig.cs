@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -22,7 +24,35 @@ public sealed class LauncherConfig
 	public string? Server { get; set; } = "http://127.0.0.1:5380";
 
 	[JsonPropertyName("serverName")]
-	public string ServerName { get; set; } = "KonsorRO";
+	public string ServerName { get; set; } = "RO3 Server";
+
+	/// <summary>Optional URL returning { "enabled": bool } or { "registration_enabled": bool }. Empty: registration is assumed open.</summary>
+	[JsonPropertyName("statusUrl")]
+	public string? StatusUrl { get; set; }
+
+	/// <summary>Cloudflare TCP tunnels opened before launch. Empty: the server is reached directly.</summary>
+	[JsonPropertyName("tunnels")]
+	public List<TunnelSpec> Tunnels { get; set; } = [];
+
+	/// <summary><see cref="Server"/> normalized without a trailing slash, or null when missing or invalid.</summary>
+	[JsonIgnore]
+	public string? ServerBaseUrl => TryParseHttpUrl(Server, out Uri? uri) ? uri!.AbsoluteUri.TrimEnd('/') : null;
+
+	/// <summary>Why <see cref="Server"/> cannot be used, or null when it is a valid http(s) URL.</summary>
+	[JsonIgnore]
+	public string? ServerError => TryParseHttpUrl(Server, out _)
+		? null
+		: $"launcher.json \"server\" must be an absolute http(s) URL such as https://game.example.com:5380 (found: {(string.IsNullOrWhiteSpace(Server) ? "nothing" : $"\"{Server}\"")}).";
+
+	public static bool TryParseHttpUrl(string? value, out Uri? uri)
+	{
+		if (Uri.TryCreate(value?.Trim(), UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) && !string.IsNullOrEmpty(uri.Host))
+		{
+			return true;
+		}
+		uri = null;
+		return false;
+	}
 
 	public static LauncherConfig Load(string besideExe)
 	{

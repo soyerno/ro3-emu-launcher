@@ -86,7 +86,7 @@ public sealed class LauncherController : IDisposable
 
 	private string? _sdkAccount;
 	private bool _registrationEnabled = true;
-	private readonly TunnelManager _tunnels = new TunnelManager();
+	private readonly TunnelManager _tunnels;
 
 	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
 	{
@@ -95,6 +95,7 @@ public sealed class LauncherController : IDisposable
 		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00d1: Expected Obj, but got Unknown
 		_config = config;
+		_tunnels = new TunnelManager(config.Tunnels);
 		_exePath = exePath;
 		_post = post;
 		_pickFolder = pickFolder;
@@ -476,12 +477,13 @@ public sealed class LauncherController : IDisposable
 
 		identity = identity.Trim();
 
-		string[] endpoints = {
-			"http://127.0.0.1:5380/sdk/login",
-			(_config.Server?.TrimEnd('/') ?? "http://127.0.0.1:5380") + "/sdk/login"
-		};
+		string? server = _config.ServerBaseUrl;
+		if (server == null)
+		{
+			return new AuthResult(Success: false, _config.ServerError!, identity);
+		}
 
-		foreach (string ep in endpoints.Distinct())
+		foreach (string ep in new[] { server + "/sdk/login" })
 		{
 			try
 			{
@@ -574,12 +576,13 @@ public sealed class LauncherController : IDisposable
 			return new AuthResult(Success: false, "Las contraseñas no coinciden.", username);
 		}
 
-		string[] registerEndpoints = {
-			"https://konsor.com.ar/api/login",
-			"http://127.0.0.1:5380/sdk/login"
-		};
+		string? server = _config.ServerBaseUrl;
+		if (server == null)
+		{
+			return new AuthResult(Success: false, _config.ServerError!, username);
+		}
 
-		foreach (string ep in registerEndpoints)
+		foreach (string ep in new[] { server + "/sdk/login" })
 		{
 			try
 			{
@@ -648,7 +651,7 @@ public sealed class LauncherController : IDisposable
 
 	private async Task<AuthResult> VerifyEmailAsync(string username, string code)
 	{
-		string text = _config.Server?.TrimEnd('/');
+		string? text = _config.ServerBaseUrl;
 		if (!string.IsNullOrEmpty(text))
 		{
 			try
@@ -673,7 +676,7 @@ public sealed class LauncherController : IDisposable
 		_ = 1;
 		try
 		{
-			string text = _config.Server?.TrimEnd('/');
+			string? text = _config.ServerBaseUrl;
 			if (string.IsNullOrEmpty(text))
 			{
 				return;
@@ -912,11 +915,18 @@ public sealed class LauncherController : IDisposable
 			}
 		}
 
-		PostState("launching", "Verificando túneles con el servidor Konsor...");
-		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
-		
-		if (!_tunnels.IsConnected)
+		if (_config.ServerError is { } serverError)
 		{
+			Trace(serverError);
+			PostState("error", serverError);
+			return;
+		}
+
+		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
+
+		if (_tunnels.HasTunnels && !_tunnels.IsConnected)
+		{
+			PostState("launching", "Verificando túneles con el servidor Konsor...");
 			bool tunnelOk = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
 			if (!tunnelOk)
 			{
@@ -929,7 +939,7 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", "Parcheando e iniciando el juego...");
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
 		Trace($"Llamando a JoinAndLaunchAsync con gameDir='{gameDir}', account='{accountToUse}'...");
-		string? err = await KonsorGameOrchestrator.JoinAndLaunchAsync(gameDir, baseDir, accountToUse, msg => PostState("launching", msg));
+		string? err = await KonsorGameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg));
 		if (err != null)
 		{
 			Trace($"JoinAndLaunchAsync devolvió error: {err}");
@@ -988,7 +998,7 @@ public sealed class LauncherController : IDisposable
 		{
 			return null;
 		}
-		string server = _config.Server?.TrimEnd('/');
+		string? server = _config.ServerBaseUrl;
 		if (string.IsNullOrEmpty(server))
 		{
 			return null;
@@ -1052,13 +1062,13 @@ public sealed class LauncherController : IDisposable
 
 	private async Task CheckRegistrationStatusAsync()
 	{
-		string[] endpoints = {
-			"https://konsor.com.ar/api/admin/registration",
-			"https://konsor.com.ar/status.json",
-			"http://127.0.0.1:8095/api/admin/registration"
-		};
+		if (!LauncherConfig.TryParseHttpUrl(_config.StatusUrl, out Uri? statusUri))
+		{
+			PostRegistrationStatus();
+			return;
+		}
 
-		foreach (string ep in endpoints)
+		foreach (string ep in new[] { statusUri!.AbsoluteUri })
 		{
 			try
 			{
@@ -1109,11 +1119,11 @@ public sealed class LauncherController : IDisposable
 
 	private async Task PingLoopAsync()
 	{
-		if (string.IsNullOrEmpty(_config.Server))
+		string? server = _config.ServerBaseUrl;
+		if (server == null)
 		{
 			return;
 		}
-		string server = _config.Server.TrimEnd('/');
 		while (!_life.IsCancellationRequested)
 		{
 			bool online = false;
@@ -1163,11 +1173,9 @@ public sealed class LauncherController : IDisposable
 
 	private async Task LoadNewsAsync()
 	{
-		string[] candidateUrls =
-		{
-			"https://konsor.com.ar/news.json",
-			"http://127.0.0.1:5380/news.json"
-		};
+		string[] candidateUrls = LauncherConfig.TryParseHttpUrl(_config.Repository, out Uri? repo)
+			? [new Uri(repo!, "news.json").AbsoluteUri]
+			: [];
 
 		foreach (string url in candidateUrls)
 		{

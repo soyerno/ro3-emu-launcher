@@ -18,9 +18,7 @@ public sealed class KonsorGameOrchestrator
             Path.Combine(baseDirectory, "RO3Emu.exe"),
             Path.Combine(AppContext.BaseDirectory, "RO3Emu.exe"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RO3Emu.exe"),
-            Path.Combine(baseDirectory, "..", "RO3Emu.exe"),
-            @"E:\Genesis Launcher - DEV\RO3Emu.exe",
-            @"E:\Genesis Launcher\RO3Emu.exe"
+            Path.Combine(baseDirectory, "..", "RO3Emu.exe")
         };
 
         foreach (var c in candidates)
@@ -37,9 +35,7 @@ public sealed class KonsorGameOrchestrator
         {
             Path.Combine(baseDirectory, "RO3Emu.settings.json"),
             Path.Combine(AppContext.BaseDirectory, "RO3Emu.settings.json"),
-            Path.Combine(baseDirectory, "..", "RO3Emu.settings.json"),
-            @"E:\Genesis Launcher - DEV\RO3Emu.settings.json",
-            @"E:\Genesis Launcher\RO3Emu.settings.json"
+            Path.Combine(baseDirectory, "..", "RO3Emu.settings.json")
         };
 
         foreach (var c in candidates)
@@ -149,11 +145,16 @@ public sealed class KonsorGameOrchestrator
         catch { }
     }
 
-    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null)
+    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null)
     {
         if (!IsValidGameDir(gameDir))
         {
             return "No se encontró ro3.exe en la carpeta seleccionada.";
+        }
+
+        if (!LauncherConfig.TryParseHttpUrl(serverUrl, out Uri? server))
+        {
+            return $"launcher.json \"server\" must be an absolute http(s) URL (found: \"{serverUrl}\").";
         }
 
         string? ro3emu = FindRO3Emu(baseDir);
@@ -169,13 +170,17 @@ public sealed class KonsorGameOrchestrator
         var psi = new ProcessStartInfo
         {
             FileName = ro3emu,
-            Arguments = $"join http://127.0.0.1:5380 --client \"{gameDir}\" --yes",
             CreateNoWindow = true,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             WorkingDirectory = Path.GetDirectoryName(ro3emu) ?? gameDir
         };
+
+        foreach (string arg in new[] { "join", server!.AbsoluteUri.TrimEnd('/'), "--client", gameDir, "--yes" })
+        {
+            psi.ArgumentList.Add(arg);
+        }
 
         if (!string.IsNullOrWhiteSpace(loginAccount))
         {
