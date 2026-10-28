@@ -14,8 +14,10 @@ public sealed class LauncherConfig
 		AllowTrailingCommas = true
 	};
 
+	public const string DefaultRepository = "http://127.0.0.1:5380/";
+
 	[JsonPropertyName("repository")]
-	public string Repository { get; set; } = "http://127.0.0.1:5380/";
+	public string Repository { get; set; } = DefaultRepository;
 
 	[JsonPropertyName("channel")]
 	public string Channel { get; set; } = "live";
@@ -54,6 +56,14 @@ public sealed class LauncherConfig
 	public string? ServerError => TryParseHttpUrl(Server, out _)
 		? null
 		: Strings.Get("config.server.invalid", Server ?? "");
+
+	/// <summary><see cref="Repository"/> as a URI, or null when missing or invalid.</summary>
+	[JsonIgnore]
+	public Uri? RepositoryUri => TryParseHttpUrl(Repository, out Uri? uri) ? uri : null;
+
+	/// <summary>Why <see cref="Repository"/> cannot be used, or null when it is a valid http(s) URL.</summary>
+	[JsonIgnore]
+	public string? RepositoryError => RepositoryUri != null ? null : Strings.Get("config.repository.invalid", Repository ?? "");
 
 	public static bool TryParseHttpUrl(string? value, out Uri? uri)
 	{
