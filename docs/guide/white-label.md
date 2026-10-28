@@ -87,6 +87,16 @@ To change a wording, edit the entry for each language. To add a language, add it
 
 ---
 
-## 5. Branded Forks
+## 5. Branded Forks (`brand/` overlay)
 
-`main` is the community launcher and stays free of any server's brand. A server that wants its own artwork, texts or extra features keeps them in its own branch or fork. The `konsor` branch is an example of such a branded fork.
+`main` is the community launcher and stays free of any server's brand. A server that wants its own configuration, news, artwork or executable name keeps a branch or fork of `main` and adds files under [`brand/`](../../brand/README.md) with the same names as the root ones (`launcher.json`, `news.json`, `status.json`, `ui.assets.logo-hero.png`, `app.ico`, ...); the build embeds those instead of the defaults, and an optional `brand/brand.props` sets MSBuild properties such as `AssemblyName`.
+
+A fork only adds files, so it takes the community updates with a plain merge and no conflicts:
+
+```bash
+git checkout my-brand
+git fetch origin
+git merge origin/main
+```
+
+The `konsor` branch is an example of such a branded fork.

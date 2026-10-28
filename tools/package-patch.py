@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Packages the published launcher and the files it needs next to it into a patch ZIP.
 
-Usage: python tools/package-patch.py [--src dist] [--out ro3-launcher-patch.zip] [--name ro3-launcher]
+Usage: python tools/package-patch.py [--src dist] [--out ro3-launcher-patch.zip] [--name ro3-launcher] [--exe Ro3Launcher.exe]
 
 --src   folder holding the published launcher (publish.cmd writes dist) plus RO3Emu.exe
 --out   ZIP to write
 --name  top-level folder inside the ZIP
+--exe   launcher executable (the AssemblyName of the build; a branded fork may rename it)
 """
 import argparse
 import os
 import sys
 import zipfile
 
-# (path relative to --src, required)
+# (path relative to --src, required); the launcher executable is added from --exe
 FILES = [
-    ("Ro3Launcher.exe", True),
     ("RO3Emu.exe", True),
     ("launcher.json", True),
     ("news.json", False),
@@ -37,16 +37,18 @@ def main() -> int:
     parser.add_argument("--src", default="dist")
     parser.add_argument("--out", default="ro3-launcher-patch.zip")
     parser.add_argument("--name", default="ro3-launcher")
+    parser.add_argument("--exe", default="Ro3Launcher.exe")
     args = parser.parse_args()
+    files = [(args.exe, True)] + FILES
 
-    missing = [rel for rel, required in FILES if required and not os.path.exists(os.path.join(args.src, rel))]
+    missing = [rel for rel, required in files if required and not os.path.exists(os.path.join(args.src, rel))]
     if missing:
         print(f"[ERROR] Required files not found in {args.src}: {', '.join(missing)}")
         return 1
 
     print(f"Writing {args.out}...")
     with zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for rel, _ in FILES:
+        for rel, _ in files:
             full = os.path.join(args.src, rel)
             if os.path.exists(full):
                 z.write(full, f"{args.name}/{rel.replace(os.sep, '/')}")

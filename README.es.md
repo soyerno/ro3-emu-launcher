@@ -138,7 +138,7 @@ La capa visual se encuentra en [`ui.index.html`](ui.index.html), [`ui.app.css`](
 
 ## Forks con Marca
 
-`main` es el launcher de la comunidad y no lleva la marca de ningún servidor. La rama [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) es un ejemplo de fork con marca propia.
+`main` es el launcher de la comunidad y no lleva la marca de ningún servidor. Para usar tu propia configuración, noticias, logo, icono o nombre de ejecutable, mantén una rama de `main` y agrega archivos en [`brand/`](brand/README.md) con los mismos nombres que los de la raíz; el build los usa en lugar de los valores por defecto. Un fork solo agrega archivos, así que actualizarlo es un simple `git merge origin/main` sin conflictos. La rama [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) es un ejemplo de fork con marca.
 
 ---
 

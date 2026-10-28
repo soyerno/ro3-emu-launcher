@@ -16,8 +16,12 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
+  <!-- A branded fork adds brand\brand.props (AssemblyName, Product, ...) and brand\<file> overrides; main never edits them. -->
+  <Import Project="brand\brand.props" Condition="Exists('brand\brand.props')" />
   <PropertyGroup>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AppIconFile Condition="Exists('brand\app.ico')">brand\app.ico</AppIconFile>
+    <AppIconFile Condition="'$(AppIconFile)' == ''">app.ico</AppIconFile>
+    <ApplicationIcon>$(AppIconFile)</ApplicationIcon>
     <RootNamespace>Ro3Emu.Launcher</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
@@ -33,19 +37,25 @@
     <None Remove="ui.index.html" />
     <None Remove="news.json" />
     <None Remove="status.json" />
-    <EmbeddedResource Include="news.json" LogicalName="news.json" />
-    <EmbeddedResource Include="status.json" LogicalName="status.json" />
-    <EmbeddedResource Include="launcher.json" LogicalName="launcher.json" />
+    <EmbeddedResource Include="brand\news.json" LogicalName="news.json" Condition="Exists('brand\news.json')" />
+    <EmbeddedResource Include="news.json" LogicalName="news.json" Condition="!Exists('brand\news.json')" />
+    <EmbeddedResource Include="brand\status.json" LogicalName="status.json" Condition="Exists('brand\status.json')" />
+    <EmbeddedResource Include="status.json" LogicalName="status.json" Condition="!Exists('brand\status.json')" />
+    <EmbeddedResource Include="brand\launcher.json" LogicalName="launcher.json" Condition="Exists('brand\launcher.json')" />
+    <EmbeddedResource Include="launcher.json" LogicalName="launcher.json" Condition="!Exists('brand\launcher.json')" />
     <EmbeddedResource Include="ui.app.css" LogicalName="ui/app.css" />
     <EmbeddedResource Include="ui.app.js" LogicalName="ui/app.js" />
-    <EmbeddedResource Include="ui.assets.hero-art.jpg" LogicalName="ui/assets/hero-art.jpg" />
-    <EmbeddedResource Include="ui.assets.discord-banner.jpg" LogicalName="ui/assets/discord-banner.jpg" />
+    <EmbeddedResource Include="brand\ui.assets.hero-art.jpg" LogicalName="ui/assets/hero-art.jpg" Condition="Exists('brand\ui.assets.hero-art.jpg')" />
+    <EmbeddedResource Include="ui.assets.hero-art.jpg" LogicalName="ui/assets/hero-art.jpg" Condition="!Exists('brand\ui.assets.hero-art.jpg')" />
+    <EmbeddedResource Include="brand\ui.assets.discord-banner.jpg" LogicalName="ui/assets/discord-banner.jpg" Condition="Exists('brand\ui.assets.discord-banner.jpg')" />
+    <EmbeddedResource Include="ui.assets.discord-banner.jpg" LogicalName="ui/assets/discord-banner.jpg" Condition="!Exists('brand\ui.assets.discord-banner.jpg')" />
     <EmbeddedResource Include="ui.assets.btn-blue.png" LogicalName="ui/assets/btn-blue.png" />
     <EmbeddedResource Include="ui.assets.btn-cream.png" LogicalName="ui/assets/btn-cream.png" />
     <EmbeddedResource Include="ui.assets.icon-wrench.png" LogicalName="ui/assets/icon-wrench.png" />
-    <EmbeddedResource Include="ui.assets.logo-hero.png" LogicalName="ui/assets/logo-hero.png" />
+    <EmbeddedResource Include="brand\ui.assets.logo-hero.png" LogicalName="ui/assets/logo-hero.png" Condition="Exists('brand\ui.assets.logo-hero.png')" />
+    <EmbeddedResource Include="ui.assets.logo-hero.png" LogicalName="ui/assets/logo-hero.png" Condition="!Exists('brand\ui.assets.logo-hero.png')" />
     <EmbeddedResource Include="ui.index.html" LogicalName="ui/index.html" />
-    <Resource Include="app.ico" LogicalName="app.ico" />
+    <Resource Include="$(AppIconFile)" LogicalName="app.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />

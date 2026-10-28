@@ -7,7 +7,8 @@ echo        RO3 Launcher DevKit - Patch ZIP packager
 echo ========================================================
 echo.
 
-python tools\package-patch.py %*
+for /f "delims=" %%i in ('dotnet msbuild Ro3Launcher.csproj -getProperty:AssemblyName') do set "APP=%%i"
+python tools\package-patch.py --exe %APP%.exe %*
 if errorlevel 1 (
     pause
     exit /b 1

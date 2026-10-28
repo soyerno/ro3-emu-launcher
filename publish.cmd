@@ -1,17 +1,18 @@
 @echo off
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
+for /f "delims=" %%i in ('dotnet msbuild Ro3Launcher.csproj -getProperty:AssemblyName') do set "APP=%%i"
 
 echo ========================================================
 echo        RO3 Launcher - Publicacion Single-File
 echo ========================================================
 echo.
 
-:: 1. Cerrar procesos bloqueantes de Ro3Launcher si existen
-tasklist /fi "imagename eq Ro3Launcher.exe" 2>nul | find /i "Ro3Launcher.exe" >nul
+:: 1. Cerrar procesos bloqueantes del launcher si existen
+tasklist /fi "imagename eq %APP%.exe" 2>nul | find /i "%APP%.exe" >nul
 if %ERRORLEVEL% equ 0 (
-    echo [AVISO] Cerrando instancia previa de Ro3Launcher.exe en ejecucion...
-    taskkill /f /im Ro3Launcher.exe >nul 2>&1
+    echo [AVISO] Cerrando instancia previa de %APP%.exe en ejecucion...
+    taskkill /f /im %APP%.exe >nul 2>&1
     timeout /t 1 /nobreak >nul
 )
 
@@ -32,15 +33,15 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo [2/2] Verificando binario generado...
-if exist "dist\Ro3Launcher.exe" (
-    for %%F in ("dist\Ro3Launcher.exe") do set size=%%~zF
+if exist "dist\%APP%.exe" (
+    for %%F in ("dist\%APP%.exe") do set size=%%~zF
     set /a sizeMB=!size! / 1048576
     echo ========================================================
     echo  [EXITO] Ejecutable listo en:
-    echo  %~dp0dist\Ro3Launcher.exe - Tamano: !sizeMB! MB
+    echo  %~dp0dist\%APP%.exe - Tamano: !sizeMB! MB
     echo ========================================================
 ) else (
-    echo [ERROR] No se encontro dist\Ro3Launcher.exe
+    echo [ERROR] No se encontro dist\%APP%.exe
 )
 
 echo.

@@ -1,6 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
+for /f "delims=" %%i in ('dotnet msbuild Ro3Launcher.csproj -getProperty:AssemblyName') do set "APP=%%i"
 
 echo ========================================================
 echo        RO3 Launcher - Deploy a Carpeta de Juego
@@ -16,15 +17,15 @@ if not exist "%TARGET_DIR%" (
     exit /b 1
 )
 
-:: 2. Cerrar procesos de Ro3Launcher en ejecucion
-tasklist /fi "imagename eq Ro3Launcher.exe" 2>nul | find /i "Ro3Launcher.exe" >nul
+:: 2. Cerrar procesos del launcher en ejecucion
+tasklist /fi "imagename eq %APP%.exe" 2>nul | find /i "%APP%.exe" >nul
 if %ERRORLEVEL% equ 0 (
-    echo [INFO] Cerrando Ro3Launcher.exe en ejecucion...
-    taskkill /f /im Ro3Launcher.exe >nul 2>&1
+    echo [INFO] Cerrando %APP%.exe en ejecucion...
+    taskkill /f /im %APP%.exe >nul 2>&1
     timeout /t 1 /nobreak >nul
 )
 
-:: 3. Compilar Release si dist\Ro3Launcher.exe no existe o si se solicita
+:: 3. Compilar Release si dist\%APP%.exe no existe o si se solicita
 echo [1/3] Compilando y empaquetando Release...
 dotnet publish Ro3Launcher.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o dist
 if %ERRORLEVEL% neq 0 (
@@ -35,9 +36,9 @@ if %ERRORLEVEL% neq 0 (
 
 :: 4. Copiar a la carpeta de juego
 echo [2/3] Copiando ejecutable a "%TARGET_DIR%"...
-copy /y "dist\Ro3Launcher.exe" "%TARGET_DIR%\Ro3Launcher.exe" >nul
+copy /y "dist\%APP%.exe" "%TARGET_DIR%\%APP%.exe" >nul
 if %ERRORLEVEL% neq 0 (
-    echo [ERROR] No se pudo copiar a "%TARGET_DIR%\Ro3Launcher.exe". Asegurate de que no este bloqueado.
+    echo [ERROR] No se pudo copiar a "%TARGET_DIR%\%APP%.exe". Asegurate de que no este bloqueado.
     pause
     exit /b 1
 )
@@ -46,16 +47,16 @@ echo [3/3] Despliegue completado con exito.
 echo.
 echo ========================================================
 echo  [EXITO] Launcher desplegado en:
-echo  "%TARGET_DIR%\Ro3Launcher.exe"
+echo  "%TARGET_DIR%\%APP%.exe"
 echo ========================================================
 echo.
 
 if "%1"=="--no-run" goto :done
 if "%1"=="-n" goto :done
-set /p RUN_NOW="Deseas iniciar Ro3Launcher ahora mismo? (S/N): "
+set /p RUN_NOW="Deseas iniciar el launcher ahora mismo? (S/N): "
 if /i "%RUN_NOW%"=="S" (
-    echo Iniciando "%TARGET_DIR%\Ro3Launcher.exe"...
-    start "" "%TARGET_DIR%\Ro3Launcher.exe"
+    echo Iniciando "%TARGET_DIR%\%APP%.exe"...
+    start "" "%TARGET_DIR%\%APP%.exe"
 )
 :done
 
