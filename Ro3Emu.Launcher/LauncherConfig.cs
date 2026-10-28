@@ -24,7 +24,7 @@ public sealed class LauncherConfig
 	public string? Server { get; set; } = "http://127.0.0.1:5380";
 
 	[JsonPropertyName("serverName")]
-	public string ServerName { get; set; } = "RO3 Server";
+	public string ServerName { get; set; } = "My RO3 Server";
 
 	/// <summary>Optional URL returning { "enabled": bool } or { "registration_enabled": bool }. Empty: registration is assumed open.</summary>
 	[JsonPropertyName("statusUrl")]
