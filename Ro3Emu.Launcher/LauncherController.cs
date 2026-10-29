@@ -955,7 +955,7 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", Strings.Get("state.patching"));
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
 		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
-		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg));
+		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl);
 		if (err != null)
 		{
 			Trace($"JoinAndLaunchAsync returned an error: {err}");

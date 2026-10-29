@@ -56,6 +56,7 @@ public static class Strings
 	{
 		// configuration
 		["config.server.invalid"] = ("launcher.json \"server\" must be an absolute http(s) URL such as https://game.example.com:5380 (current value: \"{0}\").", "El campo \"server\" de launcher.json debe ser una URL http(s) absoluta, por ejemplo https://game.example.com:5380 (valor actual: \"{0}\")."),
+		["config.purchaseUrl.invalid"] = ("launcher.json \"purchaseUrl\" must be an absolute http(s) URL such as https://example.com/donate, or be left out (current value: \"{0}\").", "El campo \"purchaseUrl\" de launcher.json debe ser una URL http(s) absoluta, por ejemplo https://example.com/donate, o no estar (valor actual: \"{0}\")."),
 		["config.repository.invalid"] = ("launcher.json \"repository\" must be an absolute http(s) URL such as https://patch.example.com/ (current value: \"{0}\").", "El campo \"repository\" de launcher.json debe ser una URL http(s) absoluta, por ejemplo https://patch.example.com/ (valor actual: \"{0}\")."),
 		["config.tunnel.invalid"] = ("launcher.json \"tunnels\" has an invalid entry (hostname \"{0}\", port {1}).", "launcher.json \"tunnels\" tiene una entrada inválida (hostname \"{0}\", puerto {1})."),
 
