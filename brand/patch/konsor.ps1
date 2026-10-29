@@ -157,7 +157,7 @@ try {
         Copy-Item (Join-Path $here 'data\en_overrides.tsv') (Join-Path $ro3emuDir 'en_overrides.tsv') -Force
     }
     # Spanish map is keyed by Chinese: the client must draw Chinese (PlayerPrefs CurrentLanguage).
-    try { if (-not (Test-Path 'HKCU:\Software\gravity\ro3')) { New-Item -Path 'HKCU:\Software\gravity\ro3' | Out-Null }; Set-ItemProperty -Path 'HKCU:\Software\gravity\ro3' -Name 'CurrentLanguage_h413354046' -Value ([Text.Encoding]::UTF8.GetBytes('chinesesimplified' + [char]0)) -Type Binary } catch { }
+    try { if (-not (Test-Path 'HKCU:\Software\gravity\ro3')) { New-Item -Path 'HKCU:\Software\gravity\ro3' | Out-Null }; Set-ItemProperty -Path 'HKCU:\Software\gravity\ro3' -Name 'CurrentLanguage_h413354046' -Value ([Text.Encoding]::UTF8.GetBytes('english' + [char]0)) -Type Binary } catch { }
     & $ro3emu join 'http://127.0.0.1:5380' --client $gameDir --yes
     if ($LASTEXITCODE -ne 0) {
         Write-Fail "RO3Emu termino con error ($LASTEXITCODE)."
@@ -176,5 +176,6 @@ try {
         if ($p -and -not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
     }
 }
+
 
 

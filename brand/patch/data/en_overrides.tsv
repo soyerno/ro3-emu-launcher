@@ -2,7 +2,6 @@
 # Loading-screen tips (LoadingInfoConfig 4 / 5 -> Localization 10460000000 with @{1}=3, 10460000001).
 Welcome to RO Ragnarok Online 3!	¡Bienvenidos a Ragnarok Online 3!
 Goodbye, imitators! Only the real RO can fight!	¡La aventura te aguarda en Rune-Midgard!
-# Auction list cell (PUBLIC lot): the shipped sentence overflows the cell on both sides.
 Fixed price purchases will become available after the listing period ends.	La compra directa se habilita al finalizar el período.
 
 # Quest Tags & Tracking
@@ -64,6 +63,50 @@ Alberta	Alberta
 Izlude	Izlude
 Al De Baran	Aldebarán
 
+# Login & Auth Screens
+Recent Login	Último inicio de sesión
+Enter Battle	Entrar al combate
+Enter Game	Entrar al juego
+Start Game	Iniciar juego
+Tap to start	Toca para iniciar
+Tap to Start	Toca para iniciar
+Touch to start	Toca para iniciar
+Touch to Start	Toca para iniciar
+Tap to enter the game	Toca para entrar al juego
+Tap to Enter the Game	Toca para entrar al juego
+Touch the screen to enter the game	Toca la pantalla para entrar al juego
+Touch screen to start	Toca la pantalla para iniciar
+Touch the Screen	Toca la pantalla
+Tap to Enter	Toca para entrar
+Touch to Enter	Toca para entrar
+Switch Account	Cambiar de cuenta
+User Center	Centro de usuario
+Game Notice	Anuncios del juego
+Notice	Anuncios
+Announcement	Anuncio
+Announcements	Anuncios
+Server List	Lista de servidores
+Select Server	Seleccionar servidor
+Scan to Login	Escanear código QR
+Scan Code	Escanear código
+Customer Service	Atención al cliente
+Repair	Reparar
+Logout	Cerrar sesión
+Log Out	Cerrar sesión
+Login	Iniciar sesión
+Log In	Iniciar sesión
+Enter your account	Ingresa tu cuenta
+Enter password	Ingresa tu contraseña
+Remember password	Recordar contraseña
+Auto Login	Inicio automático
+Server Maintenance	Mantenimiento del servidor
+Connecting to server	Conectando al servidor
+Logging in	Iniciando sesión
+Character Select	Seleccionar personaje
+Create Character	Crear personaje
+Delete Character	Eliminar personaje
+Start Adventure	Iniciar aventura
+
 # Character Sheet & UI
 Status	Estado
 Status de la empresa	Estado
@@ -72,11 +115,10 @@ Character	Personaje
 Attributes	Atributos
 Stats	Atributos
 Title	Título
-Enter Battle	Entrar al combate
-Recent Login	Último inicio de sesión
 Owned:	Posees:
 Bag	Mochila
 Inventory	Inventario
+Equipment	Equipo
 
 # HUD & Quick Actions
 Create Party	Crear Grupo
@@ -86,6 +128,7 @@ World	Mundo
 Nearby	Cercanos
 Guild	Gremio
 Party	Grupo
+Team	Equipo
 Friends	Amigos
 Skills	Habilidades
 Backpack	Mochila
@@ -93,8 +136,10 @@ Menu	Menú
 Shop	Tienda
 Event	Evento
 Season	Temporada
+Settings	Ajustes
+System	Sistema
 
-# Card System (Cartas, no Tarjeta de crédito)
+# Card System
 Cards	Cartas
 Card	Carta
 Cards System	Sistema de Cartas
@@ -132,28 +177,3 @@ Tarjeta de crédito	Cartas
 Tarjeta de credito	Cartas
 tarjeta de crédito	carta
 tarjeta de credito	carta
-Settings	Ajustes
-System	Sistema
-Team	Equipo
-Tap to enter the game	Toca para entrar al juego
-Tap to start	Toca para iniciar
-Touch the screen to enter the game	Toca la pantalla para entrar al juego
-Touch screen to start	Toca la pantalla para iniciar
-Touch to start	Toca para iniciar
-Switch Account	Cambiar de cuenta
-User Center	Centro de usuario
-Game Notice	Anuncios del juego
-Notice	Anuncios
-Announcement	Anuncio
-Announcements	Anuncios
-Server List	Lista de servidores
-Select Server	Seleccionar servidor
-Scan to Login	Escanear código QR
-Scan Code	Escanear código
-Customer Service	Atención al cliente
-Repair	Reparar
-Logout	Cerrar sesión
-Start Game	Iniciar juego
-Enter Game	Entrar al juego
-Enter Battle	Entrar al combate
-Recent Login	Último inicio de sesión

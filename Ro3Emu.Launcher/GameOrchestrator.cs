@@ -222,9 +222,10 @@ public sealed class GameOrchestrator
                 }
             }
 
-            // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3). Our Spanish map is keyed
-            // by the Chinese text, so Spanish needs the client drawing Chinese; English uses the client's English tables.
-            SetClientLanguagePref(activeLang.StartsWith("es") ? "chinesesimplified" : "english");
+            // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3).
+            // Always set "english" so that all Monsters and NPCs use the official English tables natively.
+            // Spanish UI, login screen, menus, and quest titles are applied on top via en_overrides.tsv and Ro3Loc.
+            SetClientLanguagePref("english");
 
             string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
             string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
