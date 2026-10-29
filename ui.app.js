@@ -1,4 +1,4 @@
-// Launcher controller script
+﻿// Launcher controller script
 // Manages internationalization (PT-BR, EN, ES), state, UI rendering, news, and WebView2 communications.
 
 (function () {
@@ -90,7 +90,9 @@
         folder: "Pasta do jogo",
         btnChange: "Alterar pasta",
         btnOpen: "Abrir pasta",
-        hint: "Já possui o cliente instalado? Aponte para a pasta e apenas os arquivos atualizados serão baixados."
+        hint: "Já possui o cliente instalado? Aponte para a pasta e apenas os arquivos atualizados serão baixados.",
+        langLabel: "Idioma do Inicializador e Jogo",
+        langHint: "Selecione o idioma da interface e das traduções dentro do jogo."
       }
     },
     "en": {
@@ -162,7 +164,9 @@
         folder: "Game folder",
         btnChange: "Change folder",
         btnOpen: "Open folder",
-        hint: "Already have the RO3 PC client? Point this at its folder and only changed files are downloaded."
+        hint: "Already have the RO3 PC client? Point this at its folder and only changed files are downloaded.",
+        langLabel: "Game & Launcher Language",
+        langHint: "Select language for the launcher UI and in-game translations."
       }
     },
     "es": {
@@ -234,7 +238,9 @@
         folder: "Carpeta del juego",
         btnChange: "Cambiar carpeta",
         btnOpen: "Abrir carpeta",
-        hint: "¿Ya tienes el cliente instalado? Apunta a la carpeta y solo se descargarán los archivos modificados."
+        hint: "¿Ya tienes el cliente instalado? Apunta a la carpeta y solo se descargarán los archivos modificados.",
+        langLabel: "Idioma del Launcher y Juego",
+        langHint: "Selecciona el idioma del launcher y de las traducciones dentro del juego."
       }
     }
   };
@@ -465,6 +471,11 @@
 
     // Update active dropdown item
     document.querySelectorAll(".lang-opt").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.lang === lang);
+    });
+
+    // Update active settings pill
+    document.querySelectorAll(".lang-pill-opt").forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.lang === lang);
     });
 

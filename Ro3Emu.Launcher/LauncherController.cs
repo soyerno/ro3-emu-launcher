@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -295,9 +295,11 @@ public sealed class LauncherController : IDisposable
 			break;
 		case "language":
 		{
-			if (message.TryGetProperty("lang", out var langProp))
+			if (message.TryGetProperty("lang", out var langProp) && langProp.GetString() is string l)
 			{
-				Strings.SetLanguage(langProp.GetString());
+				Strings.SetLanguage(l);
+				_config.Language = Strings.Language;
+				UserSettings.SaveLanguage(Strings.Language);
 			}
 			break;
 		}
@@ -955,7 +957,7 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", Strings.Get("state.patching"));
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
 		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
-		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl);
+		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
 		if (err != null)
 		{
 			Trace($"JoinAndLaunchAsync returned an error: {err}");

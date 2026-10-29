@@ -1,4 +1,4 @@
-/* Launcher theme — "Midgard Sky" (glassmorphism) */
+﻿/* Launcher theme — "Midgard Sky" (glassmorphism) */
 
 :root {
   --ink: #1e2d3d;
@@ -927,3 +927,47 @@ a { color: inherit; text-decoration: none; }
 .auth-link-btn:hover { color: var(--primary-b); }
 
 .auth-primary { width: 100%; }
+
+/* Settings Language Selector */
+.settings-lang-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(74, 144, 226, 0.25);
+}
+
+.lang-setting-options {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.lang-pill-opt {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--edge-soft);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.lang-pill-opt:hover {
+  background: rgba(74, 144, 226, 0.12);
+  color: var(--ink);
+  border-color: rgba(74, 144, 226, 0.4);
+}
+
+.lang-pill-opt.active {
+  background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  color: #4a3a15;
+  border-color: rgba(212, 168, 87, 0.6);
+  box-shadow: 0 2px 8px rgba(212, 168, 87, 0.35);
+  font-weight: 700;
+}

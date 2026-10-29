@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -27,13 +27,13 @@
     <div class="lang-selector" id="lang-selector">
       <button class="lang-btn" id="lang-btn" type="button" title="Idioma / Language">
         <svg class="globe-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" stroke="currentColor" fill="none" stroke-width="1.2"/><ellipse cx="8" cy="8" rx="3.2" ry="7" stroke="currentColor" fill="none" stroke-width="1.1"/><path d="M1.5 5.5h13M1.5 10.5h13" stroke="currentColor" stroke-width="1.1"/></svg>
-        <span id="current-lang">EN</span>
-        <span class="chevron-down">˅</span>
+        <span id="current-lang">ES</span>
+        <span class="chevron-down">▾</span>
       </button>
       <div class="lang-dropdown" id="lang-dropdown" hidden>
-        <button class="lang-opt" data-lang="es" type="button">Español (ES)</button>
-        <button class="lang-opt active" data-lang="en" type="button">English (EN)</button>
-        <button class="lang-opt" data-lang="pt-br" type="button">Português (PT-BR)</button>
+        <button class="lang-opt active" data-lang="es" type="button">🇪🇸 Español (ES)</button>
+        <button class="lang-opt" data-lang="en" type="button">🇺🇸 English (EN)</button>
+        <button class="lang-opt" data-lang="pt-br" type="button">🇧🇷 Português (PT-BR)</button>
       </div>
     </div>
     <span class="vsep"></span>
@@ -78,6 +78,21 @@
     <button class="btn-soft small" id="set-open" type="button">Open folder</button>
   </div>
   <p class="hint" id="settings-hint">Already have the client installed? Point to its folder and only the modified files will be downloaded.</p>
+  <div class="settings-lang-section">
+    <label class="field-label" id="settings-lbl-language">Idioma / Language</label>
+    <div class="lang-setting-options" id="settings-lang-options">
+      <button type="button" class="lang-pill-opt active" data-lang="es">
+        <span class="lang-flag">🇪🇸</span> Español (ES)
+      </button>
+      <button type="button" class="lang-pill-opt" data-lang="en">
+        <span class="lang-flag">🇺🇸</span> English (EN)
+      </button>
+      <button type="button" class="lang-pill-opt" data-lang="pt-br">
+        <span class="lang-flag">🇧🇷</span> Português (PT)
+      </button>
+    </div>
+    <p class="hint" id="settings-lang-hint">Selecciona el idioma del launcher y del cliente de juego.</p>
+  </div>
   <p class="card-foot" id="set-version"></p>
 </section>
 

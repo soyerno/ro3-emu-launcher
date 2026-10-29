@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -145,7 +145,7 @@ public sealed class GameOrchestrator
         catch { }
     }
 
-    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null, string? purchaseUrl = null)
+    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null, string? purchaseUrl = null, string? language = null)
     {
         if (!IsValidGameDir(gameDir))
         {
