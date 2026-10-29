@@ -49,3 +49,21 @@ Players simply download the executable and launch it directly.
 `tools\package-patch.cmd` zips `dist\` (plus `RO3Emu.exe`, `cloudflared.exe`, the `client\` hooks and the native DLLs) for players; anything in `brand/patch/` is added at the same relative path.
 
 The executable is named after the build's `AssemblyName` (`Ro3Launcher` by default). A branded fork can rename it in `brand/brand.props`; the `.cmd` scripts and `tools\package-patch.cmd` pick the name up automatically (see [`brand/README.md`](../../brand/README.md)).
+
+---
+
+## GitHub Releases
+
+`.github/workflows/release.yml` builds the same ZIP on GitHub and publishes it. Each branch has its own release:
+`main` uses `release.env` (tags `v<version>`), and a branded branch overrides it in `brand/release.env` (for
+example tags `konsor-v<version>` on `konsor`). Every download in it (RO3Emu, cloudflared) is pinned with its SHA-256.
+
+```cmd
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+Pull requests that touch the release files only build the ZIP and attach it to the run as an artifact.
+`python -m unittest tools/test_release.py` tests the settings and notes script (`tools/release.py`). See
+[`brand/README.md`](../../brand/README.md) for the branded settings.
+

@@ -16,6 +16,8 @@ Put a file here with the **same name** as the one in the repository root and it 
 | `ui.assets.discord-banner.jpg` | `ui.assets.discord-banner.jpg` |
 | `app.ico` | `app.ico` (the executable icon) |
 | `brand.props` | optional MSBuild properties, e.g. the executable name |
+| `release-notes.md` | `release-notes.md` (the notes of this branch's GitHub Release) |
+| `release.env` | only the keys it sets in `release.env` (see "Releases" below) |
 
 `brand.props` example, to keep an existing executable name:
 
@@ -59,3 +61,22 @@ git checkout -b my-brand origin/main
 # add brand/launcher.json, brand/news.json, brand/ui.assets.logo-hero.png, brand/app.ico, ...
 git add brand && git commit -m "feat: brand overlay for my server"
 ```
+
+## Releases
+
+Every branch publishes its own GitHub Release (`.github/workflows/release.yml`): `main` the community launcher, a
+branded branch its own. `release.env` holds `main`'s settings; `brand/release.env` overrides only the keys it sets.
+A branded branch needs at least its own tag prefix and ZIP name:
+
+```text
+TAG_PREFIX=myserver-v
+PACKAGE_NAME=myserver-patch
+RELEASE_TITLE=MyServer patch
+```
+
+Pushing a tag `<TAG_PREFIX><version>` on the branch builds the launcher, adds the pinned `RO3Emu.exe` with its
+`client\` hooks, `cloudflared.exe` when `CLOUDFLARED_TAG` is set, and every file under `brand/patch/`, then publishes
+the ZIP and its SHA-256. A tag with another branch's prefix is refused, so `v1.2.0` on the branded branch publishes
+nothing. Set `RO3EMU_TAG`/`RO3EMU_REPO` to an RO3Emu release that supports what `launcher.json` uses (for example
+`purchaseUrl` needs `RO3Emu.exe join --purchase-url`).
+
