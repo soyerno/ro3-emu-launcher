@@ -144,7 +144,7 @@ The UI layer lives in [`ui.index.html`](ui.index.html), [`ui.app.css`](ui.app.cs
 
 ## Branded Forks
 
-`main` is the community launcher and carries no server's brand. To ship your own configuration, news, logo, icon or executable name, keep a branch of `main` and add files under [`brand/`](brand/README.md) with the same names as the root ones; the build uses them instead of the defaults. A fork only adds files, so updating it is a plain `git merge origin/main` with no conflicts. The [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) branch is an example of a branded fork.
+`main` is the community launcher and carries no server's brand. To ship your own configuration, news, logo, icon or executable name, keep a branch of `main` and add files under [`brand/`](brand/README.md) with the same names as the root ones; the build uses them instead of the defaults. Files that are yours but not built (a `data\loc_en.tsv`, a `LEEME.txt`) go in `brand/patch/` and are added to the patch ZIP by `tools\package-patch.cmd`. A fork only adds files, so updating it is a plain `git merge origin/main` with no conflicts. The [`konsor`](https://github.com/soyerno/ro3-emu-launcher/tree/konsor) branch is an example of a branded fork.
 
 ---
 

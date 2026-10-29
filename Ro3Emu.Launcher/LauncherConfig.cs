@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Ro3Emu.Launcher;
@@ -75,20 +76,53 @@ public sealed class LauncherConfig
 		return false;
 	}
 
+	/// <summary>
+	/// The launcher.json embedded in the build, overlaid with the fields of the launcher.json beside the executable:
+	/// a field the file does not have keeps the embedded value, so an older file (from a previous release) does not
+	/// switch off what a newer build configures (tunnels, language, links). An unreadable file is ignored.
+	/// </summary>
 	public static LauncherConfig Load(string besideExe)
 	{
+		JsonObject merged = ReadEmbedded() ?? new JsonObject();
 		try
 		{
-			if (File.Exists(besideExe))
+			if (File.Exists(besideExe) && JsonNode.Parse(File.ReadAllBytes(besideExe), null, NodeOptions) is JsonObject disk)
 			{
-				return JsonSerializer.Deserialize<LauncherConfig>(File.ReadAllBytes(besideExe), Options) ?? new LauncherConfig();
+				foreach (KeyValuePair<string, JsonNode?> field in disk)
+				{
+					merged[field.Key] = field.Value?.DeepClone();
+				}
 			}
-			using Stream stream = typeof(LauncherConfig).Assembly.GetManifestResourceStream("launcher.json");
-			return (stream == null) ? new LauncherConfig() : (JsonSerializer.Deserialize<LauncherConfig>(stream, Options) ?? new LauncherConfig());
+		}
+		catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+		{
+		}
+		try
+		{
+			return merged.Deserialize<LauncherConfig>(Options) ?? new LauncherConfig();
 		}
 		catch (JsonException)
 		{
 			return new LauncherConfig();
+		}
+	}
+
+	private static readonly JsonDocumentOptions NodeOptions = new JsonDocumentOptions
+	{
+		CommentHandling = JsonCommentHandling.Skip,
+		AllowTrailingCommas = true
+	};
+
+	private static JsonObject? ReadEmbedded()
+	{
+		try
+		{
+			using Stream? stream = typeof(LauncherConfig).Assembly.GetManifestResourceStream("launcher.json");
+			return stream == null ? null : JsonNode.Parse(stream, null, NodeOptions) as JsonObject;
+		}
+		catch (JsonException)
+		{
+			return null;
 		}
 	}
 }
