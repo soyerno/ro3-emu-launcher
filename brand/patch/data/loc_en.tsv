@@ -28849,3 +28849,55 @@ BASE 50 解锁	Se desbloquea en BASE 50
 放弃任务	Abandonar misión
 这个人很懒，什么都没有留下，最多2行...	Aún no hay nada escrito aquí.
 搜索玩家名称或ID...	Buscar nombre o ID de jugador...
+
+[主线]	[Principal]
+[支线]	[Secundaria]
+支线	Secundaria
+[引导]	[Guía]
+[日常]	[Diario]
+[奇闻]	[Rumor]
+奇闻	Rumor
+[副本]	[Mazmorra]
+[转职]	[Cambio de Clase]
+[公会]	[Gremio]
+[委托]	[Comisión]
+[探索]	[Exploración]
+[剧情]	[Historia]
+[教学]	[Tutorial]
+[挑战]	[Desafío]
+[周常]	[Semanal]
+<color=#ec8c2f>[主线]</color>  树林深处	<color=#ec8c2f>[Principal]</color>  Bosque profundo
+[主线]  树林深处	[Principal]  Bosque profundo
+[主线] 树林深处	[Principal] Bosque profundo
+<color=#ec8c2f>[主线]</color> 树林深处	<color=#ec8c2f>[Principal]</color> Bosque profundo
+<color=#ec8c2f>[主线]</color>	<color=#ec8c2f>[Principal]</color>
+<color=#76c233>%d秒</color>后自动复活	Revivir automáticamente en <color=#76c233>%d s</color>
+弓箭重击技能正在冷却。	La habilidad Disparo Certero está en enfriamiento.
+累计寻宝次数：%d	Búsquedas de tesoro acumuladas: %d
+完成1次寻宝(0/1)	Completa 1 búsqueda de tesoro (0/1)
+距离本次活动结束还有%d天%d时%d分	Tiempo restante: %d d %d h %d m
+进入战斗	Entrar a la batalla
+最近登录	Último inicio de sesión
+拥有:	Posee:
+锁定快捷栏技能	Bloquear barra de habilidades
+长按可快速加点	Mantén presionado para asignar puntos rápido
+当前没有好友	Actualmente no tienes amigos
+点击输入玩家信息	Toca para ingresar información del jugador
+必做任务	Misiones obligatorias
+兑换商城	Tienda de canje
+炼金记录	Registro de alquimia
+普通卡池	Invocación de cartas común
+全部删除	Eliminar todo
+失落<size=50>的</size>宝藏	Tesoro <size=50>perdido</size>
+前往挖宝	Ir a buscar el tesoro
+测试资格证	Certificado de prueba
+暂无神术图腾	Sin tótems divinos disponibles
+分解可获得以下材料	Descomponer otorgará los siguientes materiales
+请在左侧选择需要分解的道具	Selecciona a la izquierda el objeto a descomponer
+当前无可分解道具	No hay objetos para descomponer
+魔法師	Mago
+公会贡献排行	Clasificación de contribución de gremio
+点击前往查看	Toca para ver
+贡献商店	Tienda de contribución
+活动期间完成<color=#c27b47>残响养成任务</color>，可获得奖励！	¡Completa las <color=#c27b47>misiones de desarrollo de resonancia</color> durante el evento para obtener recompensas!
+在活动期间完成音乐能量目标,进度条达成即可向女神许愿且获取超多奖励.	Completa los objetivos de energía musical durante el evento; ¡alcanza la barra de progreso para pedir un deseo a la Diosa y obtener muchas recompensas!
