@@ -1,0 +1,3 @@
+# Keep these files byte for byte (they are shipped in the patch as validated):
+# no line-ending conversion on any platform.
+* -text
