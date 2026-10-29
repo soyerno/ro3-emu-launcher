@@ -145,7 +145,7 @@ public sealed class GameOrchestrator
         catch { }
     }
 
-    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null)
+    public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null, string? purchaseUrl = null)
     {
         if (!IsValidGameDir(gameDir))
         {
@@ -155,6 +155,12 @@ public sealed class GameOrchestrator
         if (!LauncherConfig.TryParseHttpUrl(serverUrl, out Uri? server))
         {
             return Strings.Get("config.server.invalid", serverUrl ?? "");
+        }
+
+        Uri? purchase = null;
+        if (!string.IsNullOrWhiteSpace(purchaseUrl) && !LauncherConfig.TryParseHttpUrl(purchaseUrl, out purchase))
+        {
+            return Strings.Get("config.purchaseUrl.invalid", purchaseUrl);
         }
 
         string? ro3emu = FindRO3Emu(baseDir);
@@ -180,6 +186,11 @@ public sealed class GameOrchestrator
         foreach (string arg in new[] { "join", server!.AbsoluteUri.TrimEnd('/'), "--client", gameDir, "--yes" })
         {
             psi.ArgumentList.Add(arg);
+        }
+        if (purchase != null)
+        {
+            psi.ArgumentList.Add("--purchase-url");
+            psi.ArgumentList.Add(purchase.AbsoluteUri);
         }
 
         if (!string.IsNullOrWhiteSpace(loginAccount))

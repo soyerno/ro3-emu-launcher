@@ -44,6 +44,13 @@ public sealed class LauncherConfig
 	[JsonPropertyName("statusUrl")]
 	public string? StatusUrl { get; set; }
 
+	/// <summary>
+	/// Optional page the game's purchase / recharge buttons open, passed to RO3Emu.exe join --purchase-url. Empty: those
+	/// buttons open nothing (RO3Emu never sends a player to the publisher's store).
+	/// </summary>
+	[JsonPropertyName("purchaseUrl")]
+	public string? PurchaseUrl { get; set; }
+
 	/// <summary>Cloudflare TCP tunnels opened before launch. Empty: the server is reached directly.</summary>
 	[JsonPropertyName("tunnels")]
 	public List<TunnelSpec> Tunnels { get; set; } = [];
