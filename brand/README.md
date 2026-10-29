@@ -29,6 +29,19 @@ Put a file here with the **same name** as the one in the repository root and it 
 
 `build.cmd`, `publish.cmd`, `deploy-dev.cmd`, `run-ui-dev.cmd` and `tools\package-patch.cmd` read the executable name from the build, so they keep working after a rename.
 
+## Files that travel in the patch ZIP: `brand/patch/`
+
+`tools\package-patch.cmd` adds every file under `brand/patch/` to the patch ZIP at the same relative path, and a file there replaces the one of the same name taken from `dist\`. Use it for what is yours and is not built: a `data\loc_en.tsv` with your own texts, a `LEEME.txt`, helper scripts.
+
+```text
+brand/patch/data/loc_en.tsv   -> <zip>/data/loc_en.tsv
+brand/patch/LEEME.txt         -> <zip>/LEEME.txt
+```
+
+## launcher.json beside the executable
+
+A `launcher.json` next to the executable overlays the embedded one **field by field**: a field it does not have keeps the embedded value, so a file from an older release does not switch off what a newer build configures (tunnels, language, links). To change one setting for one player, put only that field in the file. An unreadable file is ignored. You normally do not need to ship a `launcher.json` in the patch: the embedded one is used.
+
 ## Keeping a fork up to date
 
 ```bash
