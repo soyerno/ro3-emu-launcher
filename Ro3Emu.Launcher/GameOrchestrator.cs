@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -173,18 +173,60 @@ public sealed class GameOrchestrator
 
         try
         {
+            string activeLang = (language ?? Strings.Language ?? "es").Trim().ToLowerInvariant();
             string ro3emuTarget = Path.Combine(gameDir, "ro3emu");
             Directory.CreateDirectory(ro3emuTarget);
             string baseDirectory = baseDir ?? Path.GetDirectoryName(ro3emu) ?? AppContext.BaseDirectory;
-            string sourceLoc = Path.Combine(baseDirectory, "data", "loc_en.tsv");
-            if (File.Exists(sourceLoc))
+            string dataDir = Path.Combine(baseDirectory, "data");
+
+            File.WriteAllText(Path.Combine(ro3emuTarget, "language.txt"), activeLang);
+            File.WriteAllText(Path.Combine(gameDir, "language.txt"), activeLang);
+
+            if (activeLang.StartsWith("es"))
             {
-                File.Copy(sourceLoc, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+                string locEs = Path.Combine(dataDir, "loc_es.tsv");
+                if (!File.Exists(locEs)) locEs = Path.Combine(dataDir, "loc_en.tsv");
+                if (File.Exists(locEs))
+                {
+                    File.Copy(locEs, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
+                    File.Copy(locEs, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+                }
+
+                string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
+                if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
+                if (File.Exists(overEs))
+                {
+                    File.Copy(overEs, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
+                    File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+                }
             }
-            string sourceOverrides = Path.Combine(baseDirectory, "data", "en_overrides.tsv");
-            if (File.Exists(sourceOverrides))
+            else
             {
-                File.Copy(sourceOverrides, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+                string locEn = Path.Combine(dataDir, "loc_en_us.tsv");
+                if (File.Exists(locEn))
+                {
+                    File.Copy(locEn, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
+                    File.Copy(locEn, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+                }
+
+                string overEn = Path.Combine(dataDir, "en_overrides_en.tsv");
+                if (File.Exists(overEn))
+                {
+                    File.Copy(overEn, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
+                    File.Copy(overEn, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+                }
+                else
+                {
+                    File.WriteAllText(Path.Combine(dataDir, "en_overrides.tsv"), "# en\n");
+                    File.WriteAllText(Path.Combine(ro3emuTarget, "en_overrides.tsv"), "# en\n");
+                }
+            }
+
+            string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
+            string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
+            if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
+            {
+                try { File.Copy(clientLocDll, managedLocDll, overwrite: true); } catch { }
             }
         }
         catch { }
