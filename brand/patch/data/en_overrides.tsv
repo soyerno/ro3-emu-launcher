@@ -1,6 +1,6 @@
 # English -> Spanish full localization overrides (Ro3Loc)
-account	cuenta
-password	contraseña
+Account	Cuenta
+Password	Contraseña
 Account:	Cuenta:
 Password:	Contraseña:
 Account：	Cuenta：
@@ -50,6 +50,7 @@ Switch Account	Cambiar de cuenta
 User Center	Centro de usuario
 Game Notice	Anuncios del juego
 Notice	Anuncios
+Notices	Avisos
 Announcement	Anuncio
 Announcements	Anuncios
 Server List	Lista de servidores
@@ -69,6 +70,252 @@ Character Select	Seleccionar personaje
 Create Character	Crear personaje
 Delete Character	Eliminar personaje
 Start Adventure	Iniciar aventura
+Menu	Menú
+Backpack	Mochila
+Bag	Mochila
+Inventory	Inventario
+Item	Objeto
+Items	Objetos
+Equipment	Equipo
+Equip	Equipar
+Unequip	Desequipar
+Skills	Habilidades
+Skill	Habilidad
+Status	Estado
+Stats	Atributos
+Attributes	Atributos
+Character	Personaje
+Profile	Perfil
+Party	Grupo
+Team	Equipo
+Guild	Gremio
+Friends	Amigos
+Friend	Amigo
+Mail	Correo
+Chat	Chat
+Settings	Ajustes
+Options	Opciones
+System	Sistema
+System Settings	Ajustes del Sistema
+Game Settings	Ajustes del Juego
+Basic	Básico
+Graphics	Gráficos
+Show	Mostrar
+Log	Registro
+Sound	Sonido
+Key Settings	Ajustes de Teclas
+PC Mode	Modo PC
+Resolution	Resolución
+Display Resolution	Resolución de Pantalla
+Full Screen	Pantalla Completa
+Windowed	Modo Ventana
+Frame Rate	Tasa de Cuadros
+Frame Rate Cap	Límite de FPS
+UI Scale	Escala de Interfaz
+Audio	Audio
+Master	General
+Music	Música
+BGM	BGM
+Sound Effects	Efectos de Sonido
+Effects	Efectos
+Voice	Voz
+Voices	Voces
+Character Voice	Voz del Personaje
+Mute	Silenciar
+Mute When Minimized	Silenciar al Minimizar
+Redemption Code	Código de Canje
+Graphics Quality	Calidad Gráfica
+Graphics Settings	Ajustes Gráficos
+General Display	Pantalla General
+Show Cursor	Mostrar Cursor
+Cursor Scale	Escala del Cursor
+Cursor Style	Estilo del Cursor
+Damage Numbers	Números de Daño
+Vertical Sync	Sincronización Vertical
+Anti-Aliasing	Anti-Aliasing
+Skill Callouts	Textos de Habilidades
+HP Bar Color Settings	Ajustes de Barra de Vida
+Name Color Settings	Ajustes de Color de Nombres
+Casting Settings	Ajustes de Lanzamiento
+Target	Objetivo
+Other	Otros
+Sound Settings	Ajustes de Sonido
+Card	Cartas
+Cards	Cartas
+Card System	Sistema de Cartas
+Card Album	Álbum de Cartas
+Pet	Mascotas
+Pets	Mascotas
+Mount	Montura
+Mounts	Monturas
+Vehicle	Montura
+Vehicles	Monturas
+Wardrobe	Guardarropa
+Costume	Disfraz
+Costumes	Disfraces
+Headwear	Accesorio de Cabeza
+Appearance	Apariencia
+Fashion	Moda
+Refine	Refinar
+Refining	Refinamiento
+Enhance	Mejorar
+Enhancement	Mejora
+Smelt	Fundir
+Smelting	Fundición
+Forge	Forjar
+Forging	Forja
+Craft	Fabricar
+Crafting	Fabricación
+Enchant	Encantar
+Enchanting	Encantamiento
+Socket	Ranura
+Socketing	Ranurado
+Soul Echo	Eco del Alma
+Divine Totem	Tótem Divino
+Totem	Tótem
+Build	Configuración
+Builds	Configuraciones
+Academy	Academia
+Affection	Afecto
+Life Skill	Profesión de Vida
+Life Skills	Profesiones de Vida
+Home	Hogar
+Housing	Vivienda
+Ranking	Clasificación
+Rankings	Clasificaciones
+Rank	Rango
+Trophy	Logros
+Achievement	Logro
+Achievements	Logros
+Title	Título
+Titles	Títulos
+Handbook	Manual
+Adventure Book	Libro de Aventuras
+Adventure	Aventura
+Archive	Archivo
+Gallery	Galería
+Medal	Medalla
+Medals	Medallas
+Growth	Crecimiento
+Job Advance	Cambio de Clase
+Class Change	Cambio de Clase
+Special Class Item	Objeto de Clase Especial
+Dungeon	Mazmorra
+Dungeons	Mazmorras
+Event	Evento
+Events	Eventos
+Activity	Actividad
+Activities	Actividades
+Daily	Diario
+Dailies	Diarias
+To-Do	Por Hacer
+Must-Do	Imprescindible
+Carnival	Carnaval
+Festival	Festival
+Arena	Arena
+PvP	PvP
+GvG	GvG
+WoE	Guerra del Emperium
+War of Emperium	Guerra del Emperium
+Territory War	Guerra de Territorios
+Guild League	Liga de Gremios
+Realm of the Gods	Reino de los Dioses
+Phantom Realm	Reino Fantasma
+Helheim	Helheim
+Helheim Nightmare	Pesadilla de Helheim
+Endless Tower	Torre Infinita
+Sage Memory	Memoria del Sabio
+Memory of Sage	Memoria del Sabio
+Valhalla Trials	Pruebas de Valhalla
+Monster Hunt	Caza de Monstruos
+Novice Challenge	Desafío de Novato
+Challenge	Desafío
+Competition	Competencia
+MVP	MVP
+Mini	MINI
+Boss	Jefe
+Shop	Tienda
+Store	Tienda
+Trade	Comercio
+Trading	Comercio
+Stall	Puesto
+Auction	Subasta
+Exchange	Intercambio
+Trade Exchange	Casa de Cambio
+Mall	Tienda
+Diamond Mall	Tienda de Diamantes
+Nyan Berry	Nyan Berry
+Benefit	Beneficios
+Benefits	Beneficios
+Welfare	Beneficios
+Rewards	Recompensas
+Reward	Recompensa
+Claim	Reclamar
+Claim All	Reclamar Todo
+First Top-Up	Primera Recarga
+Top-Up	Recarga
+Recharge	Recargar
+Pass	Pase
+Battle Pass	Pase de Batalla
+RO Pass	Pase RO
+Season Pass	Pase de Temporada
+Season	Temporada
+Auto	Auto
+Auto-Battle	Combate Automático
+Auto Battle	Combate Automático
+Auto-Combat	Combate Automático
+Auto Combat	Combate Automático
+Auto-Pathfinding	Ruta Automática
+Auto-Path	Ruta Automática
+Auto Path	Ruta Automática
+Auto-Cast	Lanzamiento Automático
+Auto-Potion	Poción Automática
+Lock Target	Fijar Objetivo
+Select Target	Seleccionar Objetivo
+Ride	Montar
+Dismount	Desmontar
+Sit	Sentarse
+Stand	Levantarse
+Camera	Cámara
+Photo	Foto
+Screenshot	Captura
+Action	Acción
+Actions	Acciones
+Emote	Emote
+Emotes	Emotes
+Emote/Action	Emotes / Acciones
+Unstuck	Destrabar
+Feedback	Comentarios
+Support	Soporte
+Help	Ayuda
+Survey	Encuesta
+Map	Mapa
+World Map	Mapa del Mundo
+Mini-Map	Minimapa
+Channel	Canal
+Line	Línea
+Switch Character	Cambiar Personaje
+Change Character	Cambiar Personaje
+Select Character	Seleccionar Personaje
+Return to Login	Volver al Login
+Exit	Salir
+Exit Game	Salir del Juego
+Quit	Salir
+Confirm	Confirmar
+Cancel	Cancelar
+OK	Aceptar
+Close	Cerrar
+Back	Atrás
+Save	Guardar
+Apply	Aplicar
+Reset	Restablecer
+Default	Predeterminado
+Delete	Eliminar
+Remove	Quitar
+Add	Añadir
+Use	Usar
+Buy	Comprar
+Sell	Vender
 [Main Quest]	[Misión Principal]
 [Main Quest] 	[Misión Principal] 
 [Side Quest]	[Misión Secundaria]
@@ -100,19 +347,11 @@ Quest	Misión
 Quests	Misiones
 Quest List	Lista de Misiones
 Current Quest	Misión Actual
-Auto-Pathfinding	Ruta Automática
-Auto-Combat	Combate Automático
-Auto Battle	Combate Automático
 Welcome to RO Ragnarok Online 3!	¡Bienvenidos a Ragnarok Online 3!
 Goodbye, imitators! Only the real RO can fight!	¡La aventura te aguarda en Rune-Midgard!
 Fixed price purchases will become available after the listing period ends.	La compra directa se habilita al finalizar el período.
-Confirm	Confirmar
-Cancel	Cancelar
 Currently unavailable. Coming soon.	No disponible por ahora. Próximamente.
 Friendly Reminder	Aviso
-Delete	Eliminar
-Menu	Menú
-Backpack	Mochila
 Function Menu	Menú de funciones
 Total Ratings	Puntuación total
 Tap to close	Toca para cerrar
@@ -120,13 +359,11 @@ Please wait. Processing…	Espera. Procesando…
 Rating ${1}	Puntuación ${1}
 Weapon	Arma
 Armor	Armadura
-Quit	Salir
 Expand	Expandir
 Show less	Ver menos
 Go	Ir
 How to Obtain	Cómo obtener
 Not Available	No disponible
-Use	Usar
 Edit Name	Editar nombre
 Tap to enter a name	Toca para escribir un nombre
 Function Details	Detalles de la función
@@ -136,7 +373,6 @@ Already at the maximum value	Ya en el valor máximo
 Already at the minimum value	Ya en el valor mínimo
 Function locked	Función bloqueada
 Do not remind again	No volver a recordar
-Back	Volver
 Obtained ${1} X ${2}	Obtenido ${1} X ${2}
 Protocol mismatch. Please use the corresponding server version, or update both the client and server to the latest version!\nClient protocol:${1} \nServer protocol:${2}\n\n Click Go to continue playing	Protocolo incompatible. Usa la versión de servidor correspondiente o actualiza el cliente y el servidor a la última versión.\nProtocolo del cliente:${1} \nProtocolo del servidor:${2}\n\n Haz clic en Ir para seguir jugando
 Monday	Lunes
@@ -157,7 +393,6 @@ Complete	Completar
 Stage reward does not exist	La recompensa de etapa no existe
 Stage reward claimed	Recompensa de etapa reclamada
 Insufficient Power	Poder insuficiente
-To-Do	Pendientes
 Current server time: ${1}	Hora actual del servidor: ${1}
 Base EXP Increase	Aumento de EXP base
 Job EXP Increase	Aumento de EXP de clase
@@ -181,7 +416,6 @@ Failed to switch scenes. Please log in again!	Error al cambiar de escena. ¡Inic
 Attack	Ataque
 Mobility	Movilidad
 Healing	Curación
-Support	Apoyo
 Survival	Supervivencia
 Knight	Caballero
 Crusader	Cruzado
@@ -204,7 +438,6 @@ Backpack full. Please organize your Backpack first.	Mochila llena. Organiza tu M
 Backpack full. Please organize your Backpack before opening the gift pack.	Mochila llena. Organiza tu Mochila antes de abrir el paquete de regalo.
 Unlock Notice	Aviso de desbloqueo
 Not enough items to unlock Backpack slots.	No hay suficientes objetos para desbloquear espacios de Mochila.
-Sell	Vender
 Failed to sell	Error al vender
 Sort	Ordenar
 Organize (${1})	Organizar (${1})
@@ -225,13 +458,9 @@ This item has been removed.	Este objeto ha sido retirado.
 This item cannot be used until the next Season.	Este objeto no se puede usar hasta la próxima Temporada.
 Removed	Retirado
 Expired items have been automatically removed.	Los objetos caducados se han eliminado automáticamente.
-Equip	Equipar
-Fashion	Moda
 Refinement Resonance	Resonancia de refinado
 Enhancement Resonance	Resonancia de mejora
-Items	Objetos
 Cartas神术图腾	Divine Totem	Carta
-Soul Echo	Eco del alma
 Not enough items to appraise this equipment.	No hay suficientes objetos para tasar este equipo.
 Your Backpack is full. Unable to unequip equipment.	Tu Mochila está llena. No se puede desequipar el equipo.
 Appraisal Confirmation	Confirmar tasación
@@ -241,8 +470,6 @@ Tier	Rango
 Level Req	Nv. requerido
 N/A	N/D
 Additional Affix	Afijo adicional
-Refine	Refinar
-Enhance	Mejorar
 No Card Inserted	Sin carta insertada
 Card Slot Not Unlocked	Ranura de carta no desbloqueada
 Job Restriction	Restricción de clase
@@ -256,7 +483,6 @@ Base Stats	Estadísticas base
 Attribute Range	Rango de atributos
 Equipment Forging	Forja de equipo
 All	Todo
-Craft	Fabricar
 Crafting has a Chance to produce high-quality equipment.	Fabricar tiene Probabilidad de producir equipo de alta calidad.
 Crafting Successful	Fabricación exitosa
 Crafting Info	Info de fabricación
@@ -267,7 +493,6 @@ Randomly grants <color=#cc762a>${1}-${2}</color> Stunts	Otorga al azar <color=#c
 Purple Quality	Calidad morada
 Orange Quality	Calidad naranja
 Red Quality	Calidad roja
-Reset	Restablecer
 Smelting Cost:	Costo de fundición:
 Vivify Cost: <#896B4D>Free</color>	Costo de vivificación: <#896B4D>Gratis</color>
 Vivify Cost: ${1}/${2}	Costo de vivificación: ${1}/${2}
@@ -277,7 +502,6 @@ No equipment available for smelting.	No hay equipo disponible para fundir.
 Only Tier 2 or higher equipment of Purple Quality or higher can be smelted.	Solo se puede fundir equipo de Rango 2 o superior y de calidad morada o superior.
 Smelting Restoration	Restauración de fundición
 Current	Actual
-Save	Guardar
 You can save the current attributes.	Puedes guardar los atributos actuales.
 Each restoration has a ${1}-day cooldown.	Cada restauración tiene ${1} días de reutilización.
 Restore Smelting Attributes	Restaurar atributos de fundición
@@ -318,7 +542,6 @@ Current Job Only	Solo clase actual
 Reset the center of the Auto Mode Range after movement ends	Restablecer el centro del Rango del modo automático al terminar de moverse
 New center of Auto Mode Range	Nuevo centro del Rango del modo automático
 Manual Combat	Combate manual
-Auto-Battle	Combate automático
 All Monsters	Todos los monstruos
 Radius	Radio
 Map-wide	Todo el mapa
@@ -360,12 +583,10 @@ Auto-navigating…	Navegando automáticamente…
 You are already on the map where the monster is located. Explore the area to find it.	Ya estás en el mapa donde está el monstruo. Explora la zona para encontrarlo.
 Unable to connect to the server. Try reconnecting?	No se puede conectar al servidor. ¿Intentar reconectar?
 Reconnect	Reconectar
-Return to Login	Volver al inicio de sesión
 Disconnected from the server. Please log in again.	Desconectado del servidor. Inicia sesión de nuevo.
 Log In Again	Iniciar sesión de nuevo
 Your account has been logged in on another device	Tu cuenta ha iniciado sesión en otro dispositivo
 Network connection failed. Check your network settings and reconnect.	Falló la conexión de red. Revisa tus ajustes de red y reconecta.
-Exit Game	Salir del juego
 Reconnecting to server	Reconectando al servidor
 Your character has been banned. Please log in again.	Tu personaje ha sido vetado. Inicia sesión de nuevo.
 Your character has been deleted. Please log in again.	Tu personaje ha sido eliminado. Inicia sesión de nuevo.
@@ -420,7 +641,6 @@ General Stats	Estadísticas generales
 Quasi-Stats	Cuasi-estadísticas
 Special	Especial
 Auto-Assign	Asignar automáticamente
-Stats	Estadísticas
 Equipment & Other	Equipo y otros
 Req	Req.
 Points remaining: <color=#63a22b>${1}</color>	Puntos restantes: <color=#63a22b>${1}</color>
@@ -453,7 +673,6 @@ Effect granted after socketing a Star Core	Efecto otorgado al engarzar un Núcle
 Activate	Activar
 Reset Points	Restablecer puntos
 Level-up	Subir de nivel
-Remove	Quitar
 Insert	Insertar
 Replace	Reemplazar
 Tap to activate when the prerequisite Star reaches Max level	Toca para activar cuando la Estrella previa alcance el nivel máx.
@@ -584,20 +803,14 @@ No mail to delete.	No hay correo que eliminar.
 Your Backpack is full. Make room before claiming.	Tu Mochila está llena. Haz espacio antes de reclamar.
 Cannot delete mail with unclaimed attachments.	No se puede eliminar correo con adjuntos sin reclamar.
 Delete all processed mail?	¿Eliminar todo el correo procesado?
-Friends	Amigos
-Mail	Correo
 Blocks	Bloqueados
 Connect	Conectar
 No mail.	Sin correo.
 No mail to view.	No hay correo que ver.
-System	Sistema
-Guild	Gremio
 Mail Storage Limit: ${1}/${2}	Límite de almacenamiento de correo: ${1}/${2}
 Delete All	Eliminar todo
-Claim All	Reclamar todo
 No mail right now.	No hay correo por ahora.
 Expires in ${1} days	Caduca en ${1} días
-Claim	Reclamar
 Attachments:	Adjuntos:
 Mail Storage Limit: <color=#FA983A>${1}</color>/${2}	Límite de almacenamiento de correo: <color=#FA983A>${1}</color>/${2}
 Mail Info	Info del correo
@@ -616,7 +829,6 @@ Listed	Publicado
 Refinement Material	Material de refinado
 Enhancement Materials	Materiales de mejora
 Life Skill Materials	Materiales de profesión de vida
-Other	Otro
 The price has reached the limit and cannot be increased further.	El precio alcanzó el límite y no se puede aumentar más.
 Recommended Price	Precio recomendado
 Pending Listing	Publicación pendiente
@@ -627,14 +839,12 @@ Don't remind me again today	No recordar de nuevo hoy
 Under Review	En revisión
 Trade Successful. The item will be delivered by mail.	Comercio exitoso. El objeto se entregará por correo.
 My Watchlist	Mi seguimiento
-Buy	Comprar
 Items Under Review	Objetos en revisión
 Available Only	Solo disponibles
 Enter Shop Item Name	Escribe el nombre del objeto de la tienda
 Search History	Historial de búsqueda
 There are no items here.	No hay objetos aquí.
 No search history	Sin historial de búsqueda
-Auction	Subasta
 My Stand (${1}/${2})	Mi puesto (${1}/${2})
 My Items	Mis objetos
 Clear History	Borrar historial
@@ -644,7 +854,6 @@ Purchase Item	Comprar objeto
 Unit Price	Precio unitario
 Amount	Cantidad
 Total Price	Precio total
-Rank	Rango
 Contact Seller	Contactar al vendedor
 Withdraw	Retirar
 List Item	Publicar objeto
@@ -660,13 +869,11 @@ Cost	Costo
 Keep up to 20 Purchase History and Sales History entries. Updates may be delayed.	Se conservan hasta 20 entradas del Historial de compras y del Historial de ventas. Las actualizaciones pueden demorar.
 Send Link	Enviar enlace
 Go to Trade Exchange	Ir a la Bolsa de comercio
-Trade	Comerciar
 Purchase after the public listing period ends	Comprar al terminar el período de publicación pública
 Search Help Title	Título de ayuda de búsqueda
 Search Help Text	Texto de ayuda de búsqueda
 My Stand	Mi puesto
 Close Stall	Cerrar puesto
-Trade Exchange	Bolsa de comercio
 No price	Sin precio
 Lowest Price	Precio más bajo
 For Sale: ${1}	En venta: ${1}
@@ -833,7 +1040,6 @@ Skill Unlocked: ${1}	Habilidad desbloqueada: ${1}
 Rent	Alquilar
 Cancel Rental	Cancelar alquiler
 Go unlock	Ir a desbloquear
-Ride	Montar
 Open	Abrir
 Put in the Cart.	Poner en el Carro.
 Return to Backpack	Volver a la Mochila
@@ -845,7 +1051,6 @@ Rental Canceled	Alquiler cancelado
 ${1} is full. Please clear your cart and try again.	${1} está lleno. Vacía tu carro e inténtalo de nuevo.
 Cart Merchant	Comerciante de carro
 You haven't learned the required skill, so you can't rent this.	No has aprendido la habilidad requerida, así que no puedes alquilar esto.
-Special Class Item	Objeto de clase especial
 Owned	Poseído
 Rented	Alquilado
 Class Item	Objeto de clase
@@ -855,14 +1060,12 @@ Add Multiple	Añadir varios
 Cancel Add	Cancelar adición
 Too many requests. Please try again later.	Demasiadas solicitudes. Inténtalo más tarde.
 Go to Rental	Ir a Alquiler
-Mount	Montura
 Charm	Amuleto
 After renting, tap Ride in the lower-left corner of the main screen.	Tras alquilar, toca Montar en la esquina inferior izquierda de la pantalla principal.
 Right Tap to Open	Clic derecho para abrir
 You must Clear all items from the Cart Merchant before you can Cancel Rental.	Debes Vaciar todos los objetos del Comerciante de carro antes de Cancelar el alquiler.
 Cannot reset the [Cart Use] skill. Please Clear all items from the Cart Merchant first.	No se puede restablecer la habilidad [Uso de carro]. Vacía primero todos los objetos del Comerciante de carro.
 Job Items	Objetos de clase
-Add	Añadir
 Not enough [${1}]~	No hay suficiente [${1}]~
 Revive Prompt	Aviso de revivir
 Automatically use when HP falls below <color=#cc762a>${1}%</color>	Usar automáticamente cuando el HP baje de <color=#cc762a>${1}%</color>
@@ -897,20 +1100,17 @@ Monthly Purchase Limit	Límite de compra mensual
 Lifetime Purchase Limit	Límite de compra vitalicio
 Refreshes daily at ${1}	Se actualiza a diario a las ${1}
 New items coming soon. Stay tuned!	¡Pronto habrá objetos nuevos! ¡Atento!
-Shop	Tienda
 Point Mall	Tienda de puntos
 ${1} hours remaining	Quedan ${1} horas
 ${1} minutes remaining	Quedan ${1} minutos
 Purchase Successful	Compra exitosa
 ${1} seconds remaining	Quedan ${1} segundos
 New Season Arrivals	Novedades de la temporada
-Season	Temporada
 Season Limited-Time Offer	Oferta de temporada por tiempo limitado
 Search Items	Buscar objetos
 After purchasing a paid item, please claim it from your mail.	Tras comprar un objeto de pago, reclámalo desde tu correo.
 First Purchase Bonus	Bono de primera compra
 Extra Bonus	Bono extra
-Costume	Traje
 Accessory	Accesorio
 Friend Gifts	Regalos de amigos
 Confirm Gift	Confirmar regalo
@@ -940,7 +1140,6 @@ No friends available to receive gifts	No hay amigos disponibles para recibir reg
 Currently trying on <color=#cc762a>${1}</color> Appearance items	Probándote <color=#cc762a>${1}</color> objetos de Apariencia
 <color=#cc762a>${1}</color> valid items	<color=#cc762a>${1}</color> objetos válidos
 Selected (<color=#cc762a>${1}</color>)	Elegidos (<color=#cc762a>${1}</color>)
-Default	Predeterminado
 Price - Ascending	Precio - Ascendente
 Price - Descending	Precio - Descendente
 Listing Time - Ascending	Hora de publicación - Ascendente
@@ -959,7 +1158,6 @@ Top Up	Recargar
 Add to Cart	Añadir al carrito
 Shopping Cart	Carrito de compras
 No valid items	No hay objetos válidos
-Apply	Aplicar
 No private chats	Sin chats privados
 No friends found	No se encontraron amigos
 Recent	Recientes
@@ -1045,7 +1243,6 @@ Tap a player's Portrait to Add Friend.	Toca el Retrato de un jugador para Añadi
 Universal Mount	Montura universal
 Combat Mount	Montura de combate
 Style Level	Nivel de estilo
-Ranking	Clasificación
 Trait +${1}	Rasgo +${1}
 Mount Stats	Estadísticas de montura
 Active Mount Attributes	Atributos de montura activa
@@ -1134,7 +1331,6 @@ Recommended Friends	Amigos recomendados
 You're on this player's Blocks and cannot send messages	Estás en los Bloqueados de este jugador y no puedes enviarle mensajes
 This player is on your Blocks list, so you cannot send them messages	Este jugador está en tu lista de Bloqueados, así que no puedes enviarle mensajes
 You cannot send messages to yourself	No puedes enviarte mensajes a ti mismo
-Benefits	Beneficios
 ${1} went offline	${1} se desconectó
 Switched to anonymous gifting mode	Cambiado al modo de regalo anónimo
 Anonymous gifting mode disabled	Modo de regalo anónimo desactivado
@@ -1160,7 +1356,6 @@ No Adventurers made the rankings.	Ningún Aventurero entró en la clasificación
 Unranked	Sin clasificar
 Friends and Guild Members Only	Solo amigos y miembros del gremio
 View Info	Ver info
-Rewards	Recompensas
 Rank ${1}–${2}	Rango ${1}–${2}
 Weekly Ranking Reward Settlement: ${1}${2} o'clock	Liquidación semanal de recompensas de clasificación: ${1}${2} h
 My Rank: ${1}	Mi rango: ${1}
@@ -1206,7 +1401,6 @@ ${1} marked ${3} with the number ${2}	${1} marcó a ${3} con el número ${2}
 Once selected, click to mark a target, or drag to mark an area on the ground.	Una vez elegido, haz clic para marcar un objetivo o arrastra para marcar un área del suelo.
 Talk	Hablar
 Listen	Escuchar
-Mute	Silenciar
 ${1} initiated a Placement confirmation. Are you ready?	${1} inició una confirmación de posición. ¿Estás listo?
 Confirm whether to transfer Party Leader status	Confirma si deseas transferir el estado de Líder del grupo
 Confirm transferring raid leadership	Confirma la transferencia del liderazgo de la banda
@@ -1263,13 +1457,11 @@ Confirm announcement:	Confirmar anuncio:
 Invite to Party	Invitar al Grupo
 Recent Parties	Grupos recientes
 Party Notifications	Notificaciones de Grupo
-Party	Grupo
 Show today's received invitations in a notification window.	Mostrar las invitaciones recibidas hoy en una ventana de notificación.
 No valid information found yet...	Aún no se encontró información válida...
 Join	Unirse
 Refresh	Actualizar
 Nearby Parties	Grupos cercanos
-Settings	Ajustes
 Power:	Poder:
 Up to 20 characters	Hasta 20 caracteres
 Enter keywords...	Escribe palabras clave...
@@ -1383,7 +1575,6 @@ Join a guild	Unirse a un gremio
 Create Guild	Crear gremio
 Respond to Guild	Responder al gremio
 Players	Jugadores
-Activity	Actividad
 Guild Master	Líder del gremio
 Introduction	Introducción
 Guild Benefit	Beneficio del gremio
@@ -1413,7 +1604,6 @@ Former Guild Names: ${1}; ${2}; ${3}; ${4}; ${5} (Deprecated)	Nombres anteriores
 You cannot chat with yourself	No puedes chatear contigo mismo
 Bonuses	Bonos
 Salary	Salario
-Skills	Habilidades
 Benefits Overview	Resumen de beneficios
 This guild no longer exists	Este gremio ya no existe
 Guild is full	El gremio está lleno
@@ -1556,16 +1746,13 @@ Honor Position	Cargo de honor
 Confirm Removal	Confirmar expulsión
 Cancel Removal	Cancelar expulsión
 Selected:	Elegidos:
-Event	Evento
 Show Only My Events	Mostrar solo mis eventos
 Position Changes	Cambios de cargo
 Member Arrivals and Departures	Llegadas y salidas de miembros
 Building Level-up	Subida de nivel de edificio
 Total Activity	Actividad total
 Event Name	Nombre del evento
-Title	Título
 Application Time	Hora de solicitud
-Log	Registro
 Applicants: ${1}	Solicitantes: ${1}
 Reject All	Rechazar todo
 Recruit Member	Reclutar miembro
@@ -1753,7 +1940,6 @@ Trade Fee${1}	Comisión de comercio${1}
 List Resources	Publicar recursos
 Guild Inventory	Inventario del gremio
 Update	Actualizar
-Item	Objeto
 Order Number	Número de orden
 Actual Earnings	Ganancias reales
 Fee	Comisión
@@ -1792,7 +1978,6 @@ Damage	Daño
 TIPS: Only the top 100 teams are shown. All participating teams receive rewards, and higher rankings grant better rewards	CONSEJO: solo se muestran los 100 mejores equipos. Todos los equipos participantes reciben recompensas y los puestos más altos otorgan mejores recompensas
 Decay	Reducción
 If a team has a Member with no Reward Count remaining, its score will be reduced by a certain percentage	Si un equipo tiene un Miembro sin Uso de recompensa restante, su puntuación se reducirá en cierto porcentaje
-Team	Equipo
 First Strike	Primer golpe
 DMG Taken	Daño recibido
 Death	Muertes
@@ -1810,11 +1995,8 @@ Today's Reward Count has been exhausted. You cannot receive any more rewards	El 
 Congrats on Obtaining the following rewards	Felicidades por Obtener las siguientes recompensas
 Today's Remaining Claim Count:	Reclamos restantes hoy:
 You are already on the Map Appeared for this MVP. Find it yourself!	Ya estás en el Mapa de aparición de este MVP. ¡Encuéntralo tú mismo!
-Challenge	Desafío
 MVP Kill	Derrota de MVP
 No Records	Sin registros
-Basic	Básico
-Show	Mostrar
 Chat Settings	Ajustes de chat
 No settings Function available	No hay función de ajustes disponible
 Switch Target	Cambiar objetivo
@@ -1824,7 +2006,6 @@ Chase Distance	Distancia de persecución
 Distance	Distancia
 Additional Skill Range	Rango adicional de habilidad
 Lock Skill Indicator	Fijar indicador de habilidad
-Close	Cerrar
 Display Skill Range	Mostrar rango de habilidad
 Auto Skills	Habilidades automáticas
 Go to Settings	Ir a Ajustes
@@ -1834,7 +2015,6 @@ Attack in Place	Atacar en el sitio
 Range	Rango
 Privacy	Privacidad
 Display Character Info	Mostrar info del personaje
-Key Settings	Ajustes de teclas
 Display UI Buttons	Mostrar botones de la interfaz
 Skill bar 1	Barra de habilidades 1
 Skill bar 2	Barra de habilidades 2
@@ -1853,17 +2033,10 @@ Forward	Avanzar
 Move back	Retroceder
 Move left	Mover izq.
 Move right	Mover der.
-Map	Mapa
 This conflicts with the shortcut for Function ${1}. Swap their shortcuts?	Esto entra en conflicto con el atajo de la función ${1}. ¿Intercambiar sus atajos?
 Save shortcut settings?	¿Guardar los ajustes de atajos?
 This will reset all shortcuts. Continue?	Esto restablecerá todos los atajos. ¿Continuar?
-Switch Character	Cambiar de personaje
 Are you sure you want to log out?	¿Seguro que quieres cerrar sesión?
-Sound	Sonido
-Master	Principal
-Music	Música
-Effects	Efectos
-Character Voice	Voz del personaje
 Voice Pack	Paquete de voz
 Switch Selected Target by Key	Cambiar objetivo elegido con tecla
 All Nearby Targets	Todos los objetivos cercanos
@@ -1871,7 +2044,6 @@ Nearby Targets with Both High Priorities	Objetivos cercanos con ambas prioridade
 Target Priority	Prioridad de objetivo
 Smart DPS	DPS inteligente
 Smart Healing	Curación inteligente
-Casting Settings	Ajustes de lanzamiento
 Casting Method	Método de lanzamiento
 Normal Casting	Lanzamiento normal
 Quick Casting	Lanzamiento rápido
@@ -1907,18 +2079,13 @@ Selected Target	Objetivo elegido
 Continuously Normal Attack the Selected Target	Atacar normalmente de forma continua al objetivo elegido
 Name Information	Información del nombre
 HP Bar	Barra de HP
-Damage Numbers	Números de daño
 You and Your Team	Tú y tu equipo
 You and Enemies	Tú y los enemigos
 Hide	Ocultar
 Name Position	Posición del nombre
 Above	Arriba
 Below	Abajo
-General Display	Visualización general
 Max Characters on Screen	Máx. de personajes en pantalla
-System Settings	Ajustes del sistema
-PC Mode	Modo PC
-Sound Settings	Ajustes de sonido
 Hard Lock	Fijación fuerte
 Semi-Soft Lock	Fijación semisuave
 Full Soft Lock	Fijación suave
@@ -1926,22 +2093,15 @@ Hide All	Ocultar todo
 Ultimate Skill Camera	Cámara de habilidad definitiva
 Same Faction	Misma facción
 Enemy Team	Equipo enemigo
-Skill Callouts	Avisos de habilidad
 Stationary Skill Follow-Up	Seguimiento de habilidad estática
 Follow-Up Logic	Lógica de seguimiento
-Target	Objetivo
 Green	Verde
 Dark Green	Verde oscuro
 Blue	Azul
 Yellow	Amarillo
 Red	Rojo
 White	Blanco
-HP Bar Color Settings	Ajustes de color de barra de HP
-Name Color Settings	Ajustes de color de nombre
 Custom Layout	Diseño personalizado
-Graphics	Gráficos
-Graphics Settings	Ajustes de gráficos
-UI Scale	Escala de interfaz
 Always Display	Mostrar siempre
 Drag UI elements to reposition them.	Arrastra elementos de la interfaz para reubicarlos.
 Restore default	Restaurar predeterminado
@@ -1951,13 +2111,8 @@ The UI scale is too large for the current resolution and has been automatically 
 Scale	Escala
 Opacity	Opacidad
 Very Low	Muy baja
-Cursor Style	Estilo de cursor
-Show Cursor	Mostrar cursor
-Cursor Scale	Escala del cursor
 Shift + Right-click to control the camera	Shift + clic derecho para controlar la cámara
 Style ${1}	Estilo ${1}
-Frame Rate	FPS
-Anti-Aliasing	Antialiasing
 Self and Party	Tú y el grupo
 Purple	Morado
 Item bar 1	Barra de objetos 1
@@ -2017,7 +2172,6 @@ Estimated Wait: <color=#63a22b>${1}</color>	Espera estimada: <color=#63a22b>${1}
 Account Management	Gestión de cuenta
 Last Login	Últ. conexión
 Choose another login method	Elegir otro método de inicio de sesión
-Select character	Elegir personaje
 Deleting a character has a ${1}-day waiting period. Once permanently deleted, the data cannot be recovered. If you are sure you want to Delete Character, enter “YES” in the field below.	Eliminar un personaje tiene un período de espera de ${1} días. Una vez eliminado de forma permanente, los datos no se pueden recuperar. Si estás seguro de que quieres Eliminar personaje, escribe “YES” en el campo de abajo.
 Pending Deletion	Eliminación pendiente
 Banned	Vetado
@@ -2093,7 +2247,6 @@ Hidden Trophy	Trofeo oculto
 ${1} Trophy Category Level Rewards	Recompensas de nivel de categoría de trofeos ${1}
 Trophy Level-up	Subida de nivel de trofeo
 ${1} Trophy Level-up	Subida de nivel de trofeo ${1}
-Trophy	Trofeo
 Players Completed	Jugadores que lo completaron
 Gain achievement	Ganar logro
 Bonded	Vinculado
@@ -2277,7 +2430,6 @@ Fly Wings cannot be used in this area.	Las Alas de mosca no se pueden usar en es
 Details	Detalles
 Add Marker	Añadir marcador
 Butterfly Wing	Ala de mariposa
-World Map	Mapa mundial
 Monster	Monstruo
 Markers	Marcadores
 Ch. ${1}	Can. ${1}
@@ -2434,7 +2586,6 @@ Main Screen Chat Settings	Ajustes de chat de pantalla principal
 World	Mundo
 Whisper	Susurro
 Recruit	Reclutar
-Build	Configuración
 Nearby	Cercano
 Auto-Send Bullet Comments Settings	Ajustes de envío automático de comentarios flotantes
 Auto-Play Voice Settings	Ajustes de reproducción automática de voz
@@ -2471,13 +2622,10 @@ You are not in a party	No estás en un grupo
 Tree Hollow channel chat unlocks at Lv. ${1}	El chat del canal del Tree Hollow se desbloquea en Nv. ${1}
 No new messages	Sin mensajes nuevos
 Failed to send message to the server	Error al enviar el mensaje al servidor
-Channel	Canal
 Channel Description	Descripción del canal
 Incorrect message channel	Canal de mensajes incorrecto
 Hold to Talk	Mantén para hablar
-Emotes	Emote
 Record	Grabar
-Character	Personaje
 Preview Style	Estilo de vista previa
 Failed to join chat channel	Error al unirse al canal de chat
 You were mentioned	Te mencionaron
@@ -2742,7 +2890,6 @@ Are you sure you want to spend ${1} to purchase ${2}×${3}${4}?	¿Seguro que qui
 ${1}'s Stall	Puesto de ${1}
 1. You've helped the city prosper, so Prontera offers Stall services to all Adventurers.\n2. You may set up a Stall in any authorized area of Prontera. If the current channel is full, you will automatically switch to another channel. Stall information is not shared between channels.\n3. Please keep your Distance from other Adventurers' Stalls. You cannot set up a Stall too close to another one.\n4. A fixed Stall fee is charged each time you set up a Stall. There is no daily limit.\n5. Items from purchases, sales, and closing your Stall will be delivered by mail.\n6. If every item in your Stall sells out, the Stall will automatically Show less. However, this will not occur within the first 6 minutes after opening your Stall.\n7. If you close your Stall manually, you must pay the fixed Stall fee again the next time you open it. Please consider carefully.\n8. You may change the price and quantity of listed items at any time.	1. Has ayudado a que la ciudad prospere, así que Prontera ofrece servicios de Puesto a todos los Aventureros.\n2. Puedes instalar un Puesto en cualquier zona autorizada de Prontera. Si el canal actual está lleno, cambiarás automáticamente a otro canal. La información de los Puestos no se comparte entre canales.\n3. Mantén tu Distancia de los Puestos de otros Aventureros. No puedes instalar un Puesto demasiado cerca de otro.\n4. Se cobra una tarifa fija de Puesto cada vez que instalas uno. No hay límite diario.\n5. Los objetos de compras, ventas y del cierre de tu Puesto se entregarán por correo.\n6. Si se vende todo lo de tu Puesto, este se Ocultará automáticamente. Esto no ocurre en los primeros 6 minutos tras abrirlo.\n7. Si cierras tu Puesto manualmente, deberás pagar de nuevo la tarifa fija de Puesto la próxima vez que lo abras. Piénsalo bien.\n8. Puedes cambiar el precio y la cantidad de los objetos publicados en cualquier momento.
 Listed: ${1}/ ${2}	Publicados: ${1}/ ${2}
-Stall	Puesto
 Stall Function unlocks at Lv. ${1}	La función de Puesto se desbloquea en Nv. ${1}
 No Stall spaces are currently available. Please try again later.	No hay espacios de Puesto disponibles por ahora. Inténtalo más tarde.
 Another Stall is nearby. Please move to a different location.	Hay otro Puesto cerca. Muévete a otra ubicación.
@@ -2843,7 +2990,6 @@ Weekly	Semanal
 <color=#FA983A>${1}</color> is available during ${2}	<color=#FA983A>${1}</color> está disponible durante ${2}
 Event Calendar Help	Ayuda del Calendario de eventos
 Available Weekly	Disponible semanalmente
-Daily	Diario
 Event Period:	Período del evento:
 Opens every ${1}${2}-${3}	Abre cada ${1}${2}-${3}
 ${1} to ${2}	${1} a ${2}
@@ -2854,7 +3000,6 @@ Unlocks at Lv. ${1}	Se desbloquea en Nv. ${1}
 Current Floors: ${1}	Pisos actuales: ${1}
 Daily Sweeps (${1}/${2})	Barridos diarios (${1}/${2})
 ${1} unlocks at Lv. ${2}	${1} se desbloquea en Nv. ${2}
-Pet	Mascota
 Formation	Formación
 Attack-type	Tipo ataque
 Defender	Defensor
@@ -3156,7 +3301,6 @@ Power Up	Subir poder
 Daily: ${1}/${2}	Diario: ${1}/${2}
 Weekly: ${1}/${2}	Semanal: ${1}/${2}
 I Need Resources	Necesito recursos
-Growth	Crecimiento
 Growth Curriculum	Plan de crecimiento
 Growth Rewards	Recompensas de crecimiento
 Title Overview	Resumen de títulos
@@ -3554,7 +3698,6 @@ No Plans	Sin planes
 Use This Plan	Usar este plan
 Save to This Plan	Guardar en este plan
 Your trial of <color=#cc762a>${1}</color> has expired.	Tu prueba de <color=#cc762a>${1}</color> ha expirado.
-Dismount	Desmontar
 Start Crafting	Iniciar fabricación
 Go to Unseal	Ir a desellar
 Not enough crafting materials.	No hay suficientes materiales de fabricación.
@@ -3590,7 +3733,6 @@ Time Until Semifinals Begin:	Tiempo para el inicio de las semifinales:
 Distance Until Finals Begin:	Tiempo para el inicio de las finales:
 You are a guild elite. We recommend heading to the Main Battlefield.	Eres un élite del gremio. Se recomienda ir al Campo de batalla principal.
 This action is unavailable during the league.	Esta acción no está disponible durante la liga.
-Guild League	Liga de gremios
 Local Server League	Liga del servidor local
 Schedule	Calendario
 Result	Resultado
@@ -4068,7 +4210,6 @@ You can switch modes later under Settings - Basic - PC Mode	Puedes cambiar de mo
 Classic PC	PC clásico
 Modern PC	PC moderno
 Mobile	Móvil
-Display Resolution	Resolución de pantalla
 Windowed ${1}*${2}	En ventana ${1}*${2}
 Full-screen	Pantalla completa
 For players familiar with RO Online	Para jugadores familiarizados con RO Online
@@ -4077,7 +4218,6 @@ For players who prefer mobile layouts and play on an emulator	Para jugadores que
 More Left-Click Actions	Más acciones con clic izquierdo
 Right-Click to Use	Clic derecho para usar
 Lock Skill Hotbar	Bloquear barra de habilidades
-Sit	Sentarse
 New Tab	Nueva pestaña
 Enter a tab name	Ingresa un nombre de pestaña
 Select at least 1 chat channel	Selecciona al menos 1 canal de chat
@@ -4168,11 +4308,6 @@ Flying Mount Skills display area	Área de habilidades de montura voladora
 Equipment you cannot equip cannot be placed in Quick Items.	El equipo que no puedes equipar no se puede colocar en Objetos rápidos.
 Only Cooking, potions, Voice Message Items, Treasure Maps, and equipment can be placed in Quick Items.	Solo se pueden colocar en Objetos rápidos comida, pociones, objetos de mensaje de voz, mapas del tesoro y equipo.
 Quick equipment swapping is on cooldown. Please try again later.	El cambio rápido de equipo está en reutilización. Inténtalo más tarde.
-Equipment	Equipo
-Monster Hunt	Caza de monstruos
-Wardrobe	Armario
-Life Skill	Profesión de vida
-Auto-Potion	Poción automática
 In Development—Coming Soon	En desarrollo—Próximamente
 Tavern	Taberna
 Entire Server	Todo el servidor
@@ -4480,7 +4615,6 @@ Can Mark	Se puede marcar
 Cannot Be Marked	No se puede marcar
 Another faction is currently using this.	Otra facción lo está usando actualmente.
 War of Emperium Entrance	Entrada a la Guerra del Emperium
-Profile	Perfil
 Adventure History	Historial de aventuras
 Card Display	Exhibición de cartas
 Book Display	Exhibición de libros
@@ -4546,7 +4680,6 @@ Cannot be placed outside the Safe Zone. Please reposition it.	No se puede coloca
 Select Theme	Seleccionar tema
 Owned by Default	Incluido por defecto
 Select Template	Seleccionar plantilla
-Competition	Competición
 Kafra - Battle of the Survivors	Kafra - Batalla de los supervivientes
 This reality show is presented by the Rekenber Corporation, a conglomerate, and held in the Rune-Midgarts Kingdom in partnership with the Kafra Corporation. Adventurers battle one another, and the final victor will receive the show's Grand Prize.	Este reality show es presentado por Rekenber Corporation, un conglomerado, y se celebra en el Rune-Midgarts Kingdom en colaboración con la Corporación Kafra. Los aventureros se enfrentan entre sí y el vencedor final recibirá el Gran Premio del programa.
 60-Player Fair Competition	Competición justa de 60 jugadores
@@ -4588,7 +4721,6 @@ First Match Only	Solo la primera partida
 Kill/Assist/Rescue	Bajas/Asistencias/Rescates
 Damage/Healing	Daño/Curación
 Survivor Battle	Batalla de supervivientes
-Rankings	Clasificaciones
 Kill Ranking	Clasificación de bajas
 Victory Rankings	Clasificación de victorias
 Job Talents	Talentos de clase
@@ -4652,7 +4784,6 @@ You can spend ID Tags here to Revive defeated party members.\nSpend all ID Tags 
 No Solo Mode information found	No se encontró información del Modo en solitario
 Send (${1})	Enviar (${1})
 Still available This Week	Aún disponible esta semana
-Adventure	Aventura
 You are outside the barrier and taking continuous damage.	Estás fuera de la barrera y recibes daño continuo.
 Spectator Mode	Modo espectador
 My Records	Mis registros
@@ -4998,7 +5129,6 @@ Hidden Trove 68030	Tesoro oculto 68030
 [Rift Crisis] Commendation Gift Box has reached This Week's Limit	[Crisis de la Grieta] Caja de regalo de honor alcanzó el límite de esta semana
 Space has stabilized, and this rift has been quelled.	El espacio se estabilizó y esta grieta fue sofocada.
 Seconds Until Berserk	Segundos para el frenesí
-Novice Challenge	Desafío de principiante
 Discipline	Disciplina
 Happiness	Felicidad
 Renown	Renombre
@@ -5079,7 +5209,6 @@ ${1} remaining in this chapter	Quedan ${1} en este capítulo
 Season Events	Eventos de temporada
 Season Settlement	Liquidación de temporada
 Distance to Season End	Tiempo para el fin de temporada
-Territory War	Guerra de territorio
 Season Trophies	Trofeos de temporada
 Shop closes in ${1}	La tienda cierra en ${1}
 Preview only. Purchases will be available next Season.	Solo vista previa. Las compras estarán disponibles la próxima temporada.
@@ -5393,8 +5522,6 @@ You can only enter through the Safe Zone	Solo puedes entrar por la zona segura
 You are already on this map	Ya estás en este mapa
 Today's faction quest has been completed	La misión de facción de hoy está completada
 Survey Deadline	Fecha límite de la encuesta
-Survey	Encuesta
-Feedback	Comentarios
 Go Give Feedback	Ir a dar comentarios
 You've been selected!\nYou're a Lucky Star!	¡Fuiste seleccionado!\n¡Eres una Estrella afortunada!
 Entry Time: ${1}	Hora de entrada: ${1}
@@ -5488,7 +5615,6 @@ Not enough required items. Unable to craft!	Faltan objetos requeridos. ¡No se p
 Not enough Vivify. Unable to gather!	Vivificación insuficiente. ¡No se puede recolectar!
 Abandon this crafting attempt?	¿Abandonar este intento de fabricación?
 Continue Crafting	Continuar fabricando
-Crafting	Fabricando
 Interrupt	Interrumpir
 Not enough items in your Backpack. Unable to use!	Objetos insuficientes en tu mochila. ¡No se puede usar!
 Weekly Uses: limit reached (${1}/${2})!	Usos semanales: ¡límite alcanzado (${1}/${2})!
@@ -5620,7 +5746,6 @@ Crystal Donation	Donación de cristales
 Request sent to the guild.	Solicitud enviada al gremio.
 No Enchants are available for this equipment level.	No hay encantamientos disponibles para el nivel de este equipo.
 Not enough fragments to craft the treasure chest.	Fragmentos insuficientes para fabricar el cofre del tesoro.
-Enchant	Encantar
 Gift sent successfully.	Regalo enviado con éxito.
 Can Enchant equipment of Lv. ${1} or lower.	Se puede encantar equipo de Nv. ${1} o inferior.
 This item will be removed when the current Season ends.	Este objeto se eliminará al terminar la temporada actual.
@@ -5756,7 +5881,6 @@ Tap to Follow a party member participating in the Caravan Escort.	Toca para segu
 Tap to Move to the caravan's Location.	Toca para ir a la ubicación de la caravana.
 Dear Adventurer,\nYour character has been forcibly logged out. Please log back in.\nThank You for your cooperation and understanding.	Estimado aventurero:\nTu personaje fue desconectado a la fuerza. Vuelve a iniciar sesión.\nGracias por tu cooperación y comprensión.
 System Notification	Notificación del sistema
-Redemption Code	Código de canje
 Enter gift code	Ingresar código de regalo
 Redemption failed. This code has expired.	Error al canjear. Este código ha caducado.
 Bind Invitation Code	Vincular código de invitación
@@ -5809,7 +5933,6 @@ Guild application sent successfully.	Solicitud al gremio enviada con éxito.
 Initiate	Iniciar
 Response	Respuesta
 Post the following message to the ${1} channel	Publicar el siguiente mensaje en el canal ${1}
-Home	Inicio
 Currency Cost:	Costo de moneda:
 ${1} Level:	Nivel de ${1}:
 Draw Chance: ${1}%	Probabilidad de sorteo: ${1}%
@@ -5853,7 +5976,6 @@ The ${1} Tactic is already active. Replace its effect?	La táctica ${1} ya está
 Activate the ${1} Tactic?	¿Activar la táctica ${1}?
 Stronghold War	Guerra de fortalezas
 Escort Station	Estación de escolta
-War of Emperium	Guerra del Emperium
 Guild Support Creation Successful	Apoyo del gremio creado con éxito
 Save Guild Emblem	Guardar emblema del gremio
 Automatically Approve Support	Aprobar apoyo automáticamente
@@ -7296,7 +7418,6 @@ Guild GVE Difficulty Duration	Duración de dificultad de GVE del gremio
 Random Dungeon	Mazmorra aleatoria
 Main-Hand	Mano principal
 Off-Hand	Mano secundaria
-Headwear	Tocado
 Facewear	Rostro
 Mouthwear	Boca
 Knight Class	Clase Caballero
@@ -8095,7 +8216,6 @@ Warg Hunt (Melee)	Caza de warg (cuerpo a cuerpo)
 Enhance Warg Hunt (Melee)	Mejora de Caza de warg (cuerpo a cuerpo)
 Warg Hunt (Ranged)	Caza de warg (a distancia)
 Enhance Warg Hunt (Ranged)	Mejora de Caza de warg (a distancia)
-Unstuck	Desatascar
 Goblin Spiral Launch	Lanzamiento en espiral de goblin
 Wobbling Goblin	Goblin tambaleante
 Doragon Launch	Lanzamiento Doragon
@@ -10237,19 +10357,12 @@ Soaring Sky IV	Cielo elevado IV
 Soaring Sky V	Cielo elevado V
 Idle Grinding	Farmeo inactivo
 Player Card	Tarjeta de jugador
-Dungeon	Mazmorra
-Academy	Academia
-Affection	Afecto
 Spectate	Espectar
 Notification Dot System	Sistema de puntos de notificación
 Launch Fest	Festival de lanzamiento
 MINI Activities	Actividades MINI
-Life Skills	Profesiones de vida
 Main Screen Equipment Display	Visualización de equipo en pantalla principal
 Master Toggle for In-Game Development Events	Interruptor general de eventos de desarrollo en el juego
-Realm of the Gods	Reino de los Dioses
-Phantom Realm	Reino Fantasma
-Emote/Action	Emote/Acción
 Otherworldly Invasion	Invasión de otro mundo
 Season Refinement	Refinamiento de temporada
 Gift of Time	Regalo del tiempo
@@ -10259,7 +10372,6 @@ Auto Skill Bar	Barra de habilidades automática
 Realm Campaign · Midterm Settlement	Campaña del reino · Liquidación intermedia
 Fly Wing	Ala de mosca
 Commendation Vault	Cámara de Honor
-Valhalla Trials	Pruebas del Valhalla
 Novice Seven-Day Gifts	Regalos de siete días de novato
 Prelude of the Goddess	Preludio de la Diosa
 System Stall	Puesto del sistema
@@ -10751,7 +10863,6 @@ Dynamite	Dinamita
 Physical Immune	Inmunidad física
 Magic Immune	Inmunidad mágica
 Manhunt	Cacería humana
-Boss	Jefe
 Unstoppable Dragonkin	Dragonkin imparable
 Flame Scorch	Quemadura de llamas
 Lope Start Marker	Marcador de inicio de Lope
@@ -17625,7 +17736,6 @@ Random Purple Card Pack	Paquete de cartas moradas aleatorio
 Blue Cards Selection Chest	Cofre de selección de cartas azules
 Purple Card Selection Chest	Cofre de selección de cartas moradas
 Old Card Album	Álbum de cartas antiguo
-Card Album	Álbum de cartas
 Random Card Gift Box	Caja de regalo de cartas aleatoria
 ^{1}Acolyte Talent @{1}-@{2}^{2}	^{1}Talento de Acólito @{1}-@{2}^{2}
 Mace Mastery Lv. @{1}	Maestría con maza Nv. @{1}
@@ -18625,7 +18735,6 @@ Rift Crisis Rules	Reglas de la Crisis de grietas
 Effect at the next level	Efecto en el siguiente nivel
 Talent Upgrade	Mejora de talento
 Battle Pledge	Juramento de batalla
-Pass	Pase
 Purchase RO Pass	Comprar Pase RO
 Dragonblood Crystal	Cristal de Sangre de Dragón
 Casting Method Overview	Resumen del método de lanzamiento
@@ -24842,14 +24951,10 @@ Dropped from Standard Reward Chests in the Commendation Vault	Se obtiene de los 
 Obtain by completing Growth Handbook - Corolla Emblem	Obtener al completar Manual de crecimiento - Emblema Corola
 Reach the top @{1} on the Pet Tower Ranking to obtain	Alcanzar el top @{1} de la Clasificación de la Torre de mascotas para obtener
 Reach the top @{1} on the Fashion Rating Ranking to obtain	Alcanzar el top @{1} de la Clasificación del Índice de moda para obtener
-Graphics Quality	Calidad gráfica
-Frame Rate Cap	Límite de FPS
 Shadow Claws	Sombras
-Vertical Sync	Sincronización vertical
 Pet Guardian Live@{1}D	Guardián de mascota Live@{1}D
 Enhance Display	Mejorar visualización
 Use a Normal Attack after tapping a target	Usar un ataque normal tras tocar un objetivo
-Mute When Minimized	Silenciar al minimizar
 Serverwide Territory War	Guerra de territorio de todo el servidor
 Season Story	Historia de temporada
 10-Player Raid · Normal	Banda de 10 jugadores · Normal
@@ -25349,7 +25454,6 @@ Pass All	Superar todo
 Outer City	Ciudad exterior
 30-day CD after saving	30 días de reutilización tras guardar
 Not smelted yet	Aún sin fundir
-Smelt	Fundir
 Smelted <#cc7629>3</color> times today	Fundido <#cc7629>3</color> veces hoy
 Upgrade [space]	Mejorar [espacio]
 Hold to Unlock	Mantener para desbloquear
@@ -26181,7 +26285,6 @@ Open to receive items	Abierto para recibir objetos
 Unique Enchant	Encantamiento único
 A necklace worn by warriors. Their speed is said to be tied to it.	Un collar usado por guerreros. Se dice que su velocidad está ligada a él.
 PATK+	ATQ F.+
-Unequip	Desequipar
 Preview Costume	Vista previa de traje
 Pack Contains	El paquete contiene
 [Guild] ChickPecker: kiddo	[Gremio] ChickPecker: chaval
@@ -26605,7 +26708,6 @@ Est. wait: <#fdab5b>10h59m</color>	Espera est.: <#fdab5b>10h59m</color>
 Queue position: <#fdab5b>3</color>	Posición en cola: <#fdab5b>3</color>
 Shop Purchase Info	Info de compra de la tienda
 No favorite actions yet. Tap Edit to enter edit mode and add some~	Aún no hay acciones favoritas. Toca Editar para entrar al modo de edición y añadir algunas~
-Camera	Cámara
 <#e3c464>Character:</color> chat text chat text chat text chat text chat text	<#e3c464>Personaje:</color> texto de chat texto de chat texto de chat texto de chat texto de chat
 <color=#e3c464>Character:</color>1	<color=#e3c464>Personaje:</color>1
 Description text. Description text. Description text. Description text. Description text.	Texto de descripción. Texto de descripción. Texto de descripción. Texto de descripción. Texto de descripción.
