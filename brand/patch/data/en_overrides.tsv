@@ -16,10 +16,28 @@ Fixed price purchases will become available after the listing period ends.	La co
 [Guide Quest] 	[Misión Guía] 
 [Job Quest]	[Cambio de Clase]
 [Job Quest] 	[Cambio de Clase] 
-[Main]	[Principal]
-[Main] 	[Principal] 
+[Main]	[Misión Principal]
+[Main] 	[Misión Principal] 
+[Side]	[Misión Secundaria]
+[Side] 	[Misión Secundaria] 
+[Daily]	[Misión Diaria]
+[Daily] 	[Misión Diaria] 
+[Guide]	[Misión Guía]
+[Guide] 	[Misión Guía] 
+[Job]	[Cambio de Clase]
+[Job] 	[Cambio de Clase] 
 [Major búsqueda]	[Misión Principal]
 [Major]	[Misión Principal]
+[主线]	[Misión Principal]
+[主线] 	[Misión Principal] 
+[支线]	[Misión Secundaria]
+[支线] 	[Misión Secundaria] 
+[日常]	[Misión Diaria]
+[日常] 	[Misión Diaria] 
+[引导]	[Misión Guía]
+[引导] 	[Misión Guía] 
+[转职]	[Cambio de Clase]
+[转职] 	[Cambio de Clase] 
 Main Quest	Misión Principal
 Side Quest	Misión Secundaria
 Daily Quest	Misión Diaria
@@ -29,6 +47,22 @@ Title Quest	Misión de Título
 Quest Progress	Progreso de la misión
 Quest	Misión
 Quests	Misiones
+Quest List	Lista de Misiones
+Current Quest	Misión Actual
+Auto-Pathfinding	Ruta Automática
+Auto-Combat	Combate Automático
+Auto Battle	Combate Automático
+
+# Locations & Quest Titles
+Payon Forest	Bosque de Payon
+Deep Forest	Bosque Profundo
+Meet Boys in Payon Forest	Encuentra a los chicos en Bosque de Payon
+Prontera	Prontera
+Geffen	Geffen
+Morroc	Morroc
+Alberta	Alberta
+Izlude	Izlude
+Al De Baran	Aldebarán
 
 # Character Sheet & UI
 Status	Estado
@@ -36,17 +70,18 @@ Status de la empresa	Estado
 Estado de la empresa	Estado
 Character	Personaje
 Attributes	Atributos
+Stats	Atributos
 Title	Título
 Enter Battle	Entrar al combate
 Recent Login	Último inicio de sesión
 Owned:	Posees:
+Bag	Mochila
+Inventory	Inventario
 
 # HUD & Quick Actions
 Create Party	Crear Grupo
 Create Team	Crear Equipo
 Search Party	Buscar Grupo
-Kafra Staff	Personal Kafra
-Kafra Warp	Teletransporte Kafra
 World	Mundo
 Nearby	Cercanos
 Guild	Gremio
@@ -58,14 +93,6 @@ Menu	Menú
 Shop	Tienda
 Event	Evento
 Season	Temporada
-Payon Forest	Bosque de Payon
-Deep Forest	Bosque Profundo
-Prontera	Prontera
-Geffen	Geffen
-Morroc	Morroc
-Alberta	Alberta
-Izlude	Izlude
-Al De Baran	Aldebarán
 
 # Card System (Cartas, no Tarjeta de crédito)
 Cards	Cartas
@@ -105,3 +132,6 @@ Tarjeta de crédito	Cartas
 Tarjeta de credito	Cartas
 tarjeta de crédito	carta
 tarjeta de credito	carta
+Settings	Ajustes
+System	Sistema
+Team	Equipo
