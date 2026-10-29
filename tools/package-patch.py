@@ -9,7 +9,8 @@ Usage: python tools/package-patch.py [--src dist] [--out ro3-launcher-patch.zip]
 --name    top-level folder inside the ZIP
 --exe     launcher executable (the AssemblyName of the build; a branded fork may rename it)
 --extras  folder whose files are added to the ZIP at the same relative path (for example data/loc_en.tsv,
-          LEEME.txt); a file there replaces the one of the same name taken from --src. Ignored when it does not exist.
+          LEEME.txt); a file there replaces the one of the same name taken from --src. Files whose name starts with a dot
+          are skipped. Ignored when the folder does not exist.
 """
 import argparse
 import os
@@ -67,6 +68,8 @@ def main() -> int:
     if os.path.isdir(args.extras):
         for folder, _, names in os.walk(args.extras):
             for fname in sorted(names):
+                if fname.startswith("."):
+                    continue  # .gitattributes, .gitkeep...: repository files, not part of the patch
                 full = os.path.join(folder, fname)
                 rel = posix(os.path.relpath(full, args.extras))
                 if rel in entries:
