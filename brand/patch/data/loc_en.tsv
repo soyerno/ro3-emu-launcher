@@ -937,7 +937,7 @@ ${1}时${2}分后未领取将返还消耗	Si no se reclama tras ${1} h ${2} min,
 选择分组	Elegir grupo
 群组名称	Nombre del grupo
 成员数量	Número de miembros
-群主	Anfitrión del grupo
+群主	Anfitrión
 未分组	Sin grupo
 我的好友	Mis amigos
 请输入玩家名可搜索	Escribe un nombre de jugador para buscar
@@ -1669,7 +1669,7 @@ ${1}已帮助装载	${1} ayudó a cargarlo
 暂无可帮助装载的货物	No hay carga que cargar por ahora
 已装载	Cargado
 发车	Partir
-求助	Solicitar ayuda
+求助	Pedir ayuda
 您处于公会活动中，是否确定离开本场景？	Estás participando en un evento del gremio. ¿Seguro que quieres salir de esta zona?
 您处于战斗中，是否确定离开本场景？	Estás en combate. ¿Seguro que quieres salir de esta zona?
 当前公会资金上限：${1}	Límite actual de Fondos del gremio: ${1}
@@ -1843,8 +1843,8 @@ MVP击杀	Derrota de MVP
 快速吃药	Poción rápida
 前进	Avanzar
 后退	Retroceder
-左移	Mover a la izquierda
-右移	Mover a la derecha
+左移	Mover izq.
+右移	Mover der.
 地图	Mapa
 和功能 ${1} 已有快捷键冲突，是否对调二者对应的快捷键	Esto entra en conflicto con el atajo de la función ${1}. ¿Intercambiar sus atajos?
 是否保存快捷键设置？	¿Guardar los ajustes de atajos?
@@ -1953,7 +1953,7 @@ UI缩放	Escala de interfaz
 鼠标缩放	Escala del cursor
 shift+右键控制视角	Shift + clic derecho para controlar la cámara
 样式${1}	Estilo ${1}
-帧率	Tasa de fotogramas
+帧率	FPS
 抗锯齿	Antialiasing
 自己和小队	Tú y el grupo
 紫色	Morado
@@ -2017,7 +2017,7 @@ Shift+鼠标右键	Shift+clic derecho del ratón
 预计等待时间：<color=#63a22b>${1}</color>	Espera estimada: <color=#63a22b>${1}</color>
 <color=#BFC8D5>退出后需重新排队，请谨慎选择</color>	<color=#BFC8D5>Si sales, deberás volver a unirte a la cola. Elige con cuidado.</color>
 账号管理	Gestión de cuenta
-最后登录	Último inicio de sesión
+最后登录	Últ. conexión
 选择其他登录方式	Elegir otro método de inicio de sesión
 选择角色	Elegir personaje
 新建角色	Crear personaje
@@ -2630,12 +2630,12 @@ ${1}层	Piso ${1}
 每日5点刷新	Se restablece a diario a las 5:00 AM
 扫荡	Omitir
 已扫荡	Barrido
-通关时间	Tiempo de finalización
+通关时间	Tiempo final
 最快通关时间：${1}	Tiempo de finalización más rápido: ${1}
 已阵亡	Caído
 替补中	En espera
 失败	Fallido
-通关时间 ${1}	Tiempo de finalización ${1}
+通关时间 ${1}	Tiempo final ${1}
 新纪录	Nuevo récord
 下层信息	Info de piso inferior
 本层信息	Info del piso actual
@@ -2750,7 +2750,7 @@ ${1}月${2}日（无需翻译）	${1}/${2}
 您已恢复使用高倍时间，击杀野外怪物可掉落丰富奖励	Reanudaste el Tiempo de bonificación. Derrotar Monstruos de campo ahora puede dar abundantes recompensas.
 您的高倍时间为0，请明天再来吧	Tu Tiempo de bonificación está en 0. Vuelve mañana.
 ${1}/分钟	${1}/min
-高倍时间	Tiempo de bonificación
+高倍时间	Tiempo extra
 开启高倍	Activar bonificación
 挂机中...	Combatiendo automáticamente...
 魔物收藏	Colección de monstruos
@@ -3728,7 +3728,7 @@ ${1}结束	Termina ${1}
 黄铜	Latón
 黑铁	Hierro negro
 水点附近	Cerca del punto de agua
-出生点	Punto de aparición
+出生点	Aparición
 火点附近	Cerca del punto de fuego
 本服联赛界面帮助说明文本（无需翻译）	Texto de ayuda de la pantalla de la Liga del servidor local
 公会赛程界面帮助说明文本（无需翻译）	Texto de ayuda del calendario del gremio
@@ -4031,7 +4031,7 @@ ${1}天后开启挑战	El desafío se desbloquea en ${1} días
 全员就位后进入副本	Entra a la Mazmorra cuando todos estén listos
 剩余复活:${1}	Reanimaciones restantes: ${1}
 最高输出	DPS máx.
-一键全赞	Dar Me gusta a todos
+一键全赞	Me gusta a todos
 奖励次数已耗尽，无法获得副本奖励	Usos de recompensa agotados. No se pueden obtener recompensas de la mazmorra.
 ${1}邀请您进入玩法！	¡${1} te invitó a unirte a la actividad!
 每周一5点结算排名奖励	Liquidación de recompensas de clasificación cada lunes a las 5
@@ -4165,7 +4165,7 @@ ${1}取消了匹配	${1} canceló la cola
 次数计算	Cálculo de intentos
 匹配中：	En cola:
 加载中……	Cargando...
-一键点赞	Dar Me gusta a todos
+一键点赞	Me gusta a todos
 起拍出价	Puja inicial
 魔物	Monstruo
 藏书	Colección de libros
@@ -5082,7 +5082,7 @@ ${1}邀请你跟随	${1} te invitó a seguir
 提交搭配	Enviar configuración
 是否提交搭配，提交后将不能修改	¿Enviar esta configuración? No se puede modificar tras enviarla.
 技能配置	Configuración de habilidades
-属性配置	Configuración de atributos
+属性配置	Atributos
 搭配装备	Seleccionar equipo
 搭配卡片	Seleccionar cartas
 搭配宠物	Seleccionar mascotas
@@ -6656,7 +6656,7 @@ MVP次数	Cantidad de MVP
 濒危	Al borde de la muerte
 最高连杀	Mayor racha de bajas
 继续（${1}s）	Continuar (${1}s)
-点赞全部	Dar like a todos
+点赞全部	Me gusta a todos
 我的战绩	Mi resultado
 本场得分	Puntuación de batalla
 全场排名	Clasificación general
@@ -7663,7 +7663,7 @@ boss阶段	Fase del JEFE
 会长名称	Nombre del líder del gremio
 达成时间	Tiempo de finalización
 首通时间	Tiempo de primera finalización
-通关时长	Tiempo de finalización
+通关时长	Tiempo final
 本周明星值	Valor estelar de esta semana
 段位	Rango
 击败玩家数量	Jugadores derrotados
@@ -7687,8 +7687,8 @@ boss阶段	Fase del JEFE
 副手	Mano secundaria
 铠甲	Armadura
 头饰	Tocado
-脸饰	Accesorio facial
-嘴饰	Accesorio bucal
+脸饰	Rostro
+嘴饰	Boca
 骑士系	Clase Caballero
 巫师系	Clase Mago
 牧师系	Clase Sacerdote
@@ -7706,7 +7706,7 @@ boss阶段	Fase del JEFE
 双词条	Dos afijos
 有特技	Con Proeza
 套装	Conjunto
-背饰	Accesorio de espalda
+背饰	Espalda
 随身特效	Efectos de personaje
 脚印	Huellas
 命途	Camino del destino
@@ -7818,7 +7818,7 @@ boss阶段	Fase del JEFE
 来个铲屎官	Dueño de mascota
 来个欧皇	Busco con suerte
 来个自来熟	Busco alma sociable
-常驻人口	Siempre conectado
+常驻人口	Siempre activo
 社恐友好	Apto para introvertidos
 一起打本	Hacer mazmorras
 喜欢竞技	Fans del PvP
@@ -9113,7 +9113,7 @@ ID段尾	Fin de sección de ID
 减速(无需翻译)	Ralentización
 酸液喷射(无需翻译)	Rociada de ácido
 冲锋(无需翻译)	Carga
-击飞(无需翻译)	Lanzamiento al aire
+击飞(无需翻译)	Elevación
 分身(无需翻译)	Clon
 禁锢(无需翻译)	Inmovilizar
 加速(无需翻译)	Aceleración
@@ -10344,8 +10344,8 @@ BOSS在场地上随机生成@{1}/@{2}/@{3}个龙卷风（预警@{4}s半径@{5}m�
 右方矩形aoe【无需翻译】	Área rectangular derecha
 内侧园aoe【无需翻译】	Área circular interior
 外侧环aoe【无需翻译】	Área en anillo exterior
-左转@{1}【无需翻译】	Girar a la izquierda @{1}
-右转@{1}【无需翻译】	Girar a la derecha @{1}
+左转@{1}【无需翻译】	Girar izq. @{1}
+右转@{1}【无需翻译】	Girar der. @{1}
 转向@{1}【无需翻译】	Girar hacia @{1}
 重复行为【无需翻译】	Repetir acción
 技能@{1}-矩形【无需翻译】	Habilidad @{1} - Rectángulo
@@ -11423,7 +11423,7 @@ BD字典_enum@{1}_Tag_万分比	BDDictionary_enum@{1}_Tag_PerTenThousand
 守护光环表现（满）	Efecto de Órbita de protección (completa)
 镖车无敌	Carro de escolta invencible
 击退	Retroceso
-击飞	Lanzamiento al aire
+击飞	Elevación
 冰冻	Congelado
 石化	Petrificación
 沉默	Silencio
@@ -11546,7 +11546,7 @@ BOSS自身特效【无需翻译】	Efectos visuales del JEFE
 开战保护	Protección de inicio de batalla
 振奋士气	Aumento de moral
 战意激昂	Determinación creciente
-被瞄准	Seleccionado como objetivo
+被瞄准	Objetivo
 华丽减伤	Reducción de daño magnífica
 华丽爆发	Estallido magnífico
 坦克无敌	Tanque invencible
@@ -12033,7 +12033,7 @@ perfect状态	Estado perfecto
 更换引力冲击	Cambiar Impacto de gravedad
 念动星体-计数	Orbe psíquico: contador
 表现buff	Mejora de actuación
-增益buff	Mejora de beneficio
+增益buff	Mejora
 恶灵附体	Posesión de espíritu maligno
 锁链	Cadena
 减少黄昏之光CD	Reducir reutilización de Rayo del crepúsculo
@@ -12183,7 +12183,7 @@ perfect状态	Estado perfecto
 物伤上限	Límite de daño físico
 充沛魔能	Magia abundante
 力量汇聚	Convergencia de fuerza
-急救	Primeros auxilios
+急救	Curar
 防御上限	Límite de defensa
 防御汇聚	Convergencia de defensa
 充沛治疗	Curación abundante
@@ -12646,7 +12646,7 @@ perfect状态	Estado perfecto
 每@{1}秒受到一次伤害	Recibe daño una vez cada @{1} s.
 脱战刷新所有技能【无需翻译】	Restablece todas las habilidades al salir del combate
 曼陀罗花攻击产生的藤蔓自我了断【无需翻译】	Las enredaderas creadas por ataques de Mandrágora se destruyen solas
-受击僵直【无需翻译】	Aturdimiento por golpe
+受击僵直【无需翻译】	Aturdimiento
 锁生命值固定值@{1}【无需翻译】	Fija el HP en el valor fijo @{1}
 攻速降低@{1}%	Reduce la vel. de ataque en @{1}%
 兽人酋长的普通攻击变为范围伤害	El ataque básico del Orc Lord inflige daño en área
@@ -15633,7 +15633,7 @@ PV狩猎指挥	Mando de caza PV
 思念粒子装置	Dispositivo de partículas de memoria
 激昂	Fervor
 火堆	Hoguera
-晚会主持人	Anfitrión de la fiesta
+晚会主持人	Anfitrión
 将军魔碑	Gran General
 邪恶箱	Mimic
 大嘴鸟蛋	Huevo de Peco Peco
@@ -18656,7 +18656,7 @@ ID未输入	ID no ingresado.
 抱歉	Perdón
 流泪	Lágrimas
 感谢	Gracias
-摸头	Caricia en la cabeza
+摸头	Caricia
 无表情	Sin expresión
 哈欠	Bostezo
 微笑	Sonrisa
@@ -19784,7 +19784,7 @@ MVP排名积分衰减	Decaimiento de puntos de clasificación MVP
 身份牌	ID del pujador
 幸运星答题	Quiz de la Estrella de la Suerte
 技能方案	Configuración de habilidades
-属性方案	Configuración de atributos
+属性方案	Atributos
 装备方案	Conjunto de equipo
 卡片方案	Preajuste de cartas
 神术图腾方案	Conjunto de Tótem de Artes Divinas
@@ -19809,7 +19809,7 @@ MVP排名积分衰减	Decaimiento de puntos de clasificación MVP
 活动日历规则：	Reglas del Calendario de eventos:
 宠物升级	Mejora de mascota
 新手寻觅	Búsqueda de novato
-宠物基础	Conceptos básicos de mascotas
+宠物基础	Guía de mascotas
 宠物进阶和突破	Ascenso y superación de mascotas
 宠物出战和助战	Despliegue y apoyo de mascotas
 图鉴说明	Guía del Códice
@@ -19863,7 +19863,7 @@ MVP排名积分衰减	Decaimiento de puntos de clasificación MVP
 货物装载	Carga de mercancía
 外观抽卡（无需翻译）	Sorteo de disfraces
 概率公示（无需翻译）	Divulgación de probabilidades
-交易手续费	Comisión de Intercambio
+交易手续费	Comisión
 自动出价规则	Reglas de Puja automática
 拍卖规则	Reglas de subasta
 押镖路线	Ruta de escolta de la caravana
@@ -21648,7 +21648,7 @@ BOSS召唤多次乐流锁定玩家延迟造成伤害，同时会在场地上留�
 暴击爆伤流	Configuración de crítico y daño crítico
 移速流	Configuración de vel. de movimiento
 恢复流	Configuración de recuperación
-增益流	Configuración de mejoras
+增益流	Mejoras
 核心包	Paquete básico
 主城地图	Mapa de la ciudad capital
 新手地图	Mapa de principiante
@@ -21713,7 +21713,7 @@ BOSS召唤多次乐流锁定玩家延迟造成伤害，同时会在场地上留�
 分裂后的土波利死亡时@{1}%概率创建@{2}个幻化手册(无需翻译)	Cuando muere un Drops dividido, hay @{1}% de probabilidad de crear @{2} Manuales de transformación
 分裂后的冰波利死亡时@{1}%概率创建@{2}个幻化手册(无需翻译)	Cuando muere un Marin dividido, hay @{1}% de probabilidad de crear @{2} Manuales de transformación
 喷射哥布林死亡时@{1}%概率创建@{2}个幻化手册(无需翻译)	Cuando muere un Jet Goblin, hay @{1}% de probabilidad de crear @{2} Manuales de transformación
-生成Boss(无需翻译)	Hacer aparecer al Jefe
+生成Boss(无需翻译)	Invocar jefe
 发放Boss尾刀奖励(无需翻译)	Otorgar recompensa por golpe final al Jefe
 发放Boss伤害奖励（不包括尾刀）	Otorgar recompensa por daño al Jefe (excluyendo el golpe final)
 Boss死亡通知客户端(无需翻译)	Enviar al cliente la notificación de muerte del Jefe
@@ -24815,7 +24815,7 @@ SE城战只有一张大地图，需打掉守护石和防禦线才能推进，这
 替呆呆向肉品商人问好。	Saluda al carnicero de parte de Dodo.
 替呆呆向魔物学者问好。	Saluda al estudioso de monstruos de parte de Dodo.
 替呆呆向青年问好。	Saluda al joven de parte de Dodo.
-登录游戏	Iniciar sesión en ROO
+登录游戏	Entrar a ROO
 Base等级达到@{1}级	Alcanzar el Nv. base @{1}
 完成主线任务：天天打波利	Completar la misión principal: Pelea con Porings todos los días
 头衔达到风之启航Ⅰ	Alcanzar el título Travesía del viento I
@@ -26575,7 +26575,7 @@ GVE竞速（无需翻译）	GVE contrarreloj
 公会名字七个字	Nombre del gremio
 玩家名字七个字	Nombre del jugador
 服务器名称	Nombre del servidor
-流派名称名称	Nombre de configuración
+流派名称名称	Nombre
 已插卡	Con carta
 典藏专属	Solo colección
 奥克兽人	Orco
@@ -26764,7 +26764,7 @@ Base等级	Nivel base
 团长技能	Habilidades de líder
 首次研读	Primer estudio
 筛选当前道具列表	Filtrar lista de objetos
-工具加成	Bonificación de herramienta
+工具加成	Bono de herramienta
 第三轮	Ronda 3
 第二轮	Ronda 2
 第一轮	Ronda 1
@@ -27398,7 +27398,7 @@ JOB 40解锁	Se desbloquea en JOB 40
 占点先锋	Vanguardia de puntos
 王	Rey
 砍死那个烟台人，快带砍死他呀，快带砍死他呀,	Línea de juramento de ejemplo, línea de juramento de ejemplo, juramento de ejemplo,
-流派名字	Nombre de configuración
+流派名字	Nombre
 这里是玩家名字	Nombre del jugador aquí
 绿色，蓝色，黄色，紫色，红色	Verde, Azul, Amarillo, Morado, Rojo
 宠物名字	Nombre de mascota
@@ -27506,7 +27506,7 @@ Rolename邀请组队(3/5) 翻译预留两行	Rolename te invita a un grupo (3/5)
 您已和xxxxx成为好友，开始聊天吧	Tú y xxxxx ahora son amigos. ¡Empieza a chatear!
 摊位名字七个字	Nombre del puesto
 清仓大甩卖！	¡Liquidación!
-流派名称七个字	Nombre de configuración
+流派名称七个字	Nombre
 总伤害  1500M (46.1M/S)	Daño total  1500M (46.1M/S)
 通关奖励次数：<color=#76c233>2</color>次      共享奖励次数：<color=#76c233>2</color>次	Recompensas de superación: <color=#76c233>2</color>      Recompensas compartidas: <color=#76c233>2</color>
 物理攻击+63物理攻击+63物理攻击	ATQ F. +63 ATQ F. +63
@@ -28006,7 +28006,7 @@ LV.5 [亲密无间]	NV.5 [Inseparables]
 物品名称物品名称物 称物品名称	Nombre del objeto Nombre del objeto Nombre del objeto
 <color=#63a22b>02:59:54</color> 结束	Termina en <color=#63a22b>02:59:54</color>
 02:59:54 开始	Comienza en 02:59:54
-出價被超越價	Superado en puja
+出價被超越價	Superado
 深渊沼泽-二层	Pantano del Abismo - P2
 成功拍下	Ganado
 李斯特岛	Isla Lister
@@ -28085,7 +28085,7 @@ Your<#e3aa49>1</color><#549b4a>1</color>策划配置全部文本Your<#e3aa49>1</
 蓝色及以下；支援、控制	Azul e inferior; Apoyo, Control
 奇遇卡牌数量：16	Cartas de aventura: 16
 胜点  -15	Puntos de victoria  -15
-流派名字七个字	Nombre de configuración
+流派名字七个字	Nombre
 法术精通精通	Dominio de hechizos
 星璇共鸣	Resonancia de remolino estelar
 这里是职业介绍文案内容描述巴拉巴拉巴这里是职业介绍文案内容描述巴拉巴拉巴巴拉巴拉\n这里是职业介绍文案内容描述巴拉巴拉巴这里是职业介绍文案内容描述巴拉巴拉巴巴拉巴拉\n这里是职业介绍文案内容描	Aquí va el texto de introducción de clase, bla bla. Aquí va el texto de introducción de clase, bla bla.\nAquí va el texto de introducción de clase, bla bla. Aquí va el texto de introducción de clase, bla bla.\nAquí va el texto de introducción de clase
