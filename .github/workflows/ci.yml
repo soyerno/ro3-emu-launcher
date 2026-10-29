@@ -25,3 +25,7 @@ jobs:
 
       - name: Build project
         run: dotnet build Ro3Launcher.csproj -c Release --no-restore
+
+      - name: Test the release script
+        run: python -m unittest tools/test_release.py
+
