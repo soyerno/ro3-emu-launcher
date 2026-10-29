@@ -148,6 +148,14 @@ try {
     Write-Host '  conectado'
 
     Write-Step 'Parcheando e iniciando el juego'
+    $ro3emuDir = Join-Path $gameDir 'ro3emu'
+    if (-not (Test-Path $ro3emuDir)) { New-Item -ItemType Directory -Path $ro3emuDir -Force | Out-Null }
+    if (Test-Path (Join-Path $here 'data\loc_en.tsv')) {
+        Copy-Item (Join-Path $here 'data\loc_en.tsv') (Join-Path $ro3emuDir 'loc_en.tsv') -Force
+    }
+    if (Test-Path (Join-Path $here 'data\en_overrides.tsv')) {
+        Copy-Item (Join-Path $here 'data\en_overrides.tsv') (Join-Path $ro3emuDir 'en_overrides.tsv') -Force
+    }
     & $ro3emu join 'http://127.0.0.1:5380' --client $gameDir --yes
     if ($LASTEXITCODE -ne 0) {
         Write-Fail "RO3Emu termino con error ($LASTEXITCODE)."

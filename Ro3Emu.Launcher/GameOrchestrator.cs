@@ -171,6 +171,24 @@ public sealed class GameOrchestrator
 
         SaveGameDirectory(gameDir, baseDir);
 
+        try
+        {
+            string ro3emuTarget = Path.Combine(gameDir, "ro3emu");
+            Directory.CreateDirectory(ro3emuTarget);
+            string baseDirectory = baseDir ?? Path.GetDirectoryName(ro3emu) ?? AppContext.BaseDirectory;
+            string sourceLoc = Path.Combine(baseDirectory, "data", "loc_en.tsv");
+            if (File.Exists(sourceLoc))
+            {
+                File.Copy(sourceLoc, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+            }
+            string sourceOverrides = Path.Combine(baseDirectory, "data", "en_overrides.tsv");
+            if (File.Exists(sourceOverrides))
+            {
+                File.Copy(sourceOverrides, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+            }
+        }
+        catch { }
+
         onLog?.Invoke(Strings.Get("game.patching"));
 
         var psi = new ProcessStartInfo

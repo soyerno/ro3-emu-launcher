@@ -1,0 +1,107 @@
+# English text the client already ships in English, replaced as drawn (Ro3Loc.MapFrom). "client text\tour text".
+# Loading-screen tips (LoadingInfoConfig 4 / 5 -> Localization 10460000000 with @{1}=3, 10460000001).
+Welcome to RO Ragnarok Online 3!	¡Bienvenidos a Ragnarok Online 3!
+Goodbye, imitators! Only the real RO can fight!	¡La aventura te aguarda en Rune-Midgard!
+# Auction list cell (PUBLIC lot): the shipped sentence overflows the cell on both sides.
+Fixed price purchases will become available after the listing period ends.	La compra directa se habilita al finalizar el período.
+
+# Quest Tags & Tracking
+[Main Quest]	[Misión Principal]
+[Main Quest] 	[Misión Principal] 
+[Side Quest]	[Misión Secundaria]
+[Side Quest] 	[Misión Secundaria] 
+[Daily Quest]	[Misión Diaria]
+[Daily Quest] 	[Misión Diaria] 
+[Guide Quest]	[Misión Guía]
+[Guide Quest] 	[Misión Guía] 
+[Job Quest]	[Cambio de Clase]
+[Job Quest] 	[Cambio de Clase] 
+[Main]	[Principal]
+[Main] 	[Principal] 
+[Major búsqueda]	[Misión Principal]
+[Major]	[Misión Principal]
+Main Quest	Misión Principal
+Side Quest	Misión Secundaria
+Daily Quest	Misión Diaria
+Guide Quest	Misión Guía
+Job Quest	Cambio de Clase
+Title Quest	Misión de Título
+Quest Progress	Progreso de la misión
+Quest	Misión
+Quests	Misiones
+
+# Character Sheet & UI
+Status	Estado
+Status de la empresa	Estado
+Estado de la empresa	Estado
+Character	Personaje
+Attributes	Atributos
+Title	Título
+Enter Battle	Entrar al combate
+Recent Login	Último inicio de sesión
+Owned:	Posees:
+
+# HUD & Quick Actions
+Create Party	Crear Grupo
+Create Team	Crear Equipo
+Search Party	Buscar Grupo
+Kafra Staff	Personal Kafra
+Kafra Warp	Teletransporte Kafra
+World	Mundo
+Nearby	Cercanos
+Guild	Gremio
+Party	Grupo
+Friends	Amigos
+Skills	Habilidades
+Backpack	Mochila
+Menu	Menú
+Shop	Tienda
+Event	Evento
+Season	Temporada
+Payon Forest	Bosque de Payon
+Deep Forest	Bosque Profundo
+Prontera	Prontera
+Geffen	Geffen
+Morroc	Morroc
+Alberta	Alberta
+Izlude	Izlude
+Al De Baran	Aldebarán
+
+# Card System (Cartas, no Tarjeta de crédito)
+Cards	Cartas
+Card	Carta
+Cards System	Sistema de Cartas
+Card System	Sistema de Cartas
+Card Attributes	Atributos de Carta
+Card Slot	Ranura de Carta
+Card Slots	Ranuras de Cartas
+Card Album	Álbum de Cartas
+Card Pack	Paquete de Cartas
+Old Card Album	Viejo Álbum de Cartas
+Insert Card	Insertar Carta
+Remove Card	Quitar Carta
+Upgrade Card	Mejorar Carta
+Advance Card	Evolucionar Carta
+Card Draw	Invocación de Cartas
+Card Gacha	Gacha de Cartas
+Card Collection	Colección de Cartas
+Card Awaken	Despertar de Carta
+Card Rank	Rango de Carta
+Card Star	Estrella de Carta
+Card Level	Nivel de Carta
+Card EXP	EXP de Carta
+Card Fragment	Fragmento de Carta
+Card Shard	Fragmento de Carta
+Monster Card	Carta de Monstruo
+Equipment Card	Carta de Equipo
+Headwear Card	Carta de Sombrero
+Weapon Card	Carta de Arma
+Armor Card	Carta de Armadura
+Shield Card	Carta de Escudo
+Garment Card	Carta de Capa
+Shoes Card	Carta de Calzado
+Accessory Card	Carta de Accesorio
+Tarjeta de crédito	Cartas
+Tarjeta de credito	Cartas
+tarjeta de crédito	carta
+tarjeta de credito	carta
