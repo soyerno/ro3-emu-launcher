@@ -171,13 +171,16 @@ public sealed class GameOrchestrator
 
         SaveGameDirectory(gameDir, baseDir);
 
+        string baseDirectory = baseDir ?? Path.GetDirectoryName(ro3emu) ?? AppContext.BaseDirectory;
+        string dataDir = Path.Combine(baseDirectory, "data");
+        string ro3emuTarget = Path.Combine(gameDir, "ro3emu");
+        string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
+        string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
+
         try
         {
             string activeLang = (language ?? Strings.Language ?? "es").Trim().ToLowerInvariant();
-            string ro3emuTarget = Path.Combine(gameDir, "ro3emu");
             Directory.CreateDirectory(ro3emuTarget);
-            string baseDirectory = baseDir ?? Path.GetDirectoryName(ro3emu) ?? AppContext.BaseDirectory;
-            string dataDir = Path.Combine(baseDirectory, "data");
 
             File.WriteAllText(Path.Combine(ro3emuTarget, "language.txt"), activeLang);
             File.WriteAllText(Path.Combine(gameDir, "language.txt"), activeLang);
@@ -227,8 +230,6 @@ public sealed class GameOrchestrator
             // Spanish UI, login screen, menus, and quest titles are applied on top via en_overrides.tsv and Ro3Loc.
             SetClientLanguagePref("english");
 
-            string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
-            string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
             if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
             {
                 try { File.Copy(clientLocDll, managedLocDll, overwrite: true); } catch { }
@@ -314,6 +315,22 @@ public sealed class GameOrchestrator
                 }
                 return Strings.Get("game.exit", process.ExitCode, details);
             }
+
+            // Ensure our latest Ro3Emu.Loc.dll and en_overrides.tsv remain active even after RO3Emu join
+            try
+            {
+                if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
+                {
+                    File.Copy(clientLocDll, managedLocDll, overwrite: true);
+                }
+                string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
+                if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
+                if (File.Exists(overEs))
+                {
+                    File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+                }
+            }
+            catch { }
 
             return null; // Success
         }

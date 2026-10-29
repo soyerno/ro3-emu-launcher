@@ -163,6 +163,11 @@ try {
         Write-Fail "RO3Emu termino con error ($LASTEXITCODE)."
         exit $LASTEXITCODE
     }
+     = Join-Path  'client\Ro3Emu.Loc.dll'
+     = Join-Path  'ro3_Data\Managed\Ro3Emu.Loc.dll'
+    if ((Test-Path ) -and (Test-Path (Split-Path -Parent ))) {
+        Copy-Item   -Force
+    }
 
     # Keep the tunnels up for as long as the game runs.
     Start-Sleep -Seconds 5
