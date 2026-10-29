@@ -6,6 +6,8 @@ This guide covers rebranding RO3 Launcher for any private server without touchin
 
 ## 1. Configuration (`launcher.json`)
 
+The `launcher.json` embedded in the build is overlaid field by field with the one next to the executable (a field the file lacks keeps the embedded value; an unreadable file is ignored).
+
 ```json
 {
   "repository": "https://patch.myserver.com/",
@@ -98,5 +100,7 @@ git checkout my-brand
 git fetch origin
 git merge origin/main
 ```
+
+Files that are yours but not built (a `data\loc_en.tsv`, a `LEEME.txt`, helper scripts) go in `brand/patch/`; `tools\package-patch.cmd` adds them to the patch ZIP at the same relative path.
 
 The `konsor` branch is an example of such a branded fork.
