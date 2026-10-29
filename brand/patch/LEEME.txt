@@ -1,0 +1,33 @@
+Konsor - Ragnarok Origin (Servidor Privado No Oficial)
+=====================================================
+
+Requisitos
+- Windows 10/11 de 64 bits.
+- Ragnarok Origin / Genesis ya instalado en tu equipo.
+
+Cómo jugar (Recomendado):
+1. Extrae esta carpeta completa donde quieras (por ejemplo, en el Escritorio o junto al juego).
+2. Haz doble clic en KonsorRO.exe para abrir el launcher oficial de KonsorRO.
+   - Si Windows SmartScreen avisa, haz clic en "Más información" > "Ejecutar de todas formas".
+   - En la pestaña CUENTA puedes iniciar sesión o crear una cuenta nueva.
+   - En la pestaña NOTICIAS tienes acceso directo a la Web Oficial y al Discord de la comunidad.
+3. Haz clic en el botón "JUGAR":
+   - El launcher abre los túneles seguros en segundo plano, aplica los parches y traducciones al español y lanza el juego automáticamente.
+   - No necesitas ventanas de consola negras; el launcher se encarga de todo.
+
+Cómo volver a los servidores oficiales:
+- Desde el launcher, haz clic en el botón "REPARAR", o ejecuta restore_official.bat.
+
+Modo clásico / alternativo por consola (opcional):
+- Si lo prefieres, también puedes iniciar el juego ejecutando run_konsor_ro3.bat.
+
+Qué incluye este paquete:
+- KonsorRO.exe: Launcher gráfico oficial de KonsorRO con soporte multilenguaje y gestión de cuentas.
+- RO3Emu.exe: Emulador y parcheador del cliente con traducciones al español.
+- cloudflared.exe: Conector seguro con el servidor Konsor (puertos 5380, 20000, 33100).
+- client/: Bibliotecas y ganchos de traducción (Ro3Emu.Loc.dll y Ro3Emu.ClientHooks.dll).
+- news.json: Configuración local y avisos del servidor.
+
+Proyecto independiente de la comunidad, sin relación con Gravity ni con el publisher oficial.
+Web Oficial: https://konsor.com.ar
+Discord Oficial: https://discord.gg/43CdywWfM
