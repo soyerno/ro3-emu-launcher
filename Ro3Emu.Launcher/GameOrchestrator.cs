@@ -222,6 +222,10 @@ public sealed class GameOrchestrator
                 }
             }
 
+            // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3). Our Spanish map is keyed
+            // by the Chinese text, so Spanish needs the client drawing Chinese; English uses the client's English tables.
+            SetClientLanguagePref(activeLang.StartsWith("es") ? "chinesesimplified" : "english");
+
             string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
             string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
             if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
@@ -316,6 +320,18 @@ public sealed class GameOrchestrator
         {
             return Strings.Get("game.error", ex.Message);
         }
+    }
+
+    private static void SetClientLanguagePref(string clientLanguage)
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\gravity\ro3");
+            if (key == null) return;
+            byte[] value = System.Text.Encoding.UTF8.GetBytes(clientLanguage + "\0");
+            key.SetValue("CurrentLanguage_h413354046", value, Microsoft.Win32.RegistryValueKind.Binary);
+        }
+        catch { }
     }
 
     public static async Task<string?> RestoreOfficialAsync(string gameDir, string? baseDir = null, Action<string>? onLog = null)
