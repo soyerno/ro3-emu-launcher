@@ -89,6 +89,7 @@ public static class Strings
 		["state.repair"] = ("{0} game files differ from the release.", "{0} archivos del juego difieren de la versión oficial."),
 		["state.tunnels.check"] = ("Checking the tunnels to the {server} server...", "Verificando túneles con el servidor {server}..."),
 		["state.tunnels.fail"] = ("Could not connect to the {server} server. Check your internet connection.", "No se pudo conectar con el servidor {server}. Revisa tu conexión a internet."),
+		["state.repair.retry"] = ("The game files were changed by an earlier patch. Restoring the official files, then patching again...", "Los archivos del juego fueron modificados por un parche anterior. Restaurando los archivos oficiales y volviendo a parchear..."),
 		["state.patching"] = ("Patching and starting the game...", "Parcheando e iniciando el juego..."),
 		["state.running"] = ("The game is running.", "El juego está en ejecución."),
 		["state.closed"] = ("The game has closed. Ready to play again!", "El juego se ha cerrado. ¡Listo para volver a jugar!"),
