@@ -257,6 +257,8 @@ public sealed class ClientInstaller(PublisherConfig config, HttpClient http, str
 			"Check the internet connection and try again: the download resumes where it stopped.", InstallException.DownloadFailed);
 	}
 
+	private static readonly TimeSpan StallTimeout = TimeSpan.FromSeconds(60);
+
 	private async Task FetchRangeAsync(string url, string part, long have, long length, Action<long, long>? progress, CancellationToken ct)
 	{
 		using var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -271,8 +273,17 @@ public sealed class ClientInstaller(PublisherConfig config, HttpClient http, str
 		var buffer = new byte[1 << 20];
 		long done = have;
 		int read;
-		while ((read = await body.ReadAsync(buffer, ct)) > 0)
+		// The client has no overall timeout, so a stalled body would never return; give each read a deadline instead.
+		using var stall = CancellationTokenSource.CreateLinkedTokenSource(ct);
+		while (true)
 		{
+			stall.CancelAfter(StallTimeout);
+			try { read = await body.ReadAsync(buffer, stall.Token); }
+			catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+			{
+				throw new IOException($"the download stalled for {StallTimeout.TotalSeconds:0} s at {done} of {length} bytes");
+			}
+			if (read == 0) break;
 			if (done + read > length) throw new InvalidDataException("the server sent more than the package size");
 			await file.WriteAsync(buffer.AsMemory(0, read), ct);
 			done += read;
