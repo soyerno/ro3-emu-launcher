@@ -23,6 +23,18 @@ public sealed class LauncherConfig
 	[JsonPropertyName("channel")]
 	public string Channel { get; set; } = "live";
 
+	/// <summary>
+	/// Where the game files come from: "official" (default) installs and updates the original client from Genesis' update
+	/// servers; "repository" keeps the older path that downloads them from <see cref="Repository"/>. Launcher
+	/// self-updates come from the repository either way.
+	/// </summary>
+	[JsonPropertyName("gameFiles")]
+	public string GameFiles { get; set; } = "official";
+
+	/// <summary>True when the game files come from the operator repository instead of Genesis' servers.</summary>
+	[JsonIgnore]
+	public bool GameFilesFromRepository => string.Equals(GameFiles?.Trim(), "repository", StringComparison.OrdinalIgnoreCase);
+
 	[JsonPropertyName("server")]
 	public string? Server { get; set; } = "http://127.0.0.1:5380";
 
