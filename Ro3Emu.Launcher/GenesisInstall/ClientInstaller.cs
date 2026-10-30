@@ -283,6 +283,7 @@ public sealed class ClientInstaller(PublisherConfig config, HttpClient http, str
 			{
 				throw new IOException($"the download stalled for {StallTimeout.TotalSeconds:0} s at {done} of {length} bytes");
 			}
+			stall.CancelAfter(Timeout.InfiniteTimeSpan); // the deadline covers the read only, not the disk write
 			if (read == 0) break;
 			if (done + read > length) throw new InvalidDataException("the server sent more than the package size");
 			await file.WriteAsync(buffer.AsMemory(0, read), ct);
