@@ -253,6 +253,7 @@
       userPlaceholder: "Ex.: meunome ou voce@email.com",
       passLabel: "Senha",
       passPlaceholder: "Sua senha",
+      rememberMe: "Lembrar de mim",
       forgot: "Esqueci minha senha",
       codeLabel: "Código de verificação",
       codePlaceholder: "Código de 6 dígitos",
@@ -295,6 +296,7 @@
       userPlaceholder: "e.g. myname or you@email.com",
       passLabel: "Password",
       passPlaceholder: "Your password",
+      rememberMe: "Remember me",
       forgot: "I forgot my password",
       codeLabel: "Verification code",
       codePlaceholder: "6-digit code",
@@ -337,6 +339,7 @@
       userPlaceholder: "Ej: minombre o tu@email.com",
       passLabel: "Contraseña",
       passPlaceholder: "Tu contraseña",
+      rememberMe: "Recordarme",
       forgot: "Olvidé mi contraseña",
       codeLabel: "Código de verificación",
       codePlaceholder: "Código de 6 dígitos",
@@ -892,7 +895,8 @@
         var loggedName = $("logged-username");
         var loggedBox = $("account-logged");
         var formsBox = $("account-forms");
-        if (m.username) {
+        // Signed in only when the host says so; a remembered account just pre-fills the login form.
+        if (m.username && m.loggedIn !== false) {
           if (loggedName) loggedName.textContent = m.username;
           if (loggedBox) loggedBox.hidden = false;
           if (formsBox) formsBox.hidden = true;
@@ -900,6 +904,10 @@
         } else {
           if (loggedBox) loggedBox.hidden = true;
           if (formsBox) formsBox.hidden = false;
+          if (m.remembered && $("auth-input-user") && !$("auth-input-user").value) {
+            $("auth-input-user").value = m.remembered;
+          }
+          if ($("auth-remember")) $("auth-remember").checked = !!m.remembered;
         }
         break;
       case "registration_status":
@@ -1085,7 +1093,7 @@
         if ($("auth-input-user")) $("auth-input-user").value = u;
         btnReg.disabled = true;
         btnReg.textContent = I18N[currentLang].auth.creating;
-        send({ cmd: "auth_register_local", username: u, email: e, password: p, confirmPassword: p2 });
+        send({ cmd: "auth_register_local", username: u, email: e, password: p, confirmPassword: p2, remember: rememberChecked() });
       };
     }
 
@@ -1101,8 +1109,14 @@
         setAuthFeedback(ui("fbSigningIn"), "waiting");
         btnLogin.disabled = true;
         btnLogin.textContent = I18N[currentLang].auth.verifying;
-        send({ cmd: "auth_login_local", username: u, password: p });
+        send({ cmd: "auth_login_local", username: u, password: p, remember: rememberChecked() });
       };
+    }
+
+    // "Remember me" stores only the account name on this PC; the password is never stored.
+    function rememberChecked() {
+      var box = $("auth-remember");
+      return !!(box && box.checked);
     }
 
     // Submit on Enter keypress
