@@ -840,14 +840,15 @@ public sealed class LauncherController : IDisposable
 		}
 	}
 
-	private async Task UpdateAsync(bool verifyAll)
+	// True when the game files were verified and repaired; false when it stopped first (paused, failed or no channel).
+	private async Task<bool> UpdateAsync(bool verifyAll)
 	{
 		if (_channel == null)
 		{
 			await CheckAsync();
 			if (_channel == null)
 			{
-				return;
+				return false;
 			}
 		}
 		Directory.CreateDirectory(_layout.GameDirectory);
@@ -890,18 +891,21 @@ public sealed class LauncherController : IDisposable
 			_work.Dispose();
 			_work = null;
 			await CheckAsync();
+			return true;
 		}
 		catch (OperationCanceledException)
 		{
 			_work?.Dispose();
 			_work = null;
 			PostState((_installed == null) ? "install" : "update", "Paused. Downloaded parts are kept; continue any time.");
+			return false;
 		}
 		catch (Exception ex2)
 		{
 			_work?.Dispose();
 			_work = null;
 			PostState("error", ex2.Message);
+			return false;
 		}
 	}
 
@@ -957,7 +961,24 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", Strings.Get("state.patching"));
 		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
 		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
-		string? err = await GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
+		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
+		string? err = await Join();
+		if (err != null && GameOrchestrator.LastJoinNeedsOfficialFiles)
+		{
+			// A DLL is already patched and there is no original to patch from: restore the official files, patch once more.
+			Trace("RO3Emu found no original DLL to patch from; repairing the game files and patching again.");
+			PostState("launching", Strings.Get("state.repair.retry"));
+			if (!await UpdateAsync(true))
+			{
+				if (_phase == "ready")
+				{
+					PostState("error", err);
+				}
+				return;
+			}
+			PostState("launching", Strings.Get("state.patching"));
+			err = await Join();
+		}
 		if (err != null)
 		{
 			Trace($"JoinAndLaunchAsync returned an error: {err}");
