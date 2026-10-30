@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -10,6 +12,16 @@ namespace Ro3Emu.Launcher;
 
 public sealed class GameOrchestrator
 {
+    // RO3Emu refuses to patch a Managed DLL that already looks patched when ro3emu-backup has no original to patch from.
+    // Only the official files fix that, so the launcher repairs the client and patches again.
+    internal const string MissingOriginalMarker = "there is no original in";
+
+    internal static bool NeedsOfficialFiles(IEnumerable<string> lines) =>
+        lines.Any(line => line.Contains(MissingOriginalMarker, StringComparison.Ordinal));
+
+    /// <summary>Whether the last <see cref="JoinAndLaunchAsync"/> failed because RO3Emu found no original DLL to patch from.</summary>
+    public static bool LastJoinNeedsOfficialFiles { get; private set; }
+
     public static string? FindRO3Emu(string? baseDir = null)
     {
         string baseDirectory = baseDir ?? AppContext.BaseDirectory;
@@ -147,6 +159,7 @@ public sealed class GameOrchestrator
 
     public static async Task<string?> JoinAndLaunchAsync(string gameDir, string? serverUrl, string? baseDir = null, string? loginAccount = null, Action<string>? onLog = null, string? purchaseUrl = null)
     {
+        LastJoinNeedsOfficialFiles = false;
         if (!IsValidGameDir(gameDir))
         {
             return Strings.Get("game.noclient");
@@ -237,6 +250,7 @@ public sealed class GameOrchestrator
                 string details = "";
                 lock (logBuffer)
                 {
+                    LastJoinNeedsOfficialFiles = NeedsOfficialFiles(logBuffer);
                     if (logBuffer.Count > 0)
                     {
                         var lastItems = logBuffer.FindAll(s => !s.Contains("[UnityMemory]"));
