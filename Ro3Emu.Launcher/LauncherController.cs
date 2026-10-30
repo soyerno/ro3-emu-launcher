@@ -797,7 +797,8 @@ public sealed class LauncherController : IDisposable
 		}
 
 		bool hasExe = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
-		if (!hasExe)
+		// A folder the player chose stays chosen even when empty: that is where a fresh install goes.
+		if (!hasExe && _settings.ClientDirectory == null)
 		{
 			string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
 			if (!string.IsNullOrEmpty(detected) && GameOrchestrator.IsValidGameDir(detected))
