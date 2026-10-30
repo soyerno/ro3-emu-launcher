@@ -170,7 +170,7 @@ public sealed class LauncherController : IDisposable
 			string text10 = (message.TryGetProperty("password", out var value12) ? value12.GetString() : null);
 			string email = (message.TryGetProperty("email", out var value13) ? value13.GetString() : null);
 			string confirm = (message.TryGetProperty("confirmPassword", out var value14) ? value14.GetString() : null);
-			AuthResult authResult7 = await RegisterAsync(text9 ?? "", text10 ?? "", email, confirm);
+			AuthResult authResult7 = await RegisterAsync(text9 ?? "", text10 ?? "", email, confirm, ReadRemember(message));
 			_post(new
 			{
 				type = "auth_result",
@@ -184,7 +184,7 @@ public sealed class LauncherController : IDisposable
 		{
 			string text5 = (message.TryGetProperty("username", out var value7) ? value7.GetString() : null);
 			string text6 = (message.TryGetProperty("password", out var value8) ? value8.GetString() : null);
-			AuthResult authResult5 = await LoginAsync(text5 ?? "", text6 ?? "");
+			AuthResult authResult5 = await LoginAsync(text5 ?? "", text6 ?? "", ReadRemember(message));
 			_post(new
 			{
 				type = "auth_result",
@@ -427,29 +427,8 @@ public sealed class LauncherController : IDisposable
 		try
 		{
 			await AuthDb.InitializeAsync().ConfigureAwait(false);
-			SessionStore.StoredSession? session = SessionStore.Load();
-			if (session != null && !string.IsNullOrEmpty(session.Account))
-			{
-				_sdkAccount = session.Account;
-				_post(new
-				{
-					type = "auth_current",
-					username = _sdkAccount
-				});
-				_ = LoginAsync(session.Account, session.Password);
-			}
-			else
-			{
-				string? last = await AuthDb.GetLastAccountAsync().ConfigureAwait(false);
-				if (!string.IsNullOrEmpty(last))
-				{
-					_post(new
-					{
-						type = "auth_current",
-						username = last
-					});
-				}
-			}
+			// No auto-login: only the remembered account name is pre-filled; the player types the password.
+			PostCurrentAccount();
 		}
 		catch (Exception ex)
 		{
@@ -457,29 +436,56 @@ public sealed class LauncherController : IDisposable
 		}
 	}
 
-	private async Task PostInitialAuthAsync()
+	private Task PostInitialAuthAsync()
 	{
-		string? text = _sdkAccount;
-		if (string.IsNullOrEmpty(text))
+		PostCurrentAccount();
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Tells the UI who is signed in this session; otherwise sends the remembered account (if any)
+	/// so the login form can pre-fill it, without treating it as signed in.
+	/// </summary>
+	private void PostCurrentAccount()
+	{
+		if (!string.IsNullOrEmpty(_sdkAccount))
 		{
-			SessionStore.StoredSession? session = SessionStore.Load();
-			if (session != null && !string.IsNullOrEmpty(session.Account))
+			_post(new
 			{
-				text = session.Account;
-			}
-			else
-			{
-				text = await AuthDb.GetLastAccountAsync().ConfigureAwait(false);
-			}
+				type = "auth_current",
+				username = _sdkAccount,
+				loggedIn = true,
+				remembered = (string?)null
+			});
+			return;
 		}
 		_post(new
 		{
 			type = "auth_current",
-			username = text
+			username = (string?)null,
+			loggedIn = false,
+			remembered = SessionStore.Load()
 		});
 	}
 
-	private async Task<AuthResult> LoginAsync(string identity, string password)
+	private static bool ReadRemember(JsonElement message)
+	{
+		return message.TryGetProperty("remember", out var value) && value.ValueKind == JsonValueKind.True;
+	}
+
+	private static void RememberAccount(string account, bool remember)
+	{
+		if (remember)
+		{
+			SessionStore.Save(account);
+		}
+		else
+		{
+			SessionStore.Clear();
+		}
+	}
+
+	private async Task<AuthResult> LoginAsync(string identity, string password, bool remember)
 	{
 		if (string.IsNullOrWhiteSpace(identity) || string.IsNullOrWhiteSpace(password))
 		{
@@ -522,7 +528,7 @@ public sealed class LauncherController : IDisposable
 
 						_sdkToken = token;
 						_sdkAccount = identity;
-						SessionStore.Save(identity, password);
+						RememberAccount(identity, remember);
 						_ = AuthDb.RecordLoginAsync(identity);
 						Trace($"Sign-in succeeded for {identity} via {ep}");
 						return new AuthResult(Success: true, Strings.Get("login.welcome", identity), identity);
@@ -550,7 +556,7 @@ public sealed class LauncherController : IDisposable
 			if (local.Success && local.Username != null)
 			{
 				_sdkAccount = local.Username;
-				SessionStore.Save(local.Username, password);
+				RememberAccount(local.Username, remember);
 				Trace($"Offline local sign-in for {local.Username}");
 				return new AuthResult(Success: true, Strings.Get("login.offline", local.Username), local.Username);
 			}
@@ -560,7 +566,7 @@ public sealed class LauncherController : IDisposable
 		return new AuthResult(Success: false, Strings.Get("login.unreachable"), identity);
 	}
 
-	private async Task<AuthResult> RegisterAsync(string username, string password, string? email, string? confirm)
+	private async Task<AuthResult> RegisterAsync(string username, string password, string? email, string? confirm, bool remember)
 	{
 		if (!_registrationEnabled)
 		{
@@ -626,7 +632,7 @@ public sealed class LauncherController : IDisposable
 
 						_sdkToken = token;
 						_sdkAccount = username;
-						SessionStore.Save(username, password);
+						RememberAccount(username, remember);
 						_ = AuthDb.RecordLoginAsync(username);
 						try
 						{
@@ -959,7 +965,8 @@ public sealed class LauncherController : IDisposable
 		}
 
 		PostState("launching", Strings.Get("state.patching"));
-		string? accountToUse = _sdkAccount ?? SessionStore.Load()?.Account;
+		// Only an account signed in during this session is passed on; a merely remembered name is not a session.
+		string? accountToUse = _sdkAccount;
 		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
 		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
 		string? err = await Join();
@@ -1063,18 +1070,6 @@ public sealed class LauncherController : IDisposable
 			Trace("launchcode failed: " + ex.GetType().Name + ": " + ex.Message);
 		}
 		return null;
-	}
-
-	private async Task TryRestoreSessionAsync()
-	{
-		if (string.IsNullOrEmpty(_sdkToken))
-		{
-			SessionStore.StoredSession storedSession = SessionStore.Load();
-			if ((object)storedSession != null && !(await LoginAsync(storedSession.Account, storedSession.Password)).Success)
-			{
-				SessionStore.Clear();
-			}
-		}
 	}
 
 	private async Task ChangeDirectoryAsync()
