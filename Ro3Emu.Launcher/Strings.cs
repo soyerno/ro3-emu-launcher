@@ -92,6 +92,10 @@ public static class Strings
 		["state.repair.retry"] = ("The game files were changed by an earlier patch. Restoring the official files, then patching again...", "Los archivos del juego fueron modificados por un parche anterior. Restaurando los archivos oficiales y volviendo a parchear..."),
 		["state.patching"] = ("Patching and starting the game...", "Parcheando e iniciando el juego..."),
 		["state.running"] = ("The game is running.", "El juego está en ejecución."),
+		// start-up update from the signed manifest (RemoteUpdater)
+		["update.launcher"] = ("Updating the launcher to {0}…", "Actualizando el lanzador a {0}…"),
+		["update.files"] = ("Updating the server files ({0}/{1})…", "Actualizando los archivos del servidor ({0}/{1})…"),
+		["update.readonly"] = ("The server files could not be updated: the launcher folder is read-only. Move the launcher to a folder you can write to.", "No se pudieron actualizar los archivos del servidor: la carpeta del lanzador es de solo lectura. Mueve el lanzador a una carpeta con permisos de escritura."),
 		["realm.locked"] = ("Close the game before changing realm (one realm at a time).", "Cierra el juego antes de cambiar de reino (se juega un reino a la vez)."),
 		["state.closed"] = ("The game has closed. Ready to play again!", "El juego se ha cerrado. ¡Listo para volver a jugar!"),
 		["state.restoring"] = ("Restoring the client to the official servers...", "Restaurando cliente a servidores oficiales..."),

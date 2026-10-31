@@ -47,7 +47,8 @@ public sealed class LauncherController : IDisposable
 		}
 	}
 
-	private readonly LauncherConfig _config;
+	/// <summary>Replaced once at start when a newer verified manifest brings another remote configuration.</summary>
+	private LauncherConfig _config;
 
 	private readonly string _exePath;
 
@@ -66,7 +67,8 @@ public sealed class LauncherController : IDisposable
 		Timeout = TimeSpan.FromSeconds(5L)
 	};
 
-	private readonly string _version = typeof(LauncherController).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+	/// <summary>The version stamped at publish (-p:Version); 0.0.0-dev for a local build, which never self-updates.</summary>
+	private readonly string _version = BuildInfo.Version;
 
 	private readonly CancellationTokenSource _life = new CancellationTokenSource();
 
@@ -96,6 +98,12 @@ public sealed class LauncherController : IDisposable
 
 	/// <summary>True from the press of play until the game is started or the launch fails.</summary>
 	private bool _launching;
+
+	/// <summary>True while the start-up update (manifest, launcher, server files) runs; play waits for it.</summary>
+	private bool _autoUpdating;
+
+	/// <summary>A notice of the start-up update shown once the launcher is ready (for example a read-only folder).</summary>
+	private string? _updateNotice;
 
 	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
 	{
@@ -355,16 +363,26 @@ public sealed class LauncherController : IDisposable
 			if (!_started)
 			{
 				_started = true;
+				_ = InitializeSessionAsync();
+				// Before the tunnels: the update may replace cloudflared.exe and change the realms and their tunnels.
+				if (!await RunStartupUpdateAsync())
+				{
+					break;
+				}
 				_ = StartTunnelsAndPingAsync();
 				_ = LoadNewsAsync();
-				_ = InitializeSessionAsync();
 				_ = CheckRegistrationStatusAsync();
 			}
 			await CheckAsync();
+			if (_updateNotice != null && _phase == "ready")
+			{
+				PostState("ready", _updateNotice);
+				_updateNotice = null;
+			}
 			break;
 		case "primary":
 		{
-			if (_work != null)
+			if (_work != null || _autoUpdating)
 			{
 				break;
 			}
@@ -866,14 +884,10 @@ public sealed class LauncherController : IDisposable
 			LauncherRelease launcher = _channel.Launcher;
 			if (launcher != null && SelfUpdate.IsNewer(launcher.Version, _version))
 			{
-				PostState("checking", "Actualizando el lanzador a " + launcher.Version + "…");
+				PostState("checking", Strings.Get("update.launcher", launcher.Version));
 				if (await SelfUpdate.ApplyAsync(_repo, launcher, _version, _exePath, linked.Token))
 				{
-					SelfUpdate.Restart(_exePath, "");
-					((DispatcherObject)Application.Current).Dispatcher.Invoke((Action)(() =>
-					{
-						Application.Current.Shutdown();
-					}));
+					App.RestartAfterUpdate(_exePath);
 					return;
 				}
 			}
@@ -1093,6 +1107,74 @@ public sealed class LauncherController : IDisposable
 			}, _life.Token);
 		});
 	}
+	/// <summary>
+	/// The start-up update from the signed manifest (launcher.json "manifestUrl"): launcher first (then restart), then
+	/// the server files beside the launcher, then the manifest's configuration. Returns false when the launcher is
+	/// restarting into a new version. Every failure is only logged: the player keeps the files and configuration they had.
+	/// </summary>
+	private async Task<bool> RunStartupUpdateAsync()
+	{
+		if (string.IsNullOrWhiteSpace(_config.ManifestUrl))
+		{
+			return true;
+		}
+		_autoUpdating = true;
+		try
+		{
+			RemoteUpdater updater = new RemoteUpdater(_config, _exePath, _version, log: Trace);
+			// Off the UI thread: hashing RO3Emu.exe and cloudflared.exe takes a moment. PostState reaches the UI through _post.
+			RemoteUpdateOutcome outcome = await Task.Run(() => updater.RunAsync(message => PostState("checking", message), _life.Token));
+			if (outcome.RestartRequired)
+			{
+				Trace("Update: restarting into the new launcher.");
+				App.RestartAfterUpdate(_exePath);
+				return false;
+			}
+			if (outcome.Files is { } files)
+			{
+				if (files.NotWritable)
+				{
+					_updateNotice = Strings.Get("update.readonly");
+				}
+				if (files.Updated.Count > 0 || files.Failed.Count > 0)
+				{
+					Trace($"Update: {files.Updated.Count} file(s) updated, {files.Failed.Count} failed, {files.UpToDate} up to date.");
+				}
+			}
+			if (outcome.Manifest is { } manifest && manifest.Sequence != _config.ManifestSequence)
+			{
+				ApplyRemoteConfig(manifest);
+			}
+		}
+		catch (OperationCanceledException) when (_life.IsCancellationRequested)
+		{
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Trace("Update: failed: " + ex.Message);
+		}
+		finally
+		{
+			_autoUpdating = false;
+		}
+		return true;
+	}
+
+	/// <summary>Switches to the configuration of a newer manifest; called before any tunnel of this session started.</summary>
+	private void ApplyRemoteConfig(RemoteManifest manifest)
+	{
+		string besideExe = Path.Combine(Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory, "launcher.json");
+		_config = LauncherConfig.Load(besideExe, manifest);
+		RealmSpec realm = _config.SelectRealm(_realm.Id);
+		TunnelManager old = _tunnels;
+		_realm = realm;
+		_tunnels = new TunnelManager(realm.Tunnels);
+		old.Dispose();
+		Trace($"Update: configuration of manifest sequence {manifest.Sequence} applied (realm '{realm.Id}').");
+		PostSettings();
+	}
+
 	private async Task StartTunnelsAndPingAsync()
 	{
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
@@ -1301,9 +1383,15 @@ public sealed class LauncherController : IDisposable
 
 	private async Task LoadNewsAsync()
 	{
-		string[] candidateUrls = LauncherConfig.TryParseHttpUrl(_config.Repository, out Uri? repo)
-			? [new Uri(repo!, "news.json").AbsoluteUri]
-			: [];
+		List<string> candidateUrls = [];
+		if (LauncherConfig.TryParseHttpUrl(_config.NewsUrl, out Uri? newsUrl))
+		{
+			candidateUrls.Add(newsUrl!.AbsoluteUri);
+		}
+		if (LauncherConfig.TryParseHttpUrl(_config.Repository, out Uri? repo))
+		{
+			candidateUrls.Add(new Uri(repo!, "news.json").AbsoluteUri);
+		}
 
 		foreach (string url in candidateUrls)
 		{

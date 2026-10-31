@@ -578,6 +578,11 @@
       "en": "The game is running.",
       "es": "El juego se está ejecutando."
     },
+    update_readonly: {
+      "pt-br": "Não foi possível atualizar os arquivos do servidor: a pasta do inicializador é somente leitura. Mova o inicializador para uma pasta com permissão de escrita.",
+      "en": "The server files could not be updated: the launcher folder is read-only. Move the launcher to a folder you can write to.",
+      "es": "No se pudieron actualizar los archivos del servidor: la carpeta del lanzador es de solo lectura. Mueve el lanzador a una carpeta con permisos de escritura."
+    },
     starting: {
       "pt-br": "Iniciando o cliente do jogo…",
       "en": "Starting the game…",
@@ -643,11 +648,27 @@
 
     // Updating the launcher to X
     var mUpLaunch = rawMsg.match(/Updating the launcher to\s+([\w\.\-]+)/i) ||
-                    rawMsg.match(/Atualizando o inicializador para\s+([\w\.\-]+)/i);
+                    rawMsg.match(/Atualizando o inicializador para\s+([\w\.\-]+)/i) ||
+                    rawMsg.match(/Actualizando el lanzador a\s+([\w\.\-]+)/i);
     if (mUpLaunch) {
       if (lang === "pt-br") return "Atualizando o inicializador para " + mUpLaunch[1] + "…";
       if (lang === "es") return "Actualizando el lanzador a " + mUpLaunch[1] + "…";
       return "Updating the launcher to " + mUpLaunch[1] + "…";
+    }
+
+    // Updating the server files (n/total), from the signed update manifest
+    var mUpFiles = rawMsg.match(/Updating the server files\s+\((\d+)\/(\d+)\)/i) ||
+                   rawMsg.match(/Actualizando los archivos del servidor\s+\((\d+)\/(\d+)\)/i);
+    if (mUpFiles) {
+      if (lang === "pt-br") return "Atualizando os arquivos do servidor (" + mUpFiles[1] + "/" + mUpFiles[2] + ")…";
+      if (lang === "es") return "Actualizando los archivos del servidor (" + mUpFiles[1] + "/" + mUpFiles[2] + ")…";
+      return "Updating the server files (" + mUpFiles[1] + "/" + mUpFiles[2] + ")…";
+    }
+
+    // The launcher folder is read-only: the server files stay outdated
+    if (rawMsg.indexOf("the launcher folder is read-only") !== -1 ||
+        rawMsg.indexOf("la carpeta del lanzador es de solo lectura") !== -1) {
+      return KNOWN_MESSAGES.update_readonly[lang];
     }
 
     // The game did not start: X

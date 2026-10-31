@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Ro3Launcher.csproj" />
   <Project Path="tests/Ro3Emu.Launcher.Tests/Ro3Emu.Launcher.Tests.csproj" />
+  <Project Path="tools/ManifestTool/ManifestTool.csproj" />
 </Solution>
