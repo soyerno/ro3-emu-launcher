@@ -32,6 +32,24 @@ public static class RealmStatus
 	}
 
 	/// <summary>
+	/// False only when <paramref name="realm"/> has a status URL and its last probe in <paramref name="lastProbes"/>
+	/// (by realm id) failed. A realm not probed yet counts as online.
+	/// </summary>
+	public static bool IsKnownOnline(RealmSpec realm, IReadOnlyDictionary<string, bool> lastProbes)
+	{
+		return realm.StatusUri == null || !lastProbes.TryGetValue(realm.Id, out bool online) || online;
+	}
+
+	/// <summary>
+	/// Why playing on, or switching to, <paramref name="realm"/> is refused: the "realm.offline" message when it is
+	/// offline; null when it may be used.
+	/// </summary>
+	public static string? OfflineRefusal(RealmSpec realm, Func<RealmSpec, bool> isOnline)
+	{
+		return isOnline(realm) ? null : Strings.Get("realm.offline", realm.Name);
+	}
+
+	/// <summary>
 	/// The realm to play on: <paramref name="selected"/> while it is online; otherwise the first online realm; otherwise
 	/// <paramref name="selected"/> (every realm is down, so there is nothing better to offer).
 	/// </summary>
