@@ -100,6 +100,9 @@ public sealed class LauncherController : IDisposable
 	/// <summary>A notice of the start-up update shown once the launcher is ready (for example a read-only folder).</summary>
 	private string? _updateNotice;
 
+	/// <summary>Sequence of the manifest whose files are in place beside the launcher; null when none is known.</summary>
+	private long? _appliedSequence;
+
 	// Game files from Genesis' update servers (unless launcher.json "gameFiles" is "repository").
 	private readonly GameInstaller _genesis;
 
@@ -117,6 +120,7 @@ public sealed class LauncherController : IDisposable
 		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00d1: Expected Obj, but got Unknown
 		_config = config;
+		_appliedSequence = config.ManifestSequence;
 		_realm = config.SelectRealm(_settings.Realm);
 		_tunnels = new TunnelManager(_realm.Tunnels);
 		_realmLife = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
@@ -236,6 +240,7 @@ public sealed class LauncherController : IDisposable
 		{
 		case "ready":
 			PostSettings();
+			_ = PostVersionsAsync();
 			if (!_started)
 			{
 				_started = true;
@@ -244,6 +249,7 @@ public sealed class LauncherController : IDisposable
 				{
 					break;
 				}
+				_ = PostVersionsAsync();
 				_ = StartTunnelsAndPingAsync();
 				_ = LoadNewsAsync();
 			}
@@ -363,6 +369,21 @@ public sealed class LauncherController : IDisposable
 			launcher = _version
 		});
 		PostRealms();
+	}
+
+	/// <summary>Tells the UI the launcher version, the applied manifest sequence and the installed client hooks' short hash.</summary>
+	private async Task PostVersionsAsync()
+	{
+		string launcherDir = Path.GetDirectoryName(Path.GetFullPath(_exePath)) ?? AppContext.BaseDirectory;
+		// Off the UI thread: it reads the hooks DLL from disk.
+		string? hooks = await Task.Run(() => InstalledBuild.HooksHash(launcherDir));
+		_post(new
+		{
+			type = "versions",
+			launcher = _version,
+			update = _appliedSequence?.ToString(CultureInfo.InvariantCulture),
+			hooks
+		});
 	}
 
 	/// <summary>Tells the UI the realms and the selected one; with one realm the UI shows no picker.</summary>
@@ -909,6 +930,7 @@ public sealed class LauncherController : IDisposable
 					Trace($"Update: {files.Updated.Count} file(s) updated, {files.Failed.Count} failed, {files.UpToDate} up to date.");
 				}
 			}
+			_appliedSequence = InstalledBuild.AppliedSequence(outcome, _appliedSequence);
 			if (outcome.Manifest is { } manifest && manifest.Sequence != _config.ManifestSequence)
 			{
 				ApplyRemoteConfig(manifest);

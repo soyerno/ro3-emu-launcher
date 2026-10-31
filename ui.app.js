@@ -240,7 +240,8 @@
       webTitle: "Abrir o site",
       discordTitle: "Entrar na comunidade do Discord",
       realmLabel: "Reino",
-      realmTitle: "Escolha o reino para jogar"
+      realmTitle: "Escolha o reino para jogar",
+      verUpdate: "Atualização"
     },
     en: {
       minimize: "Minimize",
@@ -250,7 +251,8 @@
       webTitle: "Open the website",
       discordTitle: "Join the Discord community",
       realmLabel: "Realm",
-      realmTitle: "Choose the realm to play on"
+      realmTitle: "Choose the realm to play on",
+      verUpdate: "Update"
     },
     es: {
       minimize: "Minimizar",
@@ -260,7 +262,8 @@
       webTitle: "Abrir el sitio web",
       discordTitle: "Unirse a la comunidad de Discord",
       realmLabel: "Reino",
-      realmTitle: "Elige el reino en el que jugar"
+      realmTitle: "Elige el reino en el que jugar",
+      verUpdate: "Actualización"
     }
   };
 
@@ -621,10 +624,14 @@
     var realmSelect = $("realm-select");
     if (realmSelect) realmSelect.disabled = busy || state.phase === "launching" || state.phase === "running";
 
-    // Footer Version: e.g. "v1.0.1" or "v2.2.13"
-    var vStr = state.installed || state.remote || state.launcher || "1.0.1";
-    if (!vStr.startsWith("v")) vStr = "v" + vStr;
-    $("ver-line").textContent = vStr;
+    // Footer: "Launcher 1.2.0 · Update 1793481252 · Hooks 2816d380"; a value the host does not know shows "—".
+    var v = state.versions || {};
+    var verText = "Launcher " + (v.launcher || state.launcher || "—") +
+      " · " + ui("verUpdate") + " " + (v.update || "—") +
+      " · Hooks " + (v.hooks || "—");
+    var verLine = $("ver-line");
+    verLine.textContent = verText;
+    verLine.title = verText;
   }
 
   function renderProgress(m) {
@@ -748,6 +755,10 @@
         state.launcher = m.launcher;
         var setVer = $("set-version");
         if (setVer) setVer.textContent = "Launcher v" + m.launcher;
+        render();
+        break;
+      case "versions":
+        state.versions = { launcher: m.launcher, update: m.update, hooks: m.hooks };
         render();
         break;
       case "realms":
