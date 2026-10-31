@@ -98,7 +98,8 @@ El lanzador lee la configuración desde `launcher.json` embebida durante la comp
 | Campo | Valor por defecto | Para qué sirve |
 |---|---|---|
 | `server` | `http://127.0.0.1:5380` | URL base del servidor RO3Emu (`http(s)` absoluta): inicio de sesión y registro (`/sdk/login`), ping de estado, y el servidor al que `RO3Emu.exe join` parchea el cliente. Un valor inválido detiene el lanzamiento y el inicio de sesión con un error que nombra el campo. |
-| `repository` | `http://127.0.0.1:5380/` | Repositorio de releases: `channels/*.json` y `news.json`. |
+| `repository` | `http://127.0.0.1:5380/` | Repositorio de releases: `channels/*.json` (autoactualización del launcher) y `news.json`. Ya no necesita alojar el cliente del juego. |
+| `gameFiles` | `official` | De dónde salen los archivos del juego. `official`: el launcher instala y actualiza el cliente original desde los servidores de actualización de Genesis (anónimo, manifiesto firmado, reanudable), sin el Genesis Launcher; RO3Emu lo parchea al iniciar. `repository`: el camino anterior, que descarga el cliente desde `repository`. |
 | `channel` | `live` | Rama de parches. |
 | `serverName` | `My RO3 Server` | Nombre que se muestra en el título de la ventana, los textos, los diálogos y los correos. |
 | `language` | `en` | Idioma por defecto de la interfaz y los mensajes: `en` o `es`. Los jugadores pueden cambiarlo en el launcher. |

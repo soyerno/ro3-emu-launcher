@@ -101,6 +101,15 @@ public static class Strings
 		["state.restoring"] = ("Restoring the client to the official servers...", "Restaurando cliente a servidores oficiales..."),
 		["state.restored"] = ("Client restored to the official version.", "Cliente restaurado correctamente a la versión oficial."),
 		["state.restore.error"] = ("Restore failed: {0}", "Error al restaurar: {0}"),
+		["state.install"] = ("The game is not installed. Click Install to download the official client from Genesis' servers, or choose an existing game folder in Settings.", "El juego no está instalado. Haz clic en Instalar para descargar el cliente oficial desde los servidores de Genesis, o elige una carpeta del juego existente en Configuración."),
+		["state.paused"] = ("Paused. Downloaded parts are kept; continue any time.", "En pausa. Las partes descargadas se conservan; continúa cuando quieras."),
+
+		// game install from Genesis' update servers
+		["install.unreachable"] = ("Could not reach Genesis' download servers. Check your internet connection and try again. Some internet providers block Genesis' mirror: connecting through Cloudflare WARP (or another VPN) helps, or install the game with the Genesis Launcher and choose its folder in Settings.", "No se pudo conectar con los servidores de descarga de Genesis. Revisa tu conexión a internet e inténtalo de nuevo. Algunos proveedores de internet bloquean el mirror de Genesis: conectarte con Cloudflare WARP (u otra VPN) ayuda, o instala el juego con el Genesis Launcher y elige su carpeta en Configuración."),
+		["install.download"] = ("A game package could not be downloaded. Check your internet connection and try again: the download resumes where it stopped.", "No se pudo descargar un paquete del juego. Revisa tu conexión a internet e inténtalo de nuevo: la descarga continúa donde se detuvo."),
+		["install.space"] = ("Drive {0} has {1} free; {2} are needed. Free some space or choose a folder on another drive.", "La unidad {0} tiene {1} libres; se necesitan {2}. Libera espacio o elige una carpeta en otra unidad."),
+		["install.older"] = ("Genesis' servers offer release {0}, older than the {1} already installed here. Try again later.", "Los servidores de Genesis ofrecen la versión {0}, anterior a la {1} ya instalada aquí. Inténtalo más tarde."),
+		["install.failed"] = ("Could not install the game: {0} {1}", "No se pudo instalar el juego: {0} {1}"),
 
 		// game launch
 		["game.noclient"] = ("ro3.exe was not found in the selected folder.", "No se encontró ro3.exe en la carpeta seleccionada."),

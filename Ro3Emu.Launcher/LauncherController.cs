@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Ro3Emu.Launcher.Auth;
+using Ro3Emu.Launcher.GenesisInstall;
 using Ro3Emu.Patcher;
 
 namespace Ro3Emu.Launcher;
@@ -105,6 +107,13 @@ public sealed class LauncherController : IDisposable
 	/// <summary>A notice of the start-up update shown once the launcher is ready (for example a read-only folder).</summary>
 	private string? _updateNotice;
 
+	// Game files from Genesis' update servers (unless launcher.json "gameFiles" is "repository").
+	private readonly GameInstaller _genesis;
+
+	private string? _genesisInstalled;
+
+	private string? _genesisRemote;
+
 	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
 	{
 		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
@@ -122,6 +131,9 @@ public sealed class LauncherController : IDisposable
 		// An invalid "repository" must not crash the start: the launcher opens and CheckAsync reports it.
 		_repo = new RepositoryClient(config.RepositoryUri ?? new Uri(LauncherConfig.DefaultRepository), (HttpMessageHandler)null);
 		_layout = new InstallLayout(_settings.ClientDirectory ?? FindDefaultClientDirectory(exePath), (string)null);
+		string launcherDir = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory;
+		// RO3Emu.download.json (Genesis' hosts and key) is read next to the launcher, else next to RO3Emu.exe.
+		_genesis = new GameInstaller([launcherDir, Path.GetDirectoryName(GameOrchestrator.FindRO3Emu(launcherDir) ?? launcherDir)], "Ro3Launcher/" + _version, Trace);
 	}
 
 	private static string FindDefaultClientDirectory(string exePath)
@@ -390,6 +402,27 @@ public sealed class LauncherController : IDisposable
 			if (phase == "ready" || phase == "running")
 			{
 				await PlayAsync();
+				break;
+			}
+			if (_phase == "install" && !File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe")) && !_config.GameFilesFromRepository)
+			{
+				// No game yet: the player picks where it goes (or an existing copy), unless a folder was already chosen.
+				if (_settings.ClientDirectory == null)
+				{
+					await ChangeDirectoryAsync();
+					if (_settings.ClientDirectory == null)
+					{
+						break;
+					}
+				}
+				if (File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe")))
+				{
+					await PlayAsync();
+				}
+				else
+				{
+					await UpdateOfficialAsync();
+				}
 				break;
 			}
 			if (_phase == "install" && !File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe")))
@@ -814,16 +847,13 @@ public sealed class LauncherController : IDisposable
 	private void PostState(string phase, string? message = null)
 	{
 		_phase = phase;
-		Action<object> post = _post;
-		LocalState? installed = _installed;
-		string installed2 = ((installed != null) ? installed.Version : null);
-		ChannelInfo? channel = _channel;
-		post(new
+		bool official = !_config.GameFilesFromRepository;
+		_post(new
 		{
 			type = "state",
 			phase = phase,
-			installed = installed2,
-			remote = ((channel != null) ? channel.Version : null),
+			installed = official ? _genesisInstalled : _installed?.Version,
+			remote = official ? _genesisRemote : _channel?.Version,
 			message = message
 		});
 	}
@@ -841,15 +871,21 @@ public sealed class LauncherController : IDisposable
 
 	private async Task CheckAsync()
 	{
+		bool official = !_config.GameFilesFromRepository;
 		if (_config.RepositoryError is { } repositoryError)
 		{
 			Trace(repositoryError);
-			PostState("error", repositoryError);
-			return;
+			// With the game from Genesis the repository only serves launcher updates: a bad one does not stop playing.
+			if (!official)
+			{
+				PostState("error", repositoryError);
+				return;
+			}
 		}
 
 		bool hasExe = File.Exists(Path.Combine(_layout.GameDirectory, "ro3.exe"));
-		if (!hasExe)
+		// A folder the player chose stays chosen even when empty: that is where a fresh install goes.
+		if (!hasExe && _settings.ClientDirectory == null)
 		{
 			string? detected = GameOrchestrator.DetectGameDirectory(Path.GetDirectoryName(_exePath));
 			if (!string.IsNullOrEmpty(detected) && GameOrchestrator.IsValidGameDir(detected))
@@ -860,6 +896,12 @@ public sealed class LauncherController : IDisposable
 				PostSettings();
 				hasExe = true;
 			}
+		}
+
+		if (official)
+		{
+			await CheckOfficialAsync(hasExe);
+			return;
 		}
 
 		_installed = new Updater(_layout, _repo).LoadState();
@@ -881,15 +923,9 @@ public sealed class LauncherController : IDisposable
 			UpdateCheck check = await updater.CheckAsync(_config.Channel, linked.Token);
 			_channel = check.Channel;
 			_installed = check.Installed;
-			LauncherRelease launcher = _channel.Launcher;
-			if (launcher != null && SelfUpdate.IsNewer(launcher.Version, _version))
+			if (await SelfUpdateAsync(linked.Token))
 			{
-				PostState("checking", Strings.Get("update.launcher", launcher.Version));
-				if (await SelfUpdate.ApplyAsync(_repo, launcher, _version, _exePath, linked.Token))
-				{
-					App.RestartAfterUpdate(_exePath);
-					return;
-				}
+				return;
 			}
 			if (check.Installed == null)
 			{
@@ -927,9 +963,162 @@ public sealed class LauncherController : IDisposable
 		}
 	}
 
+	// Applies a newer launcher from the operator channel; true when the launcher is restarting into it.
+	private async Task<bool> SelfUpdateAsync(CancellationToken ct)
+	{
+		LauncherRelease? launcher = _channel?.Launcher;
+		if (launcher == null || !SelfUpdate.IsNewer(launcher.Version, _version))
+		{
+			return false;
+		}
+		PostState("checking", Strings.Get("update.launcher", launcher.Version));
+		if (!await SelfUpdate.ApplyAsync(_repo, launcher, _version, _exePath, ct))
+		{
+			return false;
+		}
+		App.RestartAfterUpdate(_exePath);
+		return true;
+	}
+
+	// The game from Genesis: ready as soon as ro3.exe is there, then the operator channel (launcher self-update only) and
+	// Genesis' current release, which turns the state into "update" when the folder's recorded release is older or unknown.
+	private async Task CheckOfficialAsync(bool hasExe)
+	{
+		string folder = _layout.GameDirectory;
+		_genesisInstalled = hasExe && GameInstaller.InstalledSequence(folder) is { } known ? known.ToString(CultureInfo.InvariantCulture) : null;
+		PostState(hasExe ? "ready" : "install", Strings.Get(hasExe ? "state.ready" : "state.install"));
+
+		if (_config.RepositoryError == null)
+		{
+			try
+			{
+				using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(2L));
+				using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(_life.Token, timeoutCts.Token);
+				_channel = (await new Updater(_layout, _repo).CheckAsync(_config.Channel, linked.Token)).Channel;
+				if (await SelfUpdateAsync(linked.Token))
+				{
+					return;
+				}
+			}
+			catch (Exception ex)
+			{
+				Trace("Operator channel check skipped: " + ex.Message);
+			}
+		}
+		if (!hasExe)
+		{
+			return;
+		}
+
+		try
+		{
+			using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30L));
+			using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(_life.Token, timeoutCts.Token);
+			GameInstaller.Release release = await _genesis.CurrentReleaseAsync(linked.Token);
+			_genesisRemote = release.Sequence.ToString(CultureInfo.InvariantCulture);
+			// The player may have pressed Play or changed the folder meanwhile; then this result is stale.
+			if (_phase is not ("ready" or "checking") || _work != null || folder != _layout.GameDirectory)
+			{
+				return;
+			}
+			long? installed = GameInstaller.InstalledSequence(folder);
+			if (installed == null || installed < release.Sequence)
+			{
+				PostState("update", Strings.Get("state.update", _genesisRemote));
+			}
+			else
+			{
+				PostState("ready", Strings.Get("state.ready"));
+			}
+		}
+		catch (Exception ex)
+		{
+			// Offline or blocked: the installed client still plays; the update check runs again next time.
+			Trace("Genesis release check failed: " + ex.Message);
+		}
+	}
+
+	// Installs or updates the game from Genesis. True when the folder is complete; false when it stopped (paused or failed).
+	private async Task<bool> UpdateOfficialAsync()
+	{
+		string folder = _layout.GameDirectory;
+		Directory.CreateDirectory(folder);
+		_work = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
+		PostState("updating");
+		SpeedMeter meter = new SpeedMeter();
+		Stopwatch clock = Stopwatch.StartNew();
+		object gate = new object();
+		string? shownStage = null;
+		long shownAt = long.MinValue;
+		void Report(string stage, long done, long total)
+		{
+			double rate = 0.0;
+			double eta = 0.0;
+			lock (gate)
+			{
+				long now = clock.ElapsedMilliseconds;
+				if (stage == shownStage && now - shownAt < 150 && done < total)
+				{
+					return;
+				}
+				shownStage = stage;
+				shownAt = now;
+				if (stage == "downloading")
+				{
+					(rate, eta) = meter.Sample(done, total);
+				}
+			}
+			_post(new
+			{
+				type = "progress",
+				stage = stage,
+				done = done,
+				total = total,
+				rate = rate,
+				eta = eta
+			});
+		}
+		try
+		{
+			CancellationToken token = _work.Token;
+			await Task.Run(() => _genesis.InstallAsync(folder, Report, token));
+			_work.Dispose();
+			_work = null;
+			await CheckAsync();
+			return true;
+		}
+		catch (OperationCanceledException)
+		{
+			_work?.Dispose();
+			_work = null;
+			PostState(File.Exists(Path.Combine(folder, "ro3.exe")) ? "update" : "install", Strings.Get("state.paused"));
+			return false;
+		}
+		catch (InstallException ex)
+		{
+			_work?.Dispose();
+			_work = null;
+			Trace("Game install failed: " + ex.Message + " " + ex.Fix);
+			PostState("error", ex.Key != null ? Strings.Get(ex.Key, ex.Args) : Strings.Get("install.failed", ex.Message, ex.Fix));
+			return false;
+		}
+		catch (Exception ex2)
+		{
+			_work?.Dispose();
+			_work = null;
+			Trace("Game install failed: " + ex2);
+			PostState("error", Strings.Get("install.failed", ex2.Message, ""));
+			return false;
+		}
+	}
+
 	// True when the game files were verified and repaired; false when it stopped first (paused, failed or no channel).
 	private async Task<bool> UpdateAsync(bool verifyAll)
 	{
+		if (!_config.GameFilesFromRepository)
+		{
+			return await UpdateOfficialAsync();
+		}
 		if (_channel == null)
 		{
 			await CheckAsync();
@@ -984,7 +1173,7 @@ public sealed class LauncherController : IDisposable
 		{
 			_work?.Dispose();
 			_work = null;
-			PostState((_installed == null) ? "install" : "update", "Paused. Downloaded parts are kept; continue any time.");
+			PostState((_installed == null) ? "install" : "update", Strings.Get("state.paused"));
 			return false;
 		}
 		catch (Exception ex2)
@@ -1479,5 +1668,6 @@ public sealed class LauncherController : IDisposable
 		_work?.Cancel();
 		_realmLife.Dispose();
 		_tunnels.Dispose();
+		_genesis.Dispose();
 	}
 }
