@@ -86,6 +86,8 @@ public sealed class TunnelManager : IDisposable
 
         lock (_gate)
         {
+            // A realm switch disposes this manager while a start may still be running: start nothing then.
+            if (_disposed || ct.IsCancellationRequested) return false;
             StopTunnelsInternal();
 
             foreach (var t in _tunnels)

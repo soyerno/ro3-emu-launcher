@@ -281,6 +281,8 @@
       repairTitle: "Reparar arquivos",
       webTitle: "Abrir o site",
       discordTitle: "Entrar na comunidade do Discord",
+      realmLabel: "Reino",
+      realmTitle: "Escolha o reino para jogar",
       regUnavailable: "Registro indisponível",
       regTabTitle: "Criar nova conta",
       regTabDisabled: "A criação de contas está temporariamente desativada",
@@ -324,6 +326,8 @@
       repairTitle: "Repair files",
       webTitle: "Open the website",
       discordTitle: "Join the Discord community",
+      realmLabel: "Realm",
+      realmTitle: "Choose the realm to play on",
       regUnavailable: "Registration unavailable",
       regTabTitle: "Create a new account",
       regTabDisabled: "Account creation is temporarily disabled",
@@ -367,6 +371,8 @@
       repairTitle: "Reparar archivos",
       webTitle: "Abrir el sitio web",
       discordTitle: "Unirse a la comunidad de Discord",
+      realmLabel: "Reino",
+      realmTitle: "Elige el reino en el que jugar",
       regUnavailable: "Registro no disponible",
       regTabTitle: "Crear nueva cuenta",
       regTabDisabled: "La creación de cuentas está deshabilitada temporalmente",
@@ -671,6 +677,27 @@
     return (phText && phText.text) ? phText.text : rawMsg;
   }
 
+  // Realm picker: the host sends the realms of launcher.json; with one realm there is nothing to pick.
+  function renderRealms(m) {
+    var picker = $("realm-picker");
+    var select = $("realm-select");
+    if (!picker || !select) return;
+    var realms = m.realms || [];
+    picker.hidden = realms.length < 2;
+    select.innerHTML = "";
+    realms.forEach(function (r) {
+      var opt = document.createElement("option");
+      opt.value = r.id;
+      opt.textContent = r.name;
+      select.appendChild(opt);
+    });
+    select.value = m.selected;
+    if (m.message) {
+      state.message = m.message;
+      render();
+    }
+  }
+
   function render() {
     var t = I18N[currentLang];
     var cfg = PHASES_CONFIG[state.phase] || PHASES_CONFIG.checking;
@@ -703,6 +730,10 @@
 
     var setDirChange = $("set-dir-change");
     if (setDirChange) setDirChange.disabled = busy;
+
+    // One realm at a time: no switching while the game is launching, running or being updated.
+    var realmSelect = $("realm-select");
+    if (realmSelect) realmSelect.disabled = busy || state.phase === "launching" || state.phase === "running";
 
     // Footer Version: e.g. "v1.0.1" or "v2.2.13"
     var vStr = state.installed || state.remote || state.launcher || "1.0.1";
@@ -849,6 +880,9 @@
         if (setVer) setVer.textContent = "Launcher v" + m.launcher;
         render();
         break;
+      case "realms":
+        renderRealms(m);
+        break;
       case "news":
         remoteNews = m.items;
         renderNews(remoteNews);
@@ -974,6 +1008,11 @@
         send({ cmd: "window", action: "drag" });
       }
     });
+
+    var realmSelect = $("realm-select");
+    if (realmSelect) {
+      realmSelect.onchange = function () { send({ cmd: "realm", id: realmSelect.value }); };
+    }
 
     $("btn-min").onclick = function () { send({ cmd: "window", action: "minimize" }); };
     $("btn-close").onclick = function () { send({ cmd: "window", action: "close" }); };

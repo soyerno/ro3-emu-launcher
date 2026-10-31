@@ -55,6 +55,66 @@ public sealed class LauncherConfig
 	[JsonPropertyName("tunnels")]
 	public List<TunnelSpec> Tunnels { get; set; } = [];
 
+	/// <summary>
+	/// Optional realms (game worlds sharing accounts), each with its own server and tunnels. Empty: the top-level
+	/// <see cref="Server"/> and <see cref="Tunnels"/> are the only realm and the launcher shows no realm picker.
+	/// </summary>
+	[JsonPropertyName("realms")]
+	public List<RealmSpec>? Realms { get; set; }
+
+	/// <summary>Id of the realm selected when the player has not picked one, or picked one that no longer exists.</summary>
+	[JsonPropertyName("defaultRealm")]
+	public string? DefaultRealm { get; set; }
+
+	private IReadOnlyList<RealmSpec>? _realms;
+
+	/// <summary>The configured realms with an id, or one implicit realm built from <see cref="Server"/> and <see cref="Tunnels"/>.</summary>
+	public IReadOnlyList<RealmSpec> GetRealms()
+	{
+		if (_realms != null)
+		{
+			return _realms;
+		}
+		List<RealmSpec> realms = [];
+		foreach (RealmSpec? realm in Realms ?? [])
+		{
+			if (realm != null && !string.IsNullOrWhiteSpace(realm.Id) && !realms.Exists(r => string.Equals(r.Id, realm.Id, StringComparison.OrdinalIgnoreCase)))
+			{
+				realm.Id = realm.Id.Trim();
+				if (string.IsNullOrWhiteSpace(realm.Name))
+				{
+					realm.Name = realm.Id;
+				}
+				realm.Tunnels ??= [];
+				realms.Add(realm);
+			}
+		}
+		if (realms.Count == 0)
+		{
+			realms.Add(new RealmSpec { Id = RealmSpec.ImplicitId, Name = ServerName, Server = Server, Tunnels = Tunnels });
+		}
+		return _realms = realms;
+	}
+
+	/// <summary>The realm with <paramref name="id"/>; otherwise <see cref="DefaultRealm"/>; otherwise the first realm.</summary>
+	public RealmSpec SelectRealm(string? id)
+	{
+		IReadOnlyList<RealmSpec> realms = GetRealms();
+		return Find(id) ?? Find(DefaultRealm) ?? realms[0];
+
+		RealmSpec? Find(string? wanted)
+		{
+			foreach (RealmSpec realm in realms)
+			{
+				if (string.Equals(realm.Id, wanted?.Trim(), StringComparison.OrdinalIgnoreCase))
+				{
+					return realm;
+				}
+			}
+			return null;
+		}
+	}
+
 	/// <summary><see cref="Server"/> normalized without a trailing slash, or null when missing or invalid.</summary>
 	[JsonIgnore]
 	public string? ServerBaseUrl => TryParseHttpUrl(Server, out Uri? uri) ? uri!.AbsoluteUri.TrimEnd('/') : null;
@@ -104,9 +164,27 @@ public sealed class LauncherConfig
 		catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
 		{
 		}
+		return FromJson(merged);
+	}
+
+	/// <summary>A configuration from launcher.json text alone, without the embedded defaults. Invalid JSON gives the defaults.</summary>
+	public static LauncherConfig Parse(string json)
+	{
 		try
 		{
-			return merged.Deserialize<LauncherConfig>(Options) ?? new LauncherConfig();
+			return JsonNode.Parse(json, null, NodeOptions) is JsonObject node ? FromJson(node) : new LauncherConfig();
+		}
+		catch (JsonException)
+		{
+			return new LauncherConfig();
+		}
+	}
+
+	private static LauncherConfig FromJson(JsonObject node)
+	{
+		try
+		{
+			return node.Deserialize<LauncherConfig>(Options) ?? new LauncherConfig();
 		}
 		catch (JsonException)
 		{

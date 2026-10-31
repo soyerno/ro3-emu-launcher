@@ -86,7 +86,16 @@ public sealed class LauncherController : IDisposable
 
 	private string? _sdkAccount;
 	private bool _registrationEnabled = true;
-	private readonly TunnelManager _tunnels;
+	private TunnelManager _tunnels;
+
+	/// <summary>The realm the player plays on: its server answers every call and its tunnels are the open ones.</summary>
+	private RealmSpec _realm;
+
+	/// <summary>Cancelled when the player switches realm, so the old realm's tunnel start and ping loop stop.</summary>
+	private CancellationTokenSource _realmLife;
+
+	/// <summary>True from the press of play until the game is started or the launch fails.</summary>
+	private bool _launching;
 
 	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
 	{
@@ -95,7 +104,9 @@ public sealed class LauncherController : IDisposable
 		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00d1: Expected Obj, but got Unknown
 		_config = config;
-		_tunnels = new TunnelManager(config.Tunnels);
+		_realm = config.SelectRealm(_settings.Realm);
+		_tunnels = new TunnelManager(_realm.Tunnels);
+		_realmLife = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
 		_exePath = exePath;
 		_post = post;
 		_pickFolder = pickFolder;
@@ -303,6 +314,9 @@ public sealed class LauncherController : IDisposable
 			}
 			break;
 		}
+		case "realm":
+			await SelectRealmAsync(message.TryGetProperty("id", out var realmProp) ? realmProp.GetString() : null);
+			break;
 		case "auth_get_last":
 			await PostInitialAuthAsync();
 			break;
@@ -420,6 +434,59 @@ public sealed class LauncherController : IDisposable
 			dir = _layout.GameDirectory,
 			launcher = _version
 		});
+		PostRealms();
+	}
+
+	/// <summary>Tells the UI the realms and the selected one; with one realm the UI shows no picker.</summary>
+	private void PostRealms(string? message = null)
+	{
+		_post(new
+		{
+			type = "realms",
+			selected = _realm.Id,
+			realms = _config.GetRealms().Select(r => new { id = r.Id, name = r.Name }).ToArray(),
+			message = message
+		});
+	}
+
+	/// <summary>
+	/// Switches to another realm: stops the old realm's tunnels and ping, then connects to the new one. Refused while
+	/// the game runs or is being launched or updated, because join re-patches the client for one realm at a time.
+	/// </summary>
+	private async Task SelectRealmAsync(string? id)
+	{
+		RealmSpec next = _config.SelectRealm(id);
+		if (next == _realm)
+		{
+			PostRealms();
+			return;
+		}
+		if (_launching || _work != null || _phase is "launching" or "updating" or "running" || GameOrchestrator.IsGameRunning())
+		{
+			Trace($"Realm switch to '{next.Id}' refused: the game is running or busy.");
+			PostRealms(Strings.Get("realm.locked"));
+			return;
+		}
+		Trace($"Switching realm: '{_realm.Id}' -> '{next.Id}'.");
+		_realmLife.Cancel();
+		_realmLife.Dispose();
+		_realmLife = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
+		TunnelManager old = _tunnels;
+		_realm = next;
+		_tunnels = new TunnelManager(next.Tunnels);
+		UserSettings.SaveRealm(next.Id);
+		PostRealms();
+		_post(new
+		{
+			type = "server",
+			online = false,
+			players = (int?)null
+		});
+		await Task.Run(old.Dispose);
+		if (_started)
+		{
+			_ = StartTunnelsAndPingAsync();
+		}
 	}
 
 	private async Task InitializeSessionAsync()
@@ -494,10 +561,10 @@ public sealed class LauncherController : IDisposable
 
 		identity = identity.Trim();
 
-		string? server = _config.ServerBaseUrl;
+		string? server = _realm.ServerBaseUrl;
 		if (server == null)
 		{
-			return new AuthResult(Success: false, _config.ServerError!, identity);
+			return new AuthResult(Success: false, _realm.ServerError!, identity);
 		}
 
 		foreach (string ep in new[] { server + "/sdk/login" })
@@ -593,10 +660,10 @@ public sealed class LauncherController : IDisposable
 			return new AuthResult(Success: false, Strings.Get("reg.pass.mismatch"), username);
 		}
 
-		string? server = _config.ServerBaseUrl;
+		string? server = _realm.ServerBaseUrl;
 		if (server == null)
 		{
-			return new AuthResult(Success: false, _config.ServerError!, username);
+			return new AuthResult(Success: false, _realm.ServerError!, username);
 		}
 
 		foreach (string ep in new[] { server + "/sdk/login" })
@@ -668,7 +735,7 @@ public sealed class LauncherController : IDisposable
 
 	private async Task<AuthResult> VerifyEmailAsync(string username, string code)
 	{
-		string? text = _config.ServerBaseUrl;
+		string? text = _realm.ServerBaseUrl;
 		if (!string.IsNullOrEmpty(text))
 		{
 			try
@@ -693,7 +760,7 @@ public sealed class LauncherController : IDisposable
 		_ = 1;
 		try
 		{
-			string? text = _config.ServerBaseUrl;
+			string? text = _realm.ServerBaseUrl;
 			if (string.IsNullOrEmpty(text))
 			{
 				return;
@@ -917,6 +984,26 @@ public sealed class LauncherController : IDisposable
 
 	private async Task PlayAsync()
 	{
+		if (_launching)
+		{
+			return;
+		}
+		_launching = true;
+		try
+		{
+			await PlayCoreAsync();
+		}
+		finally
+		{
+			_launching = false;
+		}
+	}
+
+	private async Task PlayCoreAsync()
+	{
+		// One realm for the whole launch, even if the player picks another one meanwhile.
+		RealmSpec realm = _realm;
+		TunnelManager tunnels = _tunnels;
 		string gameDir = _layout.GameDirectory;
 		Trace($"PlayAsync started with folder: '{gameDir}'");
 		if (!GameOrchestrator.IsValidGameDir(gameDir))
@@ -943,7 +1030,7 @@ public sealed class LauncherController : IDisposable
 			}
 		}
 
-		if (_config.ServerError is { } serverError)
+		if (realm.ServerError is { } serverError)
 		{
 			Trace(serverError);
 			PostState("error", serverError);
@@ -952,10 +1039,10 @@ public sealed class LauncherController : IDisposable
 
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
 
-		if (_tunnels.HasTunnels && !_tunnels.IsConnected)
+		if (tunnels.HasTunnels && !tunnels.IsConnected)
 		{
 			PostState("launching", Strings.Get("state.tunnels.check"));
-			bool tunnelOk = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
+			bool tunnelOk = await tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
 			if (!tunnelOk)
 			{
 				Trace("The tunnels could not connect.");
@@ -967,8 +1054,8 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", Strings.Get("state.patching"));
 		// Only an account signed in during this session is passed on; a merely remembered name is not a session.
 		string? accountToUse = _sdkAccount;
-		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', account='{accountToUse}'...");
-		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, _config.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
+		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', realm='{realm.Id}', account='{accountToUse}'...");
+		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, realm.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
 		string? err = await Join();
 		if (err != null && GameOrchestrator.LastJoinNeedsOfficialFiles)
 		{
@@ -1009,17 +1096,24 @@ public sealed class LauncherController : IDisposable
 	private async Task StartTunnelsAndPingAsync()
 	{
 		string baseDir = Path.GetDirectoryName(_exePath) ?? AppContext.BaseDirectory;
-		Trace("Starting the Cloudflare tunnels...");
+		TunnelManager tunnels = _tunnels;
+		string? server = _realm.ServerBaseUrl;
+		CancellationToken ct = _realmLife.Token;
+		Trace($"Starting the Cloudflare tunnels of realm '{_realm.Id}'...");
 		try
 		{
-			bool ok = await _tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => Trace($"tunnel: {msg}"));
+			bool ok = await tunnels.StartTunnelsAsync(baseDir, ct, msg => Trace($"tunnel: {msg}"));
 			if (ok) Trace("Tunnels active and connected.");
+		}
+		catch (OperationCanceledException) when (ct.IsCancellationRequested)
+		{
+			return;
 		}
 		catch (Exception ex)
 		{
 			Trace($"Could not start the tunnels: {ex.Message}");
 		}
-		_ = PingLoopAsync();
+		_ = PingLoopAsync(server, ct);
 	}
 
 	private async Task RestoreOfficialAsync()
@@ -1044,7 +1138,7 @@ public sealed class LauncherController : IDisposable
 		{
 			return null;
 		}
-		string? server = _config.ServerBaseUrl;
+		string? server = _realm.ServerBaseUrl;
 		if (string.IsNullOrEmpty(server))
 		{
 			return null;
@@ -1151,24 +1245,24 @@ public sealed class LauncherController : IDisposable
 		});
 	}
 
-	private async Task PingLoopAsync()
+	/// <summary>Reports the status of the selected realm's server until <paramref name="ct"/>, the realm's lifetime, ends.</summary>
+	private async Task PingLoopAsync(string? server, CancellationToken ct)
 	{
-		string? server = _config.ServerBaseUrl;
 		if (server == null)
 		{
 			return;
 		}
-		while (!_life.IsCancellationRequested)
+		while (!ct.IsCancellationRequested)
 		{
 			bool online = false;
 			int? players = null;
 			try
 			{
-				using HttpResponseMessage status = await _http.GetAsync(server + "/ro3emu/status", _life.Token);
+				using HttpResponseMessage status = await _http.GetAsync(server + "/ro3emu/status", ct);
 				if (status.IsSuccessStatusCode)
 				{
 					online = true;
-					using JsonDocument jsonDocument = JsonDocument.Parse(await status.Content.ReadAsStringAsync(_life.Token));
+					using JsonDocument jsonDocument = JsonDocument.Parse(await status.Content.ReadAsStringAsync(ct));
 					if (jsonDocument.RootElement.TryGetProperty("players", out var value))
 					{
 						players = value.GetInt32();
@@ -1176,14 +1270,14 @@ public sealed class LauncherController : IDisposable
 				}
 				else
 				{
-					using HttpResponseMessage httpResponseMessage = await _http.GetAsync(server + "/ro3emu/gate-key.pem", _life.Token);
+					using HttpResponseMessage httpResponseMessage = await _http.GetAsync(server + "/ro3emu/gate-key.pem", ct);
 					online = httpResponseMessage.IsSuccessStatusCode;
 				}
 			}
 			catch (Exception)
 			{
 			}
-			if (_life.IsCancellationRequested)
+			if (ct.IsCancellationRequested)
 			{
 				break;
 			}
@@ -1196,7 +1290,7 @@ public sealed class LauncherController : IDisposable
 			_ = CheckRegistrationStatusAsync();
 			try
 			{
-				await Task.Delay(TimeSpan.FromSeconds(30L), _life.Token);
+				await Task.Delay(TimeSpan.FromSeconds(30L), ct);
 			}
 			catch (TaskCanceledException)
 			{
@@ -1295,6 +1389,7 @@ public sealed class LauncherController : IDisposable
 	{
 		_life.Cancel();
 		_work?.Cancel();
+		_realmLife.Dispose();
 		_tunnels.Dispose();
 	}
 }

@@ -25,6 +25,9 @@
     <RootNamespace>Ro3Emu.Launcher</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Test projects build on their own; keep their sources out of the default compile glob. -->
+    <Compile Remove="tests\**" />
+    <None Remove="tests\**" />
     <None Remove="launcher.json" />
     <None Remove="ui.app.css" />
     <None Remove="ui.app.js" />
