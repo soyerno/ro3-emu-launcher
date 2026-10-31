@@ -412,6 +412,14 @@ public sealed class GameOrchestrator
         }
     }
 
+    /// <summary>True while a game client (ro3.exe) runs, whichever realm it was started for.</summary>
+    public static bool IsGameRunning()
+    {
+        Process[] procs = Process.GetProcessesByName("ro3");
+        foreach (Process p in procs) p.Dispose();
+        return procs.Length > 0;
+    }
+
     public static async Task MonitorGameProcessAsync(Action onGameExited, CancellationToken ct = default)
     {
         // Wait a few seconds for ro3 process to appear

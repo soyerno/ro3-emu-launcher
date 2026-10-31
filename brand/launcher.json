@@ -7,6 +7,47 @@
   "website": "https://konsor.com.ar",
   "discord": "https://discord.gg/43CdywWfM",
   "purchaseUrl": "https://konsor.com.ar/donaciones",
+  "defaultRealm": "prontera",
+  "realms": [
+    {
+      "id": "prontera",
+      "name": "Prontera (5x)",
+      "server": "http://127.0.0.1:5380",
+      "tunnels": [
+        {
+          "hostname": "ro3-http.konsor.com.ar",
+          "port": 5380
+        },
+        {
+          "hostname": "ro3-micro.konsor.com.ar",
+          "port": 20000
+        },
+        {
+          "hostname": "ro3-game.konsor.com.ar",
+          "port": 33100
+        }
+      ]
+    },
+    {
+      "id": "payon",
+      "name": "Payon (1x)",
+      "server": "http://127.0.0.1:5390",
+      "tunnels": [
+        {
+          "hostname": "ro3p-http.konsor.com.ar",
+          "port": 5390
+        },
+        {
+          "hostname": "ro3p-micro.konsor.com.ar",
+          "port": 20001
+        },
+        {
+          "hostname": "ro3p-game.konsor.com.ar",
+          "port": 33102
+        }
+      ]
+    }
+  ],
   "tunnels": [
     {
       "hostname": "ro3-http.konsor.com.ar",

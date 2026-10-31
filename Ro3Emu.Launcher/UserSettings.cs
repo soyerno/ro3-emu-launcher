@@ -13,6 +13,10 @@ public sealed class UserSettings
 	[JsonPropertyName("language")]
 	public string? Language { get; set; }
 
+	/// <summary>Id of the realm the player picked last; an id launcher.json no longer has falls back to its default.</summary>
+	[JsonPropertyName("realm")]
+	public string? Realm { get; set; }
+
 	private static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "RO3Emu", "launcher-settings.json");
 
 	public static UserSettings Load()
@@ -31,6 +35,13 @@ public sealed class UserSettings
 	{
 		var s = Load();
 		s.Language = lang;
+		s.Save();
+	}
+
+	public static void SaveRealm(string realm)
+	{
+		var s = Load();
+		s.Realm = realm;
 		s.Save();
 	}
 

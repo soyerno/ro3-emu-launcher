@@ -92,6 +92,7 @@ public static class Strings
 		["state.repair.retry"] = ("The game files were changed by an earlier patch. Restoring the official files, then patching again...", "Los archivos del juego fueron modificados por un parche anterior. Restaurando los archivos oficiales y volviendo a parchear..."),
 		["state.patching"] = ("Patching and starting the game...", "Parcheando e iniciando el juego..."),
 		["state.running"] = ("The game is running.", "El juego está en ejecución."),
+		["realm.locked"] = ("Close the game before changing realm (one realm at a time).", "Cierra el juego antes de cambiar de reino (se juega un reino a la vez)."),
 		["state.closed"] = ("The game has closed. Ready to play again!", "El juego se ha cerrado. ¡Listo para volver a jugar!"),
 		["state.restoring"] = ("Restoring the client to the official servers...", "Restaurando cliente a servidores oficiales..."),
 		["state.restored"] = ("Client restored to the official version.", "Cliente restaurado correctamente a la versión oficial."),
