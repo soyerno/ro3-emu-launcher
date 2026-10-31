@@ -102,6 +102,7 @@ public static class Strings
 		["state.restored"] = ("Client restored to the official version.", "Cliente restaurado correctamente a la versión oficial."),
 		["state.restore.error"] = ("Restore failed: {0}", "Error al restaurar: {0}"),
 		["state.install"] = ("The game is not installed. Click Install to download the official client from Genesis' servers, or choose an existing game folder in Settings.", "El juego no está instalado. Haz clic en Instalar para descargar el cliente oficial desde los servidores de Genesis, o elige una carpeta del juego existente en Configuración."),
+		["state.checking.game"] = ("Checking for a game update...", "Buscando una actualización del juego..."),
 		["state.paused"] = ("Paused. Downloaded parts are kept; continue any time.", "En pausa. Las partes descargadas se conservan; continúa cuando quieras."),
 
 		// game install from Genesis' update servers

@@ -114,6 +114,9 @@ public sealed class LauncherController : IDisposable
 
 	private string? _genesisRemote;
 
+	// The Genesis release check of the last CheckAsync; play waits for it so it never patches a client that is about to update.
+	private Task _genesisCheck = Task.CompletedTask;
+
 	public LauncherController(LauncherConfig config, string exePath, Action<object> post, Func<string, string?> pickFolder, Action minimize)
 	{
 		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
@@ -397,6 +400,21 @@ public sealed class LauncherController : IDisposable
 			if (_work != null || _autoUpdating)
 			{
 				break;
+			}
+			if (!_config.GameFilesFromRepository && !_genesisCheck.IsCompleted && _phase == "ready")
+			{
+				// The official game updates first and the server patch goes on top at play: wait for the release check.
+				PostState("checking", Strings.Get("state.checking.game"));
+				await _genesisCheck;
+				if (_phase == "checking")
+				{
+					// Offline or blocked: the installed client still plays.
+					PostState("ready", Strings.Get("state.ready"));
+				}
+				if (_phase == "update")
+				{
+					break;
+				}
 			}
 			string phase = _phase;
 			if (phase == "ready" || phase == "running")
@@ -1010,6 +1028,13 @@ public sealed class LauncherController : IDisposable
 			return;
 		}
 
+		_genesisCheck = CheckGenesisReleaseAsync(folder);
+		await _genesisCheck;
+	}
+
+	// Genesis' current release against the folder's recorded one: "update" when older or unknown, else "ready".
+	private async Task CheckGenesisReleaseAsync(string folder)
+	{
 		try
 		{
 			using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30L));
