@@ -58,10 +58,22 @@ public class RealmStatusTests
 		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => respond(cancellationToken);
 	}
 
-	private static Task<bool> Probe(Func<CancellationToken, Task<HttpResponseMessage>> respond, TimeSpan? timeout = null)
+	/// <summary>
+	/// Awaits the probe before the client is disposed: disposing it mid-request cancels the request, so a test could pass
+	/// through that cancellation instead of the status, error or timeout it means to exercise. Also checks that the
+	/// request reached the handler, so a result never comes from failing before the send.
+	/// </summary>
+	private static async Task<bool> Probe(Func<CancellationToken, Task<HttpResponseMessage>> respond, TimeSpan? timeout = null)
 	{
-		using HttpClient http = new HttpClient(new FakeHandler(respond)) { Timeout = timeout ?? TimeSpan.FromSeconds(5) };
-		return RealmStatus.ProbeAsync(http, new Uri("https://konsor.example/status"), CancellationToken.None);
+		int calls = 0;
+		using HttpClient http = new HttpClient(new FakeHandler(ct =>
+		{
+			Interlocked.Increment(ref calls);
+			return respond(ct);
+		})) { Timeout = timeout ?? TimeSpan.FromSeconds(5) };
+		bool online = await RealmStatus.ProbeAsync(http, new Uri("https://konsor.example/status"), CancellationToken.None);
+		Assert.Equal(1, calls);
+		return online;
 	}
 
 	[Fact]
@@ -88,11 +100,14 @@ public class RealmStatusTests
 	[Fact]
 	public async Task ProbeIsOfflineOnATimeout()
 	{
+		System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
 		Assert.False(await Probe(async ct =>
 		{
 			await Task.Delay(Timeout.Infinite, ct);
 			return new HttpResponseMessage(HttpStatusCode.OK);
 		}, TimeSpan.FromMilliseconds(100)));
+		// Offline because the client timed out, not because something cancelled the request earlier.
+		Assert.True(clock.Elapsed >= TimeSpan.FromMilliseconds(90), $"Probe returned after {clock.Elapsed.TotalMilliseconds} ms, before the timeout.");
 	}
 
 	private static readonly RealmSpec Prontera = new() { Id = "prontera", Name = "Prontera" };
@@ -117,5 +132,45 @@ public class RealmStatusTests
 	public void PickPlayable_KeepsTheSelectionWhenEveryRealmIsOffline()
 	{
 		Assert.Same(Payon, RealmStatus.PickPlayable(All, Payon, _ => false));
+	}
+
+	private static readonly RealmSpec Watched = new() { Id = "payon", Name = "Payon", StatusUrl = "https://konsor.example/status" };
+
+	[Fact]
+	public void IsKnownOnline_IsFalseOnlyWhenTheLastProbeOfAWatchedRealmFailed()
+	{
+		Dictionary<string, bool> down = new(StringComparer.OrdinalIgnoreCase) { ["PAYON"] = false };
+		Dictionary<string, bool> up = new(StringComparer.OrdinalIgnoreCase) { ["payon"] = true };
+
+		Assert.False(RealmStatus.IsKnownOnline(Watched, down));
+		Assert.True(RealmStatus.IsKnownOnline(Watched, up));
+		// Not probed yet: unknown counts as online.
+		Assert.True(RealmStatus.IsKnownOnline(Watched, new Dictionary<string, bool>()));
+		// No status URL: always online, whatever a stale entry says.
+		Assert.True(RealmStatus.IsKnownOnline(Payon, down));
+	}
+
+	[Fact]
+	public void OfflineRefusal_RefusesAnOfflineRealmWithTheRealmOfflineMessage()
+	{
+		string? refusal = RealmStatus.OfflineRefusal(Payon, _ => false);
+
+		Assert.Equal(Strings.Get("realm.offline", "Payon"), refusal);
+		Assert.Contains("Payon", refusal);
+	}
+
+	[Fact]
+	public void OfflineRefusal_AllowsAnOnlineOrUnknownRealm()
+	{
+		Assert.Null(RealmStatus.OfflineRefusal(Payon, _ => true));
+		Assert.Null(RealmStatus.OfflineRefusal(Watched, r => RealmStatus.IsKnownOnline(r, new Dictionary<string, bool>())));
+	}
+
+	[Fact]
+	public void OfflineRefusal_AsksAboutTheGivenRealm()
+	{
+		// Play asks about the selected realm, a switch about the target realm: only that one decides.
+		Assert.NotNull(RealmStatus.OfflineRefusal(Geffen, r => r != Geffen));
+		Assert.Null(RealmStatus.OfflineRefusal(Prontera, r => r != Geffen));
 	}
 }

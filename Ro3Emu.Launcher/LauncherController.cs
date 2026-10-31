@@ -100,6 +100,9 @@ public sealed class LauncherController : IDisposable
 	/// <summary>True until the first realm status check had its one chance to move an offline selection to an online realm.</summary>
 	private bool _realmAutoPickPending = true;
 
+	/// <summary>Set by the first <see cref="PollRealmStatusAsync"/>, so only one poll loop ever runs.</summary>
+	private bool _realmPollStarted;
+
 	/// <summary>True from the press of play until the game is started or the launch fails.</summary>
 	private bool _launching;
 
@@ -429,7 +432,7 @@ public sealed class LauncherController : IDisposable
 	/// <summary>False only when the realm's status URL last answered anything but 200 (or did not answer).</summary>
 	private bool IsRealmOnline(RealmSpec realm)
 	{
-		return realm.StatusUri == null || !_realmOnline.TryGetValue(realm.Id, out bool online) || online;
+		return RealmStatus.IsKnownOnline(realm, _realmOnline);
 	}
 
 	/// <summary>One realm at a time: no switching while the game runs or is being launched or updated.</summary>
@@ -442,6 +445,11 @@ public sealed class LauncherController : IDisposable
 	/// <remarks>Started fire-and-forget on the UI thread, so it never throws and its state is only touched there.</remarks>
 	private async Task PollRealmStatusAsync()
 	{
+		if (_realmPollStarted)
+		{
+			return;
+		}
+		_realmPollStarted = true;
 		CancellationToken ct = _life.Token;
 		while (!ct.IsCancellationRequested)
 		{
@@ -526,10 +534,11 @@ public sealed class LauncherController : IDisposable
 			PostRealms();
 			return;
 		}
-		if (!IsRealmOnline(next))
+		string? offline = RealmStatus.OfflineRefusal(next, IsRealmOnline);
+		if (offline != null)
 		{
 			Trace($"Realm switch to '{next.Id}' refused: the realm is offline.");
-			PostRealms(Strings.Get("realm.offline", next.Name));
+			PostRealms(offline);
 			return;
 		}
 		if (IsRealmSwitchLocked())
@@ -914,11 +923,12 @@ public sealed class LauncherController : IDisposable
 		{
 			return;
 		}
-		if (!IsRealmOnline(_realm))
+		string? offline = RealmStatus.OfflineRefusal(_realm, IsRealmOnline);
+		if (offline != null)
 		{
 			// The UI disables play already; this covers a press that raced the status change.
 			Trace($"Play refused: realm '{_realm.Id}' is offline.");
-			PostState(_phase, Strings.Get("realm.offline", _realm.Name));
+			PostState(_phase, offline);
 			return;
 		}
 		_launching = true;
