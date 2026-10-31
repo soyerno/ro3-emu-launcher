@@ -25,6 +25,17 @@ public sealed class RealmSpec
 	[JsonPropertyName("tunnels")]
 	public List<TunnelSpec> Tunnels { get; set; } = [];
 
+	/// <summary>
+	/// Optional URL that answers 200 while the realm is up. The tunnel hostnames cannot tell (a Cloudflare TCP tunnel
+	/// answers even when the realm behind it is down), so without it the realm is always treated as online.
+	/// </summary>
+	[JsonPropertyName("statusUrl")]
+	public string? StatusUrl { get; set; }
+
+	/// <summary><see cref="StatusUrl"/> when it is https (or http to a loopback address, for local testing); otherwise null.</summary>
+	[JsonIgnore]
+	public Uri? StatusUri => LauncherConfig.TryParseHttpUrl(StatusUrl, out Uri? uri) && (uri!.Scheme == Uri.UriSchemeHttps || uri.IsLoopback) ? uri : null;
+
 	/// <summary><see cref="Server"/> normalized without a trailing slash, or null when missing or invalid.</summary>
 	[JsonIgnore]
 	public string? ServerBaseUrl => LauncherConfig.TryParseHttpUrl(Server, out Uri? uri) ? uri!.AbsoluteUri.TrimEnd('/') : null;

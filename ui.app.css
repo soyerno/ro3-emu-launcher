@@ -687,6 +687,7 @@ a { color: inherit; text-decoration: none; }
   outline: none;
 }
 .realm-select option { color: var(--ink); background: #ffffff; font-weight: 500; }
+.realm-select option:disabled { color: #8a8a8a; }
 .realm-select:disabled { filter: opacity(0.5); cursor: not-allowed; }
 
 /* Botón secundario compacto (Reparar) */

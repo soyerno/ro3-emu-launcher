@@ -91,6 +91,15 @@ public sealed class LauncherController : IDisposable
 	/// <summary>Cancelled when the player switches realm, so the old realm's tunnel start and ping loop stop.</summary>
 	private CancellationTokenSource _realmLife;
 
+	/// <summary>How often the realms' status URLs are asked whether the realm is up.</summary>
+	private static readonly TimeSpan RealmStatusInterval = TimeSpan.FromSeconds(30L);
+
+	/// <summary>Last known status of each realm with a status URL, by id; a realm not in here counts as online.</summary>
+	private readonly Dictionary<string, bool> _realmOnline = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+	/// <summary>True until the first realm status check had its one chance to move an offline selection to an online realm.</summary>
+	private bool _realmAutoPickPending = true;
+
 	/// <summary>True from the press of play until the game is started or the launch fails.</summary>
 	private bool _launching;
 
@@ -254,6 +263,8 @@ public sealed class LauncherController : IDisposable
 					break;
 				}
 				_ = StartTunnelsAndPingAsync();
+				// After the update, whose manifest "config" may bring the realms' status URLs; never awaited.
+				_ = PollRealmStatusAsync();
 				_ = LoadNewsAsync();
 			}
 			await CheckAsync();
@@ -410,9 +421,97 @@ public sealed class LauncherController : IDisposable
 		{
 			type = "realms",
 			selected = _realm.Id,
-			realms = _config.GetRealms().Select(r => new { id = r.Id, name = r.Name }).ToArray(),
+			realms = _config.GetRealms().Select(r => new { id = r.Id, name = r.Name, online = IsRealmOnline(r) }).ToArray(),
 			message = message
 		});
+	}
+
+	/// <summary>False only when the realm's status URL last answered anything but 200 (or did not answer).</summary>
+	private bool IsRealmOnline(RealmSpec realm)
+	{
+		return realm.StatusUri == null || !_realmOnline.TryGetValue(realm.Id, out bool online) || online;
+	}
+
+	/// <summary>One realm at a time: no switching while the game runs or is being launched or updated.</summary>
+	private bool IsRealmSwitchLocked()
+	{
+		return _launching || _work != null || _phase is "launching" or "updating" or "running" || GameOrchestrator.IsGameRunning();
+	}
+
+	/// <summary>Asks every realm's status URL now and then every <see cref="RealmStatusInterval"/> until the launcher closes.</summary>
+	/// <remarks>Started fire-and-forget on the UI thread, so it never throws and its state is only touched there.</remarks>
+	private async Task PollRealmStatusAsync()
+	{
+		CancellationToken ct = _life.Token;
+		while (!ct.IsCancellationRequested)
+		{
+			try
+			{
+				await CheckRealmStatusAsync(ct);
+			}
+			catch (Exception ex) when (!ct.IsCancellationRequested)
+			{
+				Trace("Realm status check failed: " + ex.Message);
+			}
+			try
+			{
+				await Task.Delay(RealmStatusInterval, ct);
+			}
+			catch (OperationCanceledException)
+			{
+				break;
+			}
+		}
+	}
+
+	/// <summary>Probes the status URLs in parallel; tells the UI and logs only when a realm's status changes.</summary>
+	private async Task CheckRealmStatusAsync(CancellationToken ct)
+	{
+		RealmSpec[] realms = _config.GetRealms().Where(r => r.StatusUri != null).ToArray();
+		bool[] results = await Task.WhenAll(realms.Select(r => RealmStatus.ProbeAsync(_http, r.StatusUri!, ct)));
+		if (ct.IsCancellationRequested)
+		{
+			return;
+		}
+		bool changed = false;
+		for (int i = 0; i < realms.Length; i++)
+		{
+			bool wasOnline = IsRealmOnline(realms[i]);
+			_realmOnline[realms[i].Id] = results[i];
+			if (wasOnline != results[i])
+			{
+				changed = true;
+				Trace($"Realm '{realms[i].Id}' is now {(results[i] ? "online" : "offline")} ({realms[i].StatusUri}).");
+			}
+		}
+		if (changed)
+		{
+			PostRealms();
+		}
+		await AutoPickOnlineRealmAsync();
+	}
+
+	/// <summary>
+	/// Once, after the first status check: when the saved realm is offline and another one is online, switches to it,
+	/// unless the game is running or busy. Later outages only block play, so the player's choice is not moved under them.
+	/// </summary>
+	private async Task AutoPickOnlineRealmAsync()
+	{
+		if (!_realmAutoPickPending)
+		{
+			return;
+		}
+		_realmAutoPickPending = false;
+		if (IsRealmOnline(_realm) || IsRealmSwitchLocked())
+		{
+			return;
+		}
+		RealmSpec pick = RealmStatus.PickPlayable(_config.GetRealms(), _realm, IsRealmOnline);
+		if (pick != _realm)
+		{
+			Trace($"Realm '{_realm.Id}' is offline at start-up: selecting '{pick.Id}'.");
+			await SelectRealmAsync(pick.Id);
+		}
 	}
 
 	/// <summary>
@@ -427,7 +526,13 @@ public sealed class LauncherController : IDisposable
 			PostRealms();
 			return;
 		}
-		if (_launching || _work != null || _phase is "launching" or "updating" or "running" || GameOrchestrator.IsGameRunning())
+		if (!IsRealmOnline(next))
+		{
+			Trace($"Realm switch to '{next.Id}' refused: the realm is offline.");
+			PostRealms(Strings.Get("realm.offline", next.Name));
+			return;
+		}
+		if (IsRealmSwitchLocked())
 		{
 			Trace($"Realm switch to '{next.Id}' refused: the game is running or busy.");
 			PostRealms(Strings.Get("realm.locked"));
@@ -807,6 +912,13 @@ public sealed class LauncherController : IDisposable
 	{
 		if (_launching)
 		{
+			return;
+		}
+		if (!IsRealmOnline(_realm))
+		{
+			// The UI disables play already; this covers a press that raced the status change.
+			Trace($"Play refused: realm '{_realm.Id}' is offline.");
+			PostState(_phase, Strings.Get("realm.offline", _realm.Name));
 			return;
 		}
 		_launching = true;

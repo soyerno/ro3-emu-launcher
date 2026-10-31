@@ -10,6 +10,8 @@
   var busy = false;
   var stage = null;
   var serverData = { online: false, players: null };
+  // Last "realms" message of the host: { selected, realms: [{ id, name, online }] }.
+  var realmData = { selected: null, realms: [] };
   var remoteNews = null;
 
   // Injected by the host from launcher.json; absent when the page runs in a plain browser (mock mode).
@@ -241,6 +243,8 @@
       discordTitle: "Entrar na comunidade do Discord",
       realmLabel: "Reino",
       realmTitle: "Escolha o reino para jogar",
+      realmOffline: " (desligado)",
+      realmOfflineMsg: "O reino {0} está desligado. Escolha outro reino.",
       verUpdate: "Atualização"
     },
     en: {
@@ -252,6 +256,8 @@
       discordTitle: "Join the Discord community",
       realmLabel: "Realm",
       realmTitle: "Choose the realm to play on",
+      realmOffline: " (offline)",
+      realmOfflineMsg: "The {0} realm is offline. Choose another realm.",
       verUpdate: "Update"
     },
     es: {
@@ -263,6 +269,8 @@
       discordTitle: "Unirse a la comunidad de Discord",
       realmLabel: "Reino",
       realmTitle: "Elige el reino en el que jugar",
+      realmOffline: " (apagado)",
+      realmOfflineMsg: "El reino {0} está apagado. Elige otro reino.",
       verUpdate: "Actualización"
     }
   };
@@ -394,8 +402,9 @@
     // Update server text with current data
     renderServerStatus();
 
-    // Re-render news and main controls
+    // Re-render news, the realm names (offline suffix) and main controls
     renderNews(remoteNews);
+    renderRealmOptions();
     render();
   }
 
@@ -568,23 +577,37 @@
 
   // Realm picker: the host sends the realms of launcher.json; with one realm there is nothing to pick.
   function renderRealms(m) {
+    realmData = { selected: m.selected, realms: m.realms || [] };
+    renderRealmOptions();
+    if (m.message) state.message = m.message;
+    render();
+  }
+
+  // An offline realm (its status URL is down) is listed but cannot be picked.
+  function renderRealmOptions() {
     var picker = $("realm-picker");
     var select = $("realm-select");
     if (!picker || !select) return;
-    var realms = m.realms || [];
+    var realms = realmData.realms;
     picker.hidden = realms.length < 2;
     select.innerHTML = "";
     realms.forEach(function (r) {
       var opt = document.createElement("option");
       opt.value = r.id;
-      opt.textContent = r.name;
+      opt.textContent = r.name + (r.online === false ? ui("realmOffline") : "");
+      opt.disabled = r.online === false;
       select.appendChild(opt);
     });
-    select.value = m.selected;
-    if (m.message) {
-      state.message = m.message;
-      render();
+    select.value = realmData.selected;
+  }
+
+  // The selected realm when the host reports it offline; otherwise null.
+  function offlineSelectedRealm() {
+    for (var i = 0; i < realmData.realms.length; i++) {
+      var r = realmData.realms[i];
+      if (r.id === realmData.selected) return r.online === false ? r : null;
     }
+    return null;
   }
 
   function render() {
@@ -597,7 +620,11 @@
 
     var msg = $("message");
     msg.className = "message" + (cfg.warn ? " warn" : "");
-    $("message-text").textContent = translateMessage(state.message, state.phase);
+    // Ready to play on a realm that is down: say so instead of the phase text, and do not let play start.
+    var offlineRealm = !busy && state.phase === "ready" ? offlineSelectedRealm() : null;
+    $("message-text").textContent = offlineRealm
+      ? ui("realmOfflineMsg").replace("{0}", offlineRealm.name)
+      : translateMessage(state.message, state.phase);
     $("msg-help").hidden = !cfg.warn;
 
     // Primary button
@@ -608,7 +635,7 @@
       $("primary-label").textContent = t.phases.pause.button;
       icoWrap.innerHTML = ICONS.pause;
     } else {
-      btn.disabled = !!cfg.wait;
+      btn.disabled = !!cfg.wait || !!offlineRealm;
       $("primary-label").textContent = phaseTexts.button;
       icoWrap.innerHTML = ICONS[cfg.icon] || ICONS.spinner;
     }
