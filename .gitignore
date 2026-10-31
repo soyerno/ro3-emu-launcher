@@ -25,3 +25,8 @@ runtimes/
 *.zip
 *.7z
 *.rar
+
+## Private keys (manifest signing keys must never be committed)
+*.pem
+*.key
+*private*key*

@@ -66,6 +66,35 @@ public sealed class LauncherConfig
 	[JsonPropertyName("defaultRealm")]
 	public string? DefaultRealm { get; set; }
 
+	/// <summary>
+	/// Optional URL of the signed update manifest (see docs/AUTO_UPDATE.md). Empty: no automatic update of the launcher,
+	/// its server files or its remote configuration.
+	/// </summary>
+	[JsonPropertyName("manifestUrl")]
+	public string? ManifestUrl { get; set; }
+
+	/// <summary>PEM public key ("BEGIN PUBLIC KEY", ECDSA P-256) that must have signed the manifest. Empty: auto-update disabled.</summary>
+	[JsonPropertyName("manifestPublicKey")]
+	public string? ManifestPublicKey { get; set; }
+
+	/// <summary>Optional URL of news.json; tried before "&lt;repository&gt;/news.json".</summary>
+	[JsonPropertyName("newsUrl")]
+	public string? NewsUrl { get; set; }
+
+	/// <summary>Sequence of the manifest whose "config" was laid over this configuration, or null when none was.</summary>
+	[JsonIgnore]
+	public long? ManifestSequence { get; private set; }
+
+	/// <summary>
+	/// The launcher.json fields a manifest "config" may replace. The update source ("manifestUrl", "manifestPublicKey",
+	/// "repository") is never among them, so a manifest cannot move the launcher to another key or server.
+	/// </summary>
+	public static readonly string[] RemoteFields = ["realms", "defaultRealm", "tunnels", "server", "statusUrl", "newsUrl", "website", "discord", "purchaseUrl"];
+
+	/// <summary><see cref="ManifestUrl"/> when it is https (or http to a loopback address, for local testing); otherwise null.</summary>
+	[JsonIgnore]
+	public Uri? ManifestUri => TryParseHttpUrl(ManifestUrl, out Uri? uri) && (uri!.Scheme == Uri.UriSchemeHttps || uri.IsLoopback) ? uri : null;
+
 	private IReadOnlyList<RealmSpec>? _realms;
 
 	/// <summary>The configured realms with an id, or one implicit realm built from <see cref="Server"/> and <see cref="Tunnels"/>.</summary>
@@ -146,9 +175,10 @@ public sealed class LauncherConfig
 	/// <summary>
 	/// The launcher.json embedded in the build, overlaid with the fields of the launcher.json beside the executable:
 	/// a field the file does not have keeps the embedded value, so an older file (from a previous release) does not
-	/// switch off what a newer build configures (tunnels, language, links). An unreadable file is ignored.
+	/// switch off what a newer build configures (tunnels, language, links). An unreadable file is ignored. Last, the
+	/// <see cref="RemoteFields"/> of a verified manifest's "config" win over both.
 	/// </summary>
-	public static LauncherConfig Load(string besideExe)
+	public static LauncherConfig Load(string besideExe, RemoteManifest? remote = null)
 	{
 		JsonObject merged = ReadEmbedded() ?? new JsonObject();
 		try
@@ -164,19 +194,46 @@ public sealed class LauncherConfig
 		catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
 		{
 		}
-		return FromJson(merged);
+		return FromJson(merged, remote);
 	}
 
-	/// <summary>A configuration from launcher.json text alone, without the embedded defaults. Invalid JSON gives the defaults.</summary>
-	public static LauncherConfig Parse(string json)
+	/// <summary>A configuration from launcher.json text alone (plus an optional manifest overlay), without the embedded defaults. Invalid JSON gives the defaults.</summary>
+	public static LauncherConfig Parse(string json, RemoteManifest? remote = null)
 	{
 		try
 		{
-			return JsonNode.Parse(json, null, NodeOptions) is JsonObject node ? FromJson(node) : new LauncherConfig();
+			return FromJson(JsonNode.Parse(json, null, NodeOptions) as JsonObject ?? new JsonObject(), remote);
 		}
 		catch (JsonException)
 		{
-			return new LauncherConfig();
+			return FromJson(new JsonObject(), remote);
+		}
+	}
+
+	private static LauncherConfig FromJson(JsonObject node, RemoteManifest? remote)
+	{
+		if (remote?.Config is not { } overlay)
+		{
+			return FromJson(node);
+		}
+		JsonObject withOverlay = (JsonObject)node.DeepClone();
+		foreach (string field in RemoteFields)
+		{
+			if (overlay.TryGetPropertyValue(field, out JsonNode? value))
+			{
+				withOverlay[field] = value?.DeepClone();
+			}
+		}
+		try
+		{
+			LauncherConfig config = withOverlay.Deserialize<LauncherConfig>(Options) ?? new LauncherConfig();
+			config.ManifestSequence = remote.Sequence;
+			return config;
+		}
+		catch (JsonException)
+		{
+			// A manifest "config" of the wrong shape must not wipe the local configuration: ignore the overlay.
+			return FromJson(node);
 		}
 	}
 

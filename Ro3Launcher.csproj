@@ -3,7 +3,9 @@
     <AssemblyName>Ro3Launcher</AssemblyName>
     <Product>RO3 Launcher</Product>
     <Description>White-label community launcher for RO3Emu servers</Description>
-    <Version>1.0.0</Version>
+    <!-- Stamped at publish: dotnet publish -p:Version=1.2.0 (release.yml and publish.cmd pass the tag's version). A build
+         without it is a development build (0.0.0-dev) that never replaces itself with a published launcher. -->
+    <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
@@ -28,6 +30,8 @@
     <!-- Test projects build on their own; keep their sources out of the default compile glob. -->
     <Compile Remove="tests\**" />
     <None Remove="tests\**" />
+    <Compile Remove="tools\**" />
+    <None Remove="tools\**" />
     <None Remove="launcher.json" />
     <None Remove="ui.app.css" />
     <None Remove="ui.app.js" />
@@ -68,6 +72,18 @@
       <HintPath Condition="!Exists('lib\Ro3Emu.Patcher.dll')">E:\Ro3Emu.Patcher.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <!-- BuildInfo.Version is the launcher version the update check compares (Properties\AssemblyInfo.cs keeps fixed values). -->
+  <Target Name="WriteBuildInfo" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <BuildInfoFile>$(IntermediateOutputPath)BuildInfo.g.cs</BuildInfoFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(BuildInfoFile)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="namespace Ro3Emu.Launcher%3B;public static class BuildInfo { public const string Version = &quot;$(Version)&quot;%3B }" />
+    <ItemGroup>
+      <Compile Include="$(BuildInfoFile)" />
+      <FileWrites Include="$(BuildInfoFile)" />
+    </ItemGroup>
+  </Target>
   <Target Name="ShowResources">
     <Message Importance="High" Text="RES: %(EmbeddedResource.Identity) -> %(EmbeddedResource.LogicalName)" />
   </Target>
