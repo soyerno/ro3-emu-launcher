@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Tiny upgrade bootstrap for v1.0.0 launchers (docs/AUTO_UPDATE.md, "Legacy v1.0.0 upgrade"). .NET Framework 4.8
+       ships with Windows 10/11, so it runs without installing a runtime. Ro3Launcher.csproj excludes tools\**. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>KonsorBootstrap</AssemblyName>
+    <RootNamespace>Konsor.LegacyBootstrap</RootNamespace>
+    <Version>1.2.0</Version>
+    <Product>Konsor launcher bootstrap</Product>
+    <ApplicationIcon>..\..\app.ico</ApplicationIcon>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Core" />
+    <!-- Build-time reference assemblies only; nothing is shipped with the exe. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

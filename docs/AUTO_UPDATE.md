@@ -95,3 +95,17 @@ dotnet run --project tools\ManifestTool -c Release -- verify --manifest <out>\ko
 ## Later releases
 
 Repeat steps 3 to 6. Each build gets a higher sequence. Older content-addressed files can stay: they cost nothing and keep older manifests valid while caches refresh.
+
+## Legacy v1.0.0 upgrade
+
+Launcher v1.0.0 predates the signed manifest. It only self-updates from its operator channel, and that check (channel plus exe download, through the local cloudflared tunnel) must finish in about 2 seconds. The real launcher is too big for that, so the channel publishes `tools/LegacyBootstrap` as "launcher 1.2.0" instead.
+
+`KonsorBootstrap.exe` (.NET Framework 4.8, preinstalled on Windows 10/11; about 75 KB) then:
+
+1. Downloads `https://konsor.com.ar/launcher/konsor.json` and its `.sig`, and verifies them with the same key and rules as the launcher (ECDSA P-256 / SHA-256, base64 DER signature). The key is embedded; a test keeps it equal to `brand/launcher.json` `manifestPublicKey`.
+2. Downloads `launcher.url` (it must start with `https://konsor.com.ar/launcher/`) to `<exe>.new` and checks `launcher.size` and `launcher.sha256`.
+3. Renames itself to `<exe>.old`, moves the download to `<exe>` and starts it. The launcher deletes `<exe>.old` on its next start. If v1.0.0's own `<exe>.old` is still locked after 10 seconds, it is renamed to `<exe>.old.<ticks>` and stays behind.
+
+On any error it shows the reason, a retry button and the download page. The folder always keeps a runnable `<exe>`: if the bootstrap is still there, the next start retries.
+
+Build it with `dotnet build tools/LegacyBootstrap -c Release` (`tools/LegacyBootstrap/bin/Release/net48/KonsorBootstrap.exe`; publish only the exe). Check it against the live manifest with `KonsorBootstrap.exe --verify-only`. For tests, `--manifest-url <url> --public-key-file <pem>` points it at another manifest; the launcher URL must then sit under the manifest's folder.

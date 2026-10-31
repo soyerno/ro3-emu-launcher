@@ -16,4 +16,9 @@
     <ProjectReference Include="..\..\Ro3Launcher.csproj" />
     <ProjectReference Include="..\..\tools\ManifestTool\ManifestTool.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The .NET Framework 4.8 bootstrap's verifier and swap are plain files, tested here on net10. -->
+    <Compile Include="..\..\tools\LegacyBootstrap\BootstrapSignature.cs" Link="LegacyBootstrap\BootstrapSignature.cs" />
+    <Compile Include="..\..\tools\LegacyBootstrap\BootstrapSwap.cs" Link="LegacyBootstrap\BootstrapSwap.cs" />
+  </ItemGroup>
 </Project>
