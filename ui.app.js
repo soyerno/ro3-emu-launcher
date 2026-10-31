@@ -26,7 +26,6 @@
       tabs: {
         home: "INÍCIO",
         news: "NOTÍCIAS",
-        account: "CONTA",
         register: "Site Oficial",
         discord: "Discord",
         settings: "CONFIGURAÇÕES"
@@ -54,11 +53,7 @@
           text: "Tudo pronto para explorar o mundo de Rune-Midgard."
         }
       ],
-      auth: {
-        login: "Entrar",
-        verifying: "Verificando…",
-        register: "Criar Conta",
-        creating: "Criando…",
+      actions: {
         repair: "Reparar"
       },
       phases: {
@@ -70,7 +65,6 @@
         offline: { button: "Tentar novamente", text: "Erro: não foi possível conectar ao servidor." },
         error: { button: "Tentar novamente", text: "Ocorreu um erro no inicializador." },
         launching: { button: "Iniciando…", text: "Iniciando o cliente do jogo…" },
-        "needs-auth": { button: "Iniciar sesión", text: "Inicia sesión con tu conta para jogar." },
         running: { button: "Jogar", text: "O jogo está em execução." },
         pause: { button: "Pausar" }
       },
@@ -100,7 +94,6 @@
       tabs: {
         home: "HOME",
         news: "NEWS",
-        account: "ACCOUNT",
         register: "Official Web",
         discord: "Discord",
         settings: "SETTINGS"
@@ -128,11 +121,7 @@
           text: "Everything is ready to explore the world of Rune-Midgard."
         }
       ],
-      auth: {
-        login: "Sign in",
-        verifying: "Verifying…",
-        register: "Create Account",
-        creating: "Creating…",
+      actions: {
         repair: "Repair"
       },
       phases: {
@@ -144,7 +133,6 @@
         offline: { button: "Try again", text: "Error: Could not connect to update server." },
         error: { button: "Try again", text: "Something went wrong in the launcher." },
         launching: { button: "Starting…", text: "Starting the game client…" },
-        "needs-auth": { button: "Sign in", text: "Sign in with your account to play." },
         running: { button: "Play", text: "The game is currently running." },
         pause: { button: "Pause" }
       },
@@ -174,7 +162,6 @@
       tabs: {
         home: "INICIO",
         news: "NOTICIAS",
-        account: "CUENTA",
         register: "Web Oficial",
         discord: "Discord",
         settings: "CONFIGURACIÓN"
@@ -202,11 +189,7 @@
           text: "Todo listo para explorar el mundo de Rune-Midgard."
         }
       ],
-      auth: {
-        login: "Entrar",
-        verifying: "Verificando…",
-        register: "Crear Cuenta",
-        creating: "Creando…",
+      actions: {
         repair: "Reparar"
       },
       phases: {
@@ -218,7 +201,6 @@
         offline: { button: "Reintentar", text: "Error: No se pudo conectar al servidor." },
         error: { button: "Reintentar", text: "Ocurrió un error en el actualizador." },
         launching: { button: "Iniciando…", text: "Iniciando el cliente del juego…" },
-        "needs-auth": { button: "Iniciar sesión", text: "Inicia sesión con tu cuenta para jugar." },
         running: { button: "Jugar", text: "El juego está en ejecución." },
         pause: { button: "Pausar" }
       },
@@ -253,137 +235,32 @@
     "pt-br": {
       minimize: "Minimizar",
       close: "Fechar",
-      authTabLogin: "Entrar",
-      authTabRegister: "Criar conta",
-      userLabel: "Usuário ou e-mail",
-      userPlaceholder: "Ex.: meunome ou voce@email.com",
-      passLabel: "Senha",
-      passPlaceholder: "Sua senha",
-      rememberMe: "Lembrar de mim",
-      forgot: "Esqueci minha senha",
-      codeLabel: "Código de verificação",
-      codePlaceholder: "Código de 6 dígitos",
-      verifyBtn: "Verificar e-mail",
-      resetCodeLabel: "Código de recuperação",
-      newPassLabel: "Nova senha",
-      newPassPlaceholder: "Mínimo de 6 caracteres",
-      resetBtn: "Redefinir senha",
-      regDisabled: "A criação de contas está temporariamente desativada pelo administrador.",
-      regUserLabel: "Nome de usuário",
-      regUserPlaceholder: "Ex.: meunome (3 a 20 caracteres)",
-      emailLabel: "E-mail",
-      emailPlaceholder: "voce@email.com (opcional)",
-      confirmLabel: "Confirmar senha",
-      confirmPlaceholder: "Repita a senha",
-      loggedLabel: "Conta ativa neste PC:",
-      switchAccount: "Usar outra conta",
       msgHelp: "Ajuda",
       repairTitle: "Reparar arquivos",
       webTitle: "Abrir o site",
       discordTitle: "Entrar na comunidade do Discord",
       realmLabel: "Reino",
-      realmTitle: "Escolha o reino para jogar",
-      regUnavailable: "Registro indisponível",
-      regTabTitle: "Criar nova conta",
-      regTabDisabled: "A criação de contas está temporariamente desativada",
-      fbRequired: "Usuário, senha e confirmação são obrigatórios.",
-      fbUserLength: "O usuário deve ter pelo menos 3 caracteres.",
-      fbPassLength: "A senha deve ter pelo menos 6 caracteres.",
-      fbPassMismatch: "As senhas não coincidem.",
-      fbCreating: "Criando sua conta em {server}...",
-      fbSigningIn: "Entrando em {server}...",
-      fbLoginMissing: "Informe usuário e senha.",
-      fbForgot: "Digite seu e-mail no campo de usuário (ou use a aba Criar conta) e tente novamente."
+      realmTitle: "Escolha o reino para jogar"
     },
     en: {
       minimize: "Minimize",
       close: "Close",
-      authTabLogin: "Sign in",
-      authTabRegister: "Create account",
-      userLabel: "Username or e-mail",
-      userPlaceholder: "e.g. myname or you@email.com",
-      passLabel: "Password",
-      passPlaceholder: "Your password",
-      rememberMe: "Remember me",
-      forgot: "I forgot my password",
-      codeLabel: "Verification code",
-      codePlaceholder: "6-digit code",
-      verifyBtn: "Verify e-mail",
-      resetCodeLabel: "Recovery code",
-      newPassLabel: "New password",
-      newPassPlaceholder: "At least 6 characters",
-      resetBtn: "Reset password",
-      regDisabled: "Account creation is temporarily disabled by the administrator.",
-      regUserLabel: "Username",
-      regUserPlaceholder: "e.g. myname (3-20 characters)",
-      emailLabel: "E-mail",
-      emailPlaceholder: "you@email.com (optional)",
-      confirmLabel: "Confirm password",
-      confirmPlaceholder: "Repeat the password",
-      loggedLabel: "Account active on this PC:",
-      switchAccount: "Use another account",
       msgHelp: "Help",
       repairTitle: "Repair files",
       webTitle: "Open the website",
       discordTitle: "Join the Discord community",
       realmLabel: "Realm",
-      realmTitle: "Choose the realm to play on",
-      regUnavailable: "Registration unavailable",
-      regTabTitle: "Create a new account",
-      regTabDisabled: "Account creation is temporarily disabled",
-      fbRequired: "Username, password and confirmation are required.",
-      fbUserLength: "The username must have at least 3 characters.",
-      fbPassLength: "The password must have at least 6 characters.",
-      fbPassMismatch: "The passwords do not match.",
-      fbCreating: "Creating your account on {server}...",
-      fbSigningIn: "Signing in to {server}...",
-      fbLoginMissing: "Please enter your username and password.",
-      fbForgot: "Type your e-mail in the username field (or use the Create account tab) and try again."
+      realmTitle: "Choose the realm to play on"
     },
     es: {
       minimize: "Minimizar",
       close: "Cerrar",
-      authTabLogin: "Iniciar Sesión",
-      authTabRegister: "Crear Cuenta",
-      userLabel: "Usuario o correo electrónico",
-      userPlaceholder: "Ej: minombre o tu@email.com",
-      passLabel: "Contraseña",
-      passPlaceholder: "Tu contraseña",
-      rememberMe: "Recordarme",
-      forgot: "Olvidé mi contraseña",
-      codeLabel: "Código de verificación",
-      codePlaceholder: "Código de 6 dígitos",
-      verifyBtn: "Verificar correo",
-      resetCodeLabel: "Código de recuperación",
-      newPassLabel: "Nueva contraseña",
-      newPassPlaceholder: "Mínimo 6 caracteres",
-      resetBtn: "Restablecer contraseña",
-      regDisabled: "La creación de cuentas está deshabilitada temporalmente por el administrador.",
-      regUserLabel: "Nombre de usuario",
-      regUserPlaceholder: "Ej: minombre (3-20 caracteres)",
-      emailLabel: "Correo electrónico",
-      emailPlaceholder: "tu@email.com (opcional)",
-      confirmLabel: "Confirmar contraseña",
-      confirmPlaceholder: "Repite la contraseña",
-      loggedLabel: "Cuenta activa en este PC:",
-      switchAccount: "Usar otra cuenta",
       msgHelp: "Ayuda",
       repairTitle: "Reparar archivos",
       webTitle: "Abrir el sitio web",
       discordTitle: "Unirse a la comunidad de Discord",
       realmLabel: "Reino",
-      realmTitle: "Elige el reino en el que jugar",
-      regUnavailable: "Registro no disponible",
-      regTabTitle: "Crear nueva cuenta",
-      regTabDisabled: "La creación de cuentas está deshabilitada temporalmente",
-      fbRequired: "Usuario, contraseña y confirmación son obligatorios.",
-      fbUserLength: "El usuario debe tener al menos 3 caracteres.",
-      fbPassLength: "La contraseña debe tener al menos 6 caracteres.",
-      fbPassMismatch: "Las contraseñas no coinciden.",
-      fbCreating: "Creando cuenta en {server}...",
-      fbSigningIn: "Iniciando sesión en {server}...",
-      fbLoginMissing: "Por favor ingresa usuario y contraseña.",
-      fbForgot: "Escribe tu correo en el campo de usuario (o usa la pestaña Crear Cuenta) y vuelve a intentarlo."
+      realmTitle: "Elige el reino en el que jugar"
     }
   };
 
@@ -463,7 +340,6 @@
     offline: { step: 0, icon: "wrench", warn: true, recovery: true },
     error: { step: 0, icon: "wrench", warn: true, recovery: true },
     launching: { step: 3, icon: "spinner", wait: true },
-    "needs-auth": { step: 3, icon: "wrench", warn: true, recovery: true },
     running: { step: 3, icon: "play" }
   };
 
@@ -491,7 +367,6 @@
     // Update tabs safely
     if ($("tab-home")) $("tab-home").textContent = t.tabs.home;
     if ($("tab-news")) $("tab-news").textContent = t.tabs.news;
-    if ($("tab-account")) $("tab-account").textContent = t.tabs.account || "ACCOUNT";
     if ($("tab-register")) $("tab-register").title = t.tabs.register || ui("webTitle");
     if ($("tab-discord")) $("tab-discord").title = t.tabs.discord || ui("discordTitle");
     var tabSet = $("tab-settings");
@@ -504,12 +379,6 @@
     if ($("notices-foot")) $("notices-foot").textContent = t.notices.foot;
     if ($("lbl-news-web") && t.notices.webBtn) $("lbl-news-web").textContent = t.notices.webBtn;
     if ($("lbl-news-discord") && t.notices.discordBtn) $("lbl-news-discord").textContent = t.notices.discordBtn;
-
-    // Update auth button labels
-    var btnReg = $("btn-do-register");
-    if (btnReg && !btnReg.disabled) btnReg.textContent = t.auth.register;
-    var btnLogin = $("btn-do-login");
-    if (btnLogin && !btnLogin.disabled) btnLogin.textContent = t.auth.login;
 
     // Update settings card if present
     var sTitle = $("settings-title"); if (sTitle) sTitle.textContent = t.settings.title;
@@ -742,7 +611,7 @@
     }
 
     // Repair button
-    $("repair-label").textContent = t.auth.repair;
+    $("repair-label").textContent = t.actions.repair;
     $("repair").disabled = busy || !state.installed || !!cfg.wait;
 
     var setDirChange = $("set-dir-change");
@@ -843,25 +712,9 @@
       t.classList.toggle("active", t.dataset.tab === name);
     });
     var settingsSec = $("settings");
-    var accountSec = $("account");
     if (settingsSec) settingsSec.hidden = (name !== "settings");
-    if (accountSec) accountSec.hidden = (name !== "account");
-    $("notices").hidden = (name === "settings" || name === "account");
+    $("notices").hidden = (name === "settings");
     $("notices").classList.toggle("wide", name === "news");
-  }
-
-  function setAuthFeedback(msg, type) {
-    var fb = $("auth-status-msg");
-    if (!fb) return;
-    if (!msg) {
-      fb.hidden = true;
-      fb.textContent = "";
-      fb.className = "auth-status-msg";
-      return;
-    }
-    fb.hidden = false;
-    fb.textContent = msg;
-    fb.className = "auth-status-msg " + (type || "waiting");
   }
 
   function handle(m) {
@@ -904,118 +757,6 @@
         remoteNews = m.items;
         renderNews(remoteNews);
         break;
-      case "auth_result":
-        var tAuth = I18N[currentLang].auth;
-        if ($("btn-do-register")) {
-          $("btn-do-register").disabled = !isRegistrationEnabled;
-          $("btn-do-register").textContent = isRegistrationEnabled ? tAuth.register : ui("regUnavailable");
-        }
-        if ($("btn-do-login")) {
-          $("btn-do-login").disabled = false;
-          $("btn-do-login").textContent = tAuth.login;
-        }
-        setAuthFeedback(m.message, m.success ? "success" : "error");
-        var msg = (m.message || "").toLowerCase();
-        var needsCode = msg.indexOf("código") >= 0 || msg.indexOf("codigo") >= 0 || msg.indexOf("verificar") >= 0 ||
-                       msg.indexOf("code") >= 0 || msg.indexOf("verify") >= 0;
-        if (needsCode) {
-          if ($("auth-code-group")) $("auth-code-group").hidden = false;
-          if ($("btn-verify-email")) $("btn-verify-email").hidden = false;
-          if ($("auth-verify-row")) $("auth-verify-row").hidden = false;
-          // El registro pide verificar el correo: mantener el formulario abierto en modo login
-          // para que el campo de codigo sea visible y el usuario pueda verificar.
-          var formsOpen = $("account-forms");
-          if (formsOpen) formsOpen.hidden = false;
-          var loggedHide = $("account-logged");
-          if (loggedHide) loggedHide.hidden = true;
-          var modeLogin = $("auth-mode-login");
-          var modeReg = $("auth-mode-register");
-          if (modeLogin && modeReg && !modeReg.hidden) {
-            modeReg.hidden = true;
-            modeLogin.hidden = false;
-            var tabL = $("auth-tab-login"), tabR = $("auth-tab-register");
-            if (tabL) tabL.classList.add("active");
-            if (tabR) tabR.classList.remove("active");
-          }
-        }
-        if (m.success && m.username && !needsCode) {
-          var loggedName = $("logged-username");
-          if (loggedName) loggedName.textContent = m.username;
-          var loggedBox = $("account-logged");
-          var formsBox = $("account-forms");
-          if (loggedBox) loggedBox.hidden = false;
-          if (formsBox) formsBox.hidden = true;
-          if ($("auth-input-pass")) $("auth-input-pass").value = "";
-          if ($("auth-input-reg-pass")) $("auth-input-reg-pass").value = "";
-          if ($("auth-input-pass-confirm")) $("auth-input-pass-confirm").value = "";
-        }
-        break;
-      case "auth_status":
-        setAuthFeedback(m.message, m.status || "waiting");
-        break;
-      case "auth_current":
-        var loggedName = $("logged-username");
-        var loggedBox = $("account-logged");
-        var formsBox = $("account-forms");
-        // Signed in only when the host says so; a remembered account just pre-fills the login form.
-        if (m.username && m.loggedIn !== false) {
-          if (loggedName) loggedName.textContent = m.username;
-          if (loggedBox) loggedBox.hidden = false;
-          if (formsBox) formsBox.hidden = true;
-          if ($("auth-input-user")) $("auth-input-user").value = m.username;
-        } else {
-          if (loggedBox) loggedBox.hidden = true;
-          if (formsBox) formsBox.hidden = false;
-          if (m.remembered && $("auth-input-user") && !$("auth-input-user").value) {
-            $("auth-input-user").value = m.remembered;
-          }
-          if ($("auth-remember")) $("auth-remember").checked = !!m.remembered;
-        }
-        break;
-      case "registration_status":
-        updateRegistrationState(m.enabled, m.message);
-        break;
-    }
-  }
-
-  var isRegistrationEnabled = true;
-
-  function updateRegistrationState(enabled, message) {
-    isRegistrationEnabled = !!enabled;
-    var banner = $("auth-reg-disabled");
-    var btnReg = $("btn-do-register");
-    var userField = $("auth-input-reg-user");
-    var emailField = $("auth-input-email");
-    var passField = $("auth-input-reg-pass");
-    var confirmField = $("auth-input-pass-confirm");
-    var tabReg = $("auth-tab-register");
-
-    if (isRegistrationEnabled) {
-      if (banner) banner.hidden = true;
-      if (btnReg) {
-        btnReg.disabled = false;
-        btnReg.textContent = (I18N[currentLang] && I18N[currentLang].auth) ? I18N[currentLang].auth.register : ui("authTabRegister");
-      }
-      if (userField) userField.disabled = false;
-      if (emailField) emailField.disabled = false;
-      if (passField) passField.disabled = false;
-      if (confirmField) confirmField.disabled = false;
-      if (tabReg) tabReg.title = ui("regTabTitle");
-    } else {
-      if (banner) {
-        banner.hidden = false;
-        var span = banner.querySelector("span:last-child");
-        if (span) span.textContent = ui("regDisabled");
-      }
-      if (btnReg) {
-        btnReg.disabled = true;
-        btnReg.textContent = ui("regUnavailable");
-      }
-      if (userField) userField.disabled = true;
-      if (emailField) emailField.disabled = true;
-      if (passField) passField.disabled = true;
-      if (confirmField) confirmField.disabled = true;
-      if (tabReg) tabReg.title = ui("regTabDisabled");
     }
   }
 
@@ -1091,15 +832,6 @@
 
     // Buttons
     $("primary").onclick = function () {
-      if (!busy && state.phase === "needs-auth") {
-        var forms = $("account-forms");
-        var logged = $("account-logged");
-        if (forms) {
-          forms.hidden = false;
-          if (logged) logged.hidden = true;
-        }
-        return;
-      }
       send({ cmd: busy ? "pause" : "primary" });
     };
     $("repair").onclick = function () { send({ cmd: "repair" }); };
@@ -1109,151 +841,6 @@
 
     var setOpen = $("set-open");
     if (setOpen) setOpen.onclick = function () { send({ cmd: "openDir" }); };
-
-    // Auth mode tabs: login vs register
-    var lastAuthUser = "";
-    function setAuthMode(mode) {
-      var tabLogin = $("auth-tab-login"), tabReg = $("auth-tab-register");
-      var boxLogin = $("auth-mode-login"), boxReg = $("auth-mode-register");
-      if (!boxLogin || !boxReg) return;
-      boxLogin.hidden = mode !== "login";
-      boxReg.hidden = mode !== "register";
-      if (tabLogin) tabLogin.classList.toggle("active", mode === "login");
-      if (tabReg) tabReg.classList.toggle("active", mode === "register");
-      setAuthFeedback("");
-    }
-    var tabLoginBtn = $("auth-tab-login");
-    if (tabLoginBtn) tabLoginBtn.onclick = function () { setAuthMode("login"); };
-    var tabRegBtn = $("auth-tab-register");
-    if (tabRegBtn) tabRegBtn.onclick = function () { setAuthMode("register"); };
-
-    // Auth actions
-    var btnReg = $("btn-do-register");
-    if (btnReg) {
-      btnReg.onclick = function () {
-        if (!isRegistrationEnabled) {
-          setAuthFeedback(ui("regDisabled"), "error");
-          return;
-        }
-        var u = ($("auth-input-reg-user") ? $("auth-input-reg-user").value : "").trim();
-        var e = ($("auth-input-email") ? $("auth-input-email").value : "").trim();
-        var p = $("auth-input-reg-pass") ? $("auth-input-reg-pass").value : "";
-        var p2 = $("auth-input-pass-confirm") ? $("auth-input-pass-confirm").value : "";
-        if (!u || !p || !p2) {
-          setAuthFeedback(ui("fbRequired"), "error");
-          return;
-        }
-        if (u.length < 3) {
-          setAuthFeedback(ui("fbUserLength"), "error");
-          return;
-        }
-        if (p.length < 6) {
-          setAuthFeedback(ui("fbPassLength"), "error");
-          return;
-        }
-        if (p !== p2) {
-          setAuthFeedback(ui("fbPassMismatch"), "error");
-          return;
-        }
-        setAuthFeedback(ui("fbCreating"), "waiting");
-        lastAuthUser = u;
-        if ($("auth-input-user")) $("auth-input-user").value = u;
-        btnReg.disabled = true;
-        btnReg.textContent = I18N[currentLang].auth.creating;
-        send({ cmd: "auth_register_local", username: u, email: e, password: p, confirmPassword: p2, remember: rememberChecked() });
-      };
-    }
-
-    var btnLogin = $("btn-do-login");
-    if (btnLogin) {
-      btnLogin.onclick = function () {
-        var u = ($("auth-input-user") ? $("auth-input-user").value : "").trim();
-        var p = $("auth-input-pass") ? $("auth-input-pass").value : "";
-        if (!u || !p) {
-          setAuthFeedback(ui("fbLoginMissing"), "error");
-          return;
-        }
-        setAuthFeedback(ui("fbSigningIn"), "waiting");
-        btnLogin.disabled = true;
-        btnLogin.textContent = I18N[currentLang].auth.verifying;
-        send({ cmd: "auth_login_local", username: u, password: p, remember: rememberChecked() });
-      };
-    }
-
-    // "Remember me" stores only the account name on this PC; the password is never stored.
-    function rememberChecked() {
-      var box = $("auth-remember");
-      return !!(box && box.checked);
-    }
-
-    // Submit on Enter keypress
-    var enterOn = function (id, btn) {
-      var el = $(id);
-      if (el && btn) {
-        el.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            btn.click();
-          }
-        });
-      }
-    };
-    enterOn("auth-input-user", btnLogin);
-    enterOn("auth-input-pass", btnLogin);
-    enterOn("auth-input-reg-user", btnReg);
-    enterOn("auth-input-email", btnReg);
-    enterOn("auth-input-reg-pass", btnReg);
-    enterOn("auth-input-pass-confirm", btnReg);
-
-
-
-    var btnVerify = $("btn-verify-email");
-    if (btnVerify) {
-      btnVerify.onclick = function () {
-        var u = ($("auth-input-user") ? $("auth-input-user").value : "").trim() || lastAuthUser;
-        var code = $("auth-input-code") ? $("auth-input-code").value.trim() : "";
-        send({ cmd: "auth_verify_email", username: u, code: code });
-      };
-    }
-
-    var btnForgot = $("btn-forgot-password");
-    if (btnForgot) {
-      btnForgot.onclick = function () {
-        var e = ($("auth-input-email") ? $("auth-input-email").value : "").trim();
-        if (!e) {
-          var u = ($("auth-input-user") ? $("auth-input-user").value : "").trim();
-          e = u.indexOf("@") !== -1 ? u : "";
-        }
-        if (!e) {
-          setAuthFeedback(ui("fbForgot"), "error");
-          return;
-        }
-        send({ cmd: "auth_request_reset", email: e });
-      };
-    }
-
-    var btnReset = $("btn-reset-password");
-    if (btnReset) {
-      btnReset.onclick = function () {
-        var u = ($("auth-input-user") ? $("auth-input-user").value : "").trim();
-        var code = $("auth-input-reset-code") ? $("auth-input-reset-code").value.trim() : "";
-        var p = $("auth-input-reset-pass") ? $("auth-input-reset-pass").value : "";
-        var p2 = p;
-        send({ cmd: "auth_reset_password", username: u, code: code, password: p, confirmPassword: p2 });
-      };
-    }
-
-    var btnSwitch = $("btn-account-switch");
-    if (btnSwitch) {
-      btnSwitch.onclick = function () {
-        var loggedBox = $("account-logged");
-        var formsBox = $("account-forms");
-        if (loggedBox) loggedBox.hidden = true;
-        if (formsBox) formsBox.hidden = false;
-        setAuthFeedback("");
-        send({ cmd: "auth_switch_account" });
-      };
-    }
   }
 
   // Mock host for testing in a plain web browser

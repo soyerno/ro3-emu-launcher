@@ -5,14 +5,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using Ro3Emu.Launcher.Auth;
 using Ro3Emu.Launcher.GenesisInstall;
 using Ro3Emu.Patcher;
 
@@ -86,10 +83,6 @@ public sealed class LauncherController : IDisposable
 
 	private bool _started;
 
-	private string? _sdkToken;
-
-	private string? _sdkAccount;
-	private bool _registrationEnabled = true;
 	private TunnelManager _tunnels;
 
 	/// <summary>The realm the player plays on: its server answers every call and its tunnels are the open ones.</summary>
@@ -198,135 +191,6 @@ public sealed class LauncherController : IDisposable
 		}
 		switch (text)
 		{
-		case "auth_register_local":
-		{
-			string text9 = (message.TryGetProperty("username", out var value11) ? value11.GetString() : null);
-			string text10 = (message.TryGetProperty("password", out var value12) ? value12.GetString() : null);
-			string email = (message.TryGetProperty("email", out var value13) ? value13.GetString() : null);
-			string confirm = (message.TryGetProperty("confirmPassword", out var value14) ? value14.GetString() : null);
-			AuthResult authResult7 = await RegisterAsync(text9 ?? "", text10 ?? "", email, confirm, ReadRemember(message));
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult7.Success,
-				message = authResult7.Message,
-				username = authResult7.Username
-			});
-			break;
-		}
-		case "auth_login_local":
-		{
-			string text5 = (message.TryGetProperty("username", out var value7) ? value7.GetString() : null);
-			string text6 = (message.TryGetProperty("password", out var value8) ? value8.GetString() : null);
-			AuthResult authResult5 = await LoginAsync(text5 ?? "", text6 ?? "", ReadRemember(message));
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult5.Success,
-				message = authResult5.Message,
-				username = authResult5.Username
-			});
-			break;
-		}
-		case "auth_verify_email":
-		{
-			string text7 = (message.TryGetProperty("username", out var value9) ? value9.GetString() : null);
-			string text8 = (message.TryGetProperty("code", out var value10) ? value10.GetString() : null);
-			AuthResult authResult6 = await VerifyEmailAsync(text7 ?? "", text8 ?? "");
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult6.Success,
-				message = authResult6.Message,
-				username = authResult6.Username
-			});
-			break;
-		}
-		case "auth_request_reset":
-		{
-			AuthResult authResult4 = await AuthDb.RequestPasswordResetAsync((message.TryGetProperty("email", out var value6) ? value6.GetString() : null) ?? "");
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult4.Success,
-				message = authResult4.Message,
-				username = authResult4.Username
-			});
-			break;
-		}
-		case "auth_reset_password":
-		{
-			object obj = (message.TryGetProperty("username", out var value2) ? value2.GetString() : null);
-			string text2 = (message.TryGetProperty("code", out var value3) ? value3.GetString() : null);
-			string text3 = (message.TryGetProperty("password", out var value4) ? value4.GetString() : null);
-			string text4 = (message.TryGetProperty("confirmPassword", out var value5) ? value5.GetString() : null);
-			if (obj == null)
-			{
-				obj = "";
-			}
-			AuthResult authResult3 = await AuthDb.ResetPasswordAsync((string)obj, text2 ?? "", text3 ?? "", text4 ?? "");
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult3.Success,
-				message = authResult3.Message,
-				username = authResult3.Username
-			});
-			break;
-		}
-		case "auth_google":
-		{
-			_post(new
-			{
-				type = "auth_status",
-				status = "waiting",
-				message = "Abriendo Google en tu navegador..."
-			});
-			AuthResult authResult2 = await OAuthHelper.StartGoogleAuthAsync(_life.Token);
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult2.Success,
-				message = authResult2.Message,
-				username = authResult2.Username,
-				provider = "google"
-			});
-			break;
-		}
-		case "auth_microsoft":
-		{
-			_post(new
-			{
-				type = "auth_status",
-				status = "waiting",
-				message = "Abriendo Microsoft en tu navegador..."
-			});
-			AuthResult authResult = await OAuthHelper.StartMicrosoftAuthAsync(_life.Token);
-			_post(new
-			{
-				type = "auth_result",
-				success = authResult.Success,
-				message = authResult.Message,
-				username = authResult.Username,
-				provider = "microsoft"
-			});
-			break;
-		}
-		case "auth_switch_account":
-		{
-			_sdkToken = null;
-			_sdkAccount = null;
-			SessionStore.Clear();
-			_post(new
-			{
-				type = "auth_current",
-				username = (string?)null
-			});
-			break;
-		}
-		case "auth_get_registration_status":
-			await CheckRegistrationStatusAsync();
-			break;
 		case "language":
 		{
 			if (message.TryGetProperty("lang", out var langProp) && langProp.GetString() is string l)
@@ -339,9 +203,6 @@ public sealed class LauncherController : IDisposable
 		}
 		case "realm":
 			await SelectRealmAsync(message.TryGetProperty("id", out var realmProp) ? realmProp.GetString() : null);
-			break;
-		case "auth_get_last":
-			await PostInitialAuthAsync();
 			break;
 		case "openUrl":
 		{
@@ -378,7 +239,6 @@ public sealed class LauncherController : IDisposable
 			if (!_started)
 			{
 				_started = true;
-				_ = InitializeSessionAsync();
 				// Before the tunnels: the update may replace cloudflared.exe and change the realms and their tunnels.
 				if (!await RunStartupUpdateAsync())
 				{
@@ -386,7 +246,6 @@ public sealed class LauncherController : IDisposable
 				}
 				_ = StartTunnelsAndPingAsync();
 				_ = LoadNewsAsync();
-				_ = CheckRegistrationStatusAsync();
 			}
 			await CheckAsync();
 			if (_updateNotice != null && _phase == "ready")
@@ -555,310 +414,6 @@ public sealed class LauncherController : IDisposable
 		if (_started)
 		{
 			_ = StartTunnelsAndPingAsync();
-		}
-	}
-
-	private async Task InitializeSessionAsync()
-	{
-		try
-		{
-			await AuthDb.InitializeAsync().ConfigureAwait(false);
-			// No auto-login: only the remembered account name is pre-filled; the player types the password.
-			PostCurrentAccount();
-		}
-		catch (Exception ex)
-		{
-			Trace("InitializeSessionAsync error: " + ex.Message);
-		}
-	}
-
-	private Task PostInitialAuthAsync()
-	{
-		PostCurrentAccount();
-		return Task.CompletedTask;
-	}
-
-	/// <summary>
-	/// Tells the UI who is signed in this session; otherwise sends the remembered account (if any)
-	/// so the login form can pre-fill it, without treating it as signed in.
-	/// </summary>
-	private void PostCurrentAccount()
-	{
-		if (!string.IsNullOrEmpty(_sdkAccount))
-		{
-			_post(new
-			{
-				type = "auth_current",
-				username = _sdkAccount,
-				loggedIn = true,
-				remembered = (string?)null
-			});
-			return;
-		}
-		_post(new
-		{
-			type = "auth_current",
-			username = (string?)null,
-			loggedIn = false,
-			remembered = SessionStore.Load()
-		});
-	}
-
-	private static bool ReadRemember(JsonElement message)
-	{
-		return message.TryGetProperty("remember", out var value) && value.ValueKind == JsonValueKind.True;
-	}
-
-	private static void RememberAccount(string account, bool remember)
-	{
-		if (remember)
-		{
-			SessionStore.Save(account);
-		}
-		else
-		{
-			SessionStore.Clear();
-		}
-	}
-
-	private async Task<AuthResult> LoginAsync(string identity, string password, bool remember)
-	{
-		if (string.IsNullOrWhiteSpace(identity) || string.IsNullOrWhiteSpace(password))
-		{
-			return new AuthResult(Success: false, Strings.Get("login.missing"), identity);
-		}
-
-		identity = identity.Trim();
-
-		string? server = _realm.ServerBaseUrl;
-		if (server == null)
-		{
-			return new AuthResult(Success: false, _realm.ServerError!, identity);
-		}
-
-		foreach (string ep in new[] { server + "/sdk/login" })
-		{
-			try
-			{
-				using FormUrlEncodedContent form = new FormUrlEncodedContent(new[]
-				{
-					new KeyValuePair<string, string>("identity", identity),
-					new KeyValuePair<string, string>("credential", password)
-				});
-
-				using HttpResponseMessage response = await _http.PostAsync(ep, form, _life.Token);
-				if (response.IsSuccessStatusCode)
-				{
-					string body = await response.Content.ReadAsStringAsync(_life.Token);
-					using JsonDocument doc = JsonDocument.Parse(body);
-					int code = doc.RootElement.TryGetProperty("code", out var codeVal) ? codeVal.GetInt32() : -1;
-
-					if (code == 0)
-					{
-						string? token = null;
-						if (doc.RootElement.TryGetProperty("data", out var dataVal) &&
-							dataVal.TryGetProperty("token", out var tokVal))
-						{
-							token = tokVal.GetString();
-						}
-
-						_sdkToken = token;
-						_sdkAccount = identity;
-						RememberAccount(identity, remember);
-						_ = AuthDb.RecordLoginAsync(identity);
-						Trace($"Sign-in succeeded for {identity} via {ep}");
-						return new AuthResult(Success: true, Strings.Get("login.welcome", identity), identity);
-					}
-					else if (code == 401)
-					{
-						return new AuthResult(Success: false, Strings.Get("login.invalid"), identity);
-					}
-					else if (code == 403)
-					{
-						return new AuthResult(Success: false, Strings.Get("login.forbidden"), identity);
-					}
-				}
-			}
-			catch (Exception ex) when (!(ex is OperationCanceledException))
-			{
-				Trace($"Sign-in failed at {ep}: {ex.Message}");
-			}
-		}
-
-		// Fallback offline a AuthDb local
-		try
-		{
-			AuthResult local = await AuthDb.VerifyLocalAsync(identity, password);
-			if (local.Success && local.Username != null)
-			{
-				_sdkAccount = local.Username;
-				RememberAccount(local.Username, remember);
-				Trace($"Offline local sign-in for {local.Username}");
-				return new AuthResult(Success: true, Strings.Get("login.offline", local.Username), local.Username);
-			}
-		}
-		catch { }
-
-		return new AuthResult(Success: false, Strings.Get("login.unreachable"), identity);
-	}
-
-	private async Task<AuthResult> RegisterAsync(string username, string password, string? email, string? confirm, bool remember)
-	{
-		if (!_registrationEnabled)
-		{
-			return new AuthResult(Success: false, Strings.Get("reg.disabled"), username);
-		}
-
-		username = (username ?? "").Trim();
-		password = password ?? "";
-
-		if (string.IsNullOrWhiteSpace(username))
-		{
-			return new AuthResult(Success: false, Strings.Get("reg.user.missing"), username);
-		}
-		if (username.Length < 3 || username.Length > 20)
-		{
-			return new AuthResult(Success: false, Strings.Get("reg.user.length"), username);
-		}
-		if (password.Length < 6)
-		{
-			return new AuthResult(Success: false, Strings.Get("reg.pass.length"), username);
-		}
-		if (password != confirm)
-		{
-			return new AuthResult(Success: false, Strings.Get("reg.pass.mismatch"), username);
-		}
-
-		string? server = _realm.ServerBaseUrl;
-		if (server == null)
-		{
-			return new AuthResult(Success: false, _realm.ServerError!, username);
-		}
-
-		foreach (string ep in new[] { server + "/sdk/login" })
-		{
-			try
-			{
-				var pairs = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("identity", username),
-					new KeyValuePair<string, string>("credential", password)
-				};
-				if (!string.IsNullOrEmpty(email))
-				{
-					pairs.Add(new KeyValuePair<string, string>("email", email));
-				}
-
-				using FormUrlEncodedContent form = new FormUrlEncodedContent(pairs);
-				using HttpResponseMessage response = await _http.PostAsync(ep, form, _life.Token);
-				if (response.IsSuccessStatusCode)
-				{
-					string body = await response.Content.ReadAsStringAsync(_life.Token);
-					using JsonDocument doc = JsonDocument.Parse(body);
-					int code = doc.RootElement.TryGetProperty("code", out var codeVal) ? codeVal.GetInt32() : -1;
-
-					if (code == 0)
-					{
-						string? token = null;
-						if (doc.RootElement.TryGetProperty("data", out var dataVal) &&
-							dataVal.TryGetProperty("token", out var tokVal))
-						{
-							token = tokVal.GetString();
-						}
-
-						_sdkToken = token;
-						_sdkAccount = username;
-						RememberAccount(username, remember);
-						_ = AuthDb.RecordLoginAsync(username);
-						try
-						{
-							_ = AuthDb.RegisterLocalAsync(username, password, email, confirm);
-						}
-						catch { }
-
-						Trace($"Registration succeeded for {username} via {ep}");
-						return new AuthResult(Success: true, Strings.Get("reg.ok", username), username);
-					}
-					else if (code == 409)
-					{
-						return new AuthResult(Success: false, Strings.Get("reg.conflict", username), username);
-					}
-					else if (code == 401)
-					{
-						return new AuthResult(Success: false, Strings.Get("reg.exists", username), username);
-					}
-					else if (code == 403)
-					{
-						return new AuthResult(Success: false, Strings.Get("reg.disabled.short"), username);
-					}
-				}
-			}
-			catch (Exception ex) when (!(ex is OperationCanceledException))
-			{
-				Trace($"Registration failed at {ep}: {ex.Message}");
-			}
-		}
-
-		return new AuthResult(Success: false, Strings.Get("reg.unreachable"), username);
-	}
-
-	private async Task<AuthResult> VerifyEmailAsync(string username, string code)
-	{
-		string? text = _realm.ServerBaseUrl;
-		if (!string.IsNullOrEmpty(text))
-		{
-			try
-			{
-				using StringContent payload = new StringContent(JsonSerializer.Serialize(new { username, code }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
-				using HttpResponseMessage response = await _http.PostAsync(text + "/api/auth/verify", payload, _life.Token);
-				using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
-				int num = (jsonDocument.RootElement.TryGetProperty("code", out var value) ? value.GetInt32() : (-1));
-				string message = (jsonDocument.RootElement.TryGetProperty("message", out var value2) ? (value2.GetString() ?? "") : "");
-				string username2 = (jsonDocument.RootElement.TryGetProperty("username", out var value3) ? (value3.GetString() ?? username) : username);
-				return new AuthResult(num == 0, message, username2);
-			}
-			catch (Exception ex) when (!(ex is OperationCanceledException))
-			{
-			}
-		}
-		return await AuthDb.VerifyEmailAsync(username, code);
-	}
-
-	private async Task FetchSdkTokenAsync(string username, string password)
-	{
-		_ = 1;
-		try
-		{
-			string? text = _realm.ServerBaseUrl;
-			if (string.IsNullOrEmpty(text))
-			{
-				return;
-			}
-			using MultipartFormDataContent form = new MultipartFormDataContent
-			{
-				{
-					new StringContent(username),
-					"identity"
-				},
-				{
-					new StringContent(password),
-					"credential"
-				}
-			};
-			using HttpResponseMessage response = await _http.PostAsync(text + "/sdk/login", form, _life.Token);
-			if (!response.IsSuccessStatusCode)
-			{
-				return;
-			}
-			using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
-			if (jsonDocument.RootElement.TryGetProperty("code", out var value) && value.GetInt32() == 0 && jsonDocument.RootElement.TryGetProperty("data", out var value2) && value2.TryGetProperty("token", out var value3))
-			{
-				_sdkToken = value3.GetString();
-				_sdkAccount = username;
-			}
-		}
-		catch (Exception)
-		{
 		}
 	}
 
@@ -1280,10 +835,9 @@ public sealed class LauncherController : IDisposable
 		}
 
 		PostState("launching", Strings.Get("state.patching"));
-		// Only an account signed in during this session is passed on; a merely remembered name is not a session.
-		string? accountToUse = _sdkAccount;
-		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', realm='{realm.Id}', account='{accountToUse}'...");
-		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, realm.ServerBaseUrl, baseDir, accountToUse, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
+		// No account is passed on: players sign in inside the game.
+		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', realm='{realm.Id}'...");
+		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, realm.ServerBaseUrl, baseDir, null, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
 		string? err = await Join();
 		if (err != null && GameOrchestrator.LastJoinNeedsOfficialFiles)
 		{
@@ -1427,41 +981,6 @@ public sealed class LauncherController : IDisposable
 		}
 	}
 
-
-	private async Task<string?> FetchLaunchCodeAsync(string? token)
-	{
-		if (string.IsNullOrEmpty(token))
-		{
-			return null;
-		}
-		string? server = _realm.ServerBaseUrl;
-		if (string.IsNullOrEmpty(server))
-		{
-			return null;
-		}
-		try
-		{
-			using StringContent payload = new StringContent(JsonSerializer.Serialize(new { token }), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
-			using HttpResponseMessage response = await _http.PostAsync(server + "/api/auth/launchcode", payload, _life.Token);
-			Trace($"launchcode: {(int)response.StatusCode} from {server}");
-			if (!response.IsSuccessStatusCode)
-			{
-				return null;
-			}
-			using JsonDocument jsonDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(_life.Token));
-			if (jsonDocument.RootElement.TryGetProperty("code", out var value) && value.GetInt32() == 0 && jsonDocument.RootElement.TryGetProperty("data", out var value2) && value2.TryGetProperty("launch_code", out var value3))
-			{
-				return value3.GetString();
-			}
-			Trace("launchcode: body code != 0");
-		}
-		catch (Exception ex)
-		{
-			Trace("launchcode failed: " + ex.GetType().Name + ": " + ex.Message);
-		}
-		return null;
-	}
-
 	private async Task ChangeDirectoryAsync()
 	{
 		if (_work != null)
@@ -1482,63 +1001,6 @@ public sealed class LauncherController : IDisposable
 			PostSettings();
 			await CheckAsync();
 		}
-	}
-
-	private async Task CheckRegistrationStatusAsync()
-	{
-		if (!LauncherConfig.TryParseHttpUrl(_config.StatusUrl, out Uri? statusUri))
-		{
-			PostRegistrationStatus();
-			return;
-		}
-
-		foreach (string ep in new[] { statusUri!.AbsoluteUri })
-		{
-			try
-			{
-				using HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, ep);
-				req.Headers.Add("User-Agent", "Ro3Launcher");
-				using HttpResponseMessage resp = await _http.SendAsync(req, _life.Token);
-				if (resp.IsSuccessStatusCode)
-				{
-					string json = await resp.Content.ReadAsStringAsync(_life.Token);
-					using JsonDocument doc = JsonDocument.Parse(json);
-					bool enabled = true;
-					if (doc.RootElement.TryGetProperty("enabled", out var prop))
-					{
-						enabled = prop.GetBoolean();
-					}
-					else if (doc.RootElement.TryGetProperty("registration_enabled", out var prop2))
-					{
-						enabled = prop2.GetBoolean();
-					}
-
-					if (_registrationEnabled != enabled)
-					{
-						_registrationEnabled = enabled;
-						Trace($"Registration status updated: enabled={_registrationEnabled}");
-					}
-
-					PostRegistrationStatus();
-					return;
-				}
-			}
-			catch { }
-		}
-
-		PostRegistrationStatus();
-	}
-
-	private void PostRegistrationStatus()
-	{
-		_post(new
-		{
-			type = "registration_status",
-			enabled = _registrationEnabled,
-			message = _registrationEnabled
-				? Strings.Get("reg.available")
-				: Strings.Get("reg.disabled")
-		});
 	}
 
 	/// <summary>Reports the status of the selected realm's server until <paramref name="ct"/>, the realm's lifetime, ends.</summary>
@@ -1583,7 +1045,6 @@ public sealed class LauncherController : IDisposable
 				online = online,
 				players = players
 			});
-			_ = CheckRegistrationStatusAsync();
 			try
 			{
 				await Task.Delay(TimeSpan.FromSeconds(30L), ct);
