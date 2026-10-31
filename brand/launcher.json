@@ -14,7 +14,7 @@
   "realms": [
     {
       "id": "prontera",
-      "name": "Prontera (5x)",
+      "name": "Prontera (5x) · Konsor High",
       "server": "http://127.0.0.1:5380",
       "tunnels": [
         {
@@ -33,7 +33,7 @@
     },
     {
       "id": "payon",
-      "name": "Payon (1x)",
+      "name": "Payon (1x) · Konsor Low",
       "server": "http://127.0.0.1:5390",
       "tunnels": [
         {

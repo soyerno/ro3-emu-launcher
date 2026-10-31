@@ -632,22 +632,49 @@ a { color: inherit; text-decoration: none; }
 .dock-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
 /* Realm picker, shown only when launcher.json lists more than one realm */
-.realm-picker { display: flex; flex-direction: column; gap: 3px; }
+.realm-picker { position: relative; display: flex; }
 .realm-picker[hidden] { display: none; }
-.realm-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.realm-select {
-  height: 30px;
-  min-width: 132px;
-  padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
+/* The label floats above the select so the select lines up with the dock buttons (44px). */
+.realm-label {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
 }
-.realm-select:disabled { opacity: 0.55; cursor: not-allowed; }
+/* Same look as .btn-ghost (Repair) next to it */
+.realm-select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 44px;
+  min-width: 190px;
+  padding: 0 38px 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--slate);
+  background-color: rgba(255, 255, 255, 0.55);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23556' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.realm-select:hover:not(:disabled), .realm-select:focus-visible {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: var(--primary-a);
+  color: var(--primary-a);
+  outline: none;
+}
+.realm-select option { color: var(--ink); background: #ffffff; font-weight: 500; }
+.realm-select:disabled { filter: opacity(0.5); cursor: not-allowed; }
 
 /* Botón secundario compacto (Reparar) */
 .btn-ghost {
