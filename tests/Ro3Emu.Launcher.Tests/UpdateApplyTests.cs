@@ -159,6 +159,19 @@ public class RemoteConfigOverlayTests
 	}
 
 	[Fact]
+	public void ManifestConfigWithServerButNoRealms_ReplacesTheInheritedRealms()
+	{
+		JsonObject config = new() { ["server"] = "http://127.0.0.1:6000" };
+		RemoteManifest manifest = RemoteManifest.Parse(ManifestJson.Build(4, config: config));
+
+		LauncherConfig merged = LauncherConfig.Parse(BaseJson, manifest);
+
+		RealmSpec realm = Assert.Single(merged.GetRealms());
+		Assert.Equal(RealmSpec.ImplicitId, realm.Id);
+		Assert.Equal("http://127.0.0.1:6000", realm.ServerBaseUrl);
+	}
+
+	[Fact]
 	public void ManifestConfig_CannotReplaceTheUpdateSourceOrItsKey()
 	{
 		JsonObject config = new()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -181,20 +182,55 @@ public sealed class LauncherConfig
 	public static LauncherConfig Load(string besideExe, RemoteManifest? remote = null)
 	{
 		JsonObject merged = ReadEmbedded() ?? new JsonObject();
+		string dir = Path.GetDirectoryName(Path.GetFullPath(besideExe)) ?? AppContext.BaseDirectory;
+		Action<string> log = source => AppendLog(dir, $"{source} sets server/tunnels without realms: inherited realms dropped");
 		try
 		{
-			if (File.Exists(besideExe) && JsonNode.Parse(File.ReadAllBytes(besideExe), null, NodeOptions) is JsonObject disk)
+			if (File.Exists(besideExe) && JsonNode.Parse(File.ReadAllBytes(besideExe), null, NodeOptions) is JsonObject disk
+				&& Overlay(merged, disk, disk.Select(f => f.Key).ToList()))
 			{
-				foreach (KeyValuePair<string, JsonNode?> field in disk)
-				{
-					merged[field.Key] = field.Value?.DeepClone();
-				}
+				log("launcher.json beside the exe");
 			}
 		}
 		catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
 		{
 		}
-		return FromJson(merged, remote);
+		return FromJson(merged, remote, log);
+	}
+
+	/// <summary>
+	/// Copies <paramref name="fields"/> of <paramref name="layer"/> over <paramref name="merged"/>. A layer that sets
+	/// server or tunnels but not realms drops the inherited realms and defaultRealm, so its own server and tunnels form
+	/// the implicit realm (see <see cref="GetRealms"/>). Returns true when inherited realms were dropped.
+	/// </summary>
+	private static bool Overlay(JsonObject merged, JsonObject layer, IReadOnlyCollection<string> fields)
+	{
+		bool drop = !layer.ContainsKey("realms") && merged["realms"] is JsonArray { Count: > 0 }
+			&& fields.Any(f => f is "server" or "tunnels" && layer.ContainsKey(f));
+		if (drop)
+		{
+			merged.Remove("realms");
+			merged.Remove("defaultRealm");
+		}
+		foreach (string field in fields)
+		{
+			if (layer.TryGetPropertyValue(field, out JsonNode? value))
+			{
+				merged[field] = value?.DeepClone();
+			}
+		}
+		return drop;
+	}
+
+	private static void AppendLog(string dir, string message)
+	{
+		try
+		{
+			File.AppendAllText(Path.Combine(dir, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
+		}
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+		{
+		}
 	}
 
 	/// <summary>A configuration from launcher.json text alone (plus an optional manifest overlay), without the embedded defaults. Invalid JSON gives the defaults.</summary>
@@ -210,19 +246,16 @@ public sealed class LauncherConfig
 		}
 	}
 
-	private static LauncherConfig FromJson(JsonObject node, RemoteManifest? remote)
+	private static LauncherConfig FromJson(JsonObject node, RemoteManifest? remote, Action<string>? log = null)
 	{
 		if (remote?.Config is not { } overlay)
 		{
 			return FromJson(node);
 		}
 		JsonObject withOverlay = (JsonObject)node.DeepClone();
-		foreach (string field in RemoteFields)
+		if (Overlay(withOverlay, overlay, RemoteFields))
 		{
-			if (overlay.TryGetPropertyValue(field, out JsonNode? value))
-			{
-				withOverlay[field] = value?.DeepClone();
-			}
+			log?.Invoke("manifest config");
 		}
 		try
 		{

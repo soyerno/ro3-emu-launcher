@@ -110,6 +110,45 @@ public class RealmTests
 		}
 	}
 
+	[Fact]
+	public void AFileBesideTheExeWithServerAndTunnelsButNoRealms_ReplacesTheEmbeddedRealms()
+	{
+		string dir = Path.Combine(Path.GetTempPath(), "ro3-realm-test-" + Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(dir);
+		string path = Path.Combine(dir, "launcher.json");
+		File.WriteAllText(path, """{ "server": "http://127.0.0.1:6000", "tunnels": [ { "hostname": "local.example.test", "port": 6000 } ] }""");
+		try
+		{
+			LauncherConfig config = LauncherConfig.Load(path);
+
+			RealmSpec realm = Assert.Single(config.GetRealms());
+			Assert.Equal(RealmSpec.ImplicitId, realm.Id);
+			Assert.Equal("http://127.0.0.1:6000", realm.ServerBaseUrl);
+			Assert.Equal(("local.example.test", 6000), (realm.Tunnels.Single().Hostname, realm.Tunnels.Single().Port));
+			Assert.Same(realm, config.SelectRealm(null));
+			Assert.Contains("realms", File.ReadAllText(Path.Combine(dir, "launcher.log")));
+		}
+		finally
+		{
+			Directory.Delete(dir, true);
+		}
+	}
+
+	[Fact]
+	public void AFileBesideTheExeWithItsOwnRealms_ReplacesTheEmbeddedRealms()
+	{
+		string path = Path.Combine(Path.GetTempPath(), "ro3-realm-test-" + Guid.NewGuid().ToString("N") + ".json");
+		File.WriteAllText(path, """{ "server": "http://127.0.0.1:6000", "realms": [ { "id": "local", "server": "http://127.0.0.1:6100" } ] }""");
+		try
+		{
+			Assert.Equal("http://127.0.0.1:6100", Assert.Single(LauncherConfig.Load(path).GetRealms()).ServerBaseUrl);
+		}
+		finally
+		{
+			File.Delete(path);
+		}
+	}
+
 	// The embedded brand/launcher.json must match the realm table of konsor.ps1.
 	[Fact]
 	public void TheEmbeddedConfigHasTheKonsorRealms()
