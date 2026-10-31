@@ -530,13 +530,9 @@
   function renderServerStatus() {
     var t = I18N[currentLang].server;
     $("server").className = "server " + (serverData.online ? "on" : "off");
+    // Status only: the player count made the badge wide enough to overlap the top-bar buttons.
     if (serverData.online) {
-      var pText = "";
-      if (serverData.players != null) {
-        var unit = serverData.players === 1 ? t.player : t.players;
-        pText = " · " + serverData.players + " " + unit;
-      }
-      $("server-text").innerHTML = "<b>" + t.online + "</b>" + pText;
+      $("server-text").innerHTML = "<b>" + t.online + "</b>";
     } else {
       $("server-text").innerHTML = "<b>" + t.offline + "</b>";
     }
