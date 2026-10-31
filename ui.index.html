@@ -12,7 +12,6 @@
     <span class="star">✦</span>
     <button class="tab active" data-tab="home" id="tab-home" type="button">HOME</button>
     <button class="tab" data-tab="news" id="tab-news" type="button">NEWS</button>
-    <button class="tab" data-tab="account" id="tab-account" type="button">ACCOUNT</button>
     <button class="tab" data-tab="settings" id="tab-settings" type="button">SETTINGS</button>
     <a href="#" class="icon-link" id="tab-register" target="_blank" data-i18n-title="webTitle" title="Website">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/></svg>
@@ -95,101 +94,6 @@
     <p class="hint" id="settings-lang-hint">Selecciona el idioma del launcher y del cliente de juego.</p>
   </div>
   <p class="card-foot" id="set-version"></p>
-</section>
-
-<section class="card account" id="account" hidden>
-  <div class="account-forms" id="account-forms">
-    <div class="auth-mode-tabs" id="auth-mode-tabs">
-      <button class="auth-mode-tab active" data-mode="login" id="auth-tab-login" type="button">
-        <svg viewBox="0 0 24 24" class="auth-mode-icon"><path fill="currentColor" d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 12c4.42 0 8 1.8 8 4v4H4v-4c0-2.2 3.58-4 8-4z"/></svg>
-        <span data-i18n="authTabLogin">Sign in</span>
-      </button>
-      <button class="auth-mode-tab" data-mode="register" id="auth-tab-register" type="button">
-        <svg viewBox="0 0 24 24" class="auth-mode-icon"><path fill="currentColor" d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm6 8.5a3.5 3.5 0 1 1-2.5 5.95l-2.4 1.4.5.9-1.3.75-2.25-3.9 1.3-.75.5.87 2.4-1.38A3.5 3.5 0 0 1 18 10.5zM5 14c2.44 1.37 4 2.2 4 4v4H3v-4c0-1.8.7-3 2-4z"/></svg>
-        <span data-i18n="authTabRegister">Create account</span>
-      </button>
-    </div>
-
-    <p class="auth-status-msg" id="auth-status-msg" hidden></p>
-
-    <!-- MODO LOGIN -->
-    <div class="auth-mode" id="auth-mode-login">
-      <div class="auth-field-group">
-        <label class="field-label" for="auth-input-user" data-i18n="userLabel">Username or e-mail</label>
-        <input class="auth-text-input" type="text" id="auth-input-user" data-i18n-placeholder="userPlaceholder" placeholder="e.g. myname or you@email.com" maxlength="64" autocomplete="username">
-      </div>
-      <div class="auth-field-group">
-        <label class="field-label" for="auth-input-pass" data-i18n="passLabel">Password</label>
-        <input class="auth-text-input" type="password" id="auth-input-pass" data-i18n-placeholder="passPlaceholder" placeholder="Your password" autocomplete="current-password">
-      </div>
-      <label class="auth-remember" for="auth-remember">
-        <input type="checkbox" id="auth-remember">
-        <span data-i18n="rememberMe">Remember me</span>
-      </label>
-      <div class="row auth-btn-row">
-        <button class="btn-primary small auth-primary" id="btn-do-login" type="button">Sign in</button>
-      </div>
-      <div class="row auth-btn-row auth-links-row">
-        <button class="auth-link-btn" id="btn-forgot-password" type="button" data-i18n="forgot">I forgot my password</button>
-      </div>
-      <div class="auth-field-group" id="auth-code-group" hidden>
-        <label class="field-label" for="auth-input-code" data-i18n="codeLabel">Verification code</label>
-        <input class="auth-text-input" type="text" id="auth-input-code" data-i18n-placeholder="codePlaceholder" placeholder="6-digit code" inputmode="numeric" maxlength="6">
-      </div>
-      <div class="row auth-btn-row" hidden id="auth-verify-row">
-        <button class="btn-soft small" id="btn-verify-email" type="button" data-i18n="verifyBtn">Verify e-mail</button>
-      </div>
-      <div class="auth-field-group" id="auth-reset-code-group" hidden>
-        <label class="field-label" for="auth-input-reset-code" data-i18n="resetCodeLabel">Recovery code</label>
-        <input class="auth-text-input" type="text" id="auth-input-reset-code" data-i18n-placeholder="codePlaceholder" placeholder="6-digit code" inputmode="numeric" maxlength="6">
-      </div>
-      <div class="auth-field-group" id="auth-reset-pass-group" hidden>
-        <label class="field-label" for="auth-input-reset-pass" data-i18n="newPassLabel">New password</label>
-        <input class="auth-text-input" type="password" id="auth-input-reset-pass" data-i18n-placeholder="newPassPlaceholder" placeholder="At least 6 characters" autocomplete="new-password">
-      </div>
-      <div class="row auth-btn-row" hidden id="auth-reset-row">
-        <button class="btn-soft small" id="btn-reset-password" type="button" data-i18n="resetBtn">Reset password</button>
-      </div>
-
-
-    </div>
-
-    <!-- MODO REGISTRO -->
-    <div class="auth-mode" id="auth-mode-register" hidden>
-      <div class="auth-disabled-banner" id="auth-reg-disabled" hidden>
-        <span class="auth-disabled-icon">⚠️</span>
-        <span data-i18n="regDisabled">Account creation is temporarily disabled by the administrator.</span>
-      </div>
-      <div class="auth-field-group">
-        <label class="field-label" for="auth-input-reg-user" data-i18n="regUserLabel">Username</label>
-        <input class="auth-text-input" type="text" id="auth-input-reg-user" data-i18n-placeholder="regUserPlaceholder" placeholder="e.g. myname (3-20 characters)" maxlength="20" autocomplete="username">
-      </div>
-      <div class="auth-field-group">
-        <label class="field-label" for="auth-input-email" data-i18n="emailLabel">E-mail</label>
-        <input class="auth-text-input" type="email" id="auth-input-email" data-i18n-placeholder="emailPlaceholder" placeholder="you@email.com (optional)" autocomplete="email">
-      </div>
-      <div class="auth-field-group">
-        <label class="field-label" for="auth-input-reg-pass" data-i18n="passLabel">Password</label>
-        <input class="auth-text-input" type="password" id="auth-input-reg-pass" data-i18n-placeholder="newPassPlaceholder" placeholder="At least 6 characters" autocomplete="new-password">
-      </div>
-      <div class="auth-field-group" id="auth-confirm-group">
-        <label class="field-label" for="auth-input-pass-confirm" data-i18n="confirmLabel">Confirm password</label>
-        <input class="auth-text-input" type="password" id="auth-input-pass-confirm" data-i18n-placeholder="confirmPlaceholder" placeholder="Repeat the password" autocomplete="new-password">
-      </div>
-      <div class="row auth-btn-row">
-        <button class="btn-primary small auth-primary" id="btn-do-register" type="button">Create account</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="account-logged" id="account-logged" hidden>
-    <p class="logged-label" data-i18n="loggedLabel">Account active on this PC:</p>
-    <div class="logged-user-row">
-      <span class="logged-icon">⚔</span>
-      <b class="logged-name" id="logged-username">-</b>
-    </div>
-    <button class="btn-soft small" id="btn-account-switch" type="button" data-i18n="switchAccount">Use another account</button>
-  </div>
 </section>
 
 <section class="dock">
