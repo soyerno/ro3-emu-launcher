@@ -9,8 +9,7 @@
   "purchaseUrl": "https://konsor.com.ar/donaciones",
   "newsUrl": "https://konsor.com.ar/news.json",
   "manifestUrl": "https://konsor.com.ar/launcher/konsor.json",
-  "manifestPublicKeyNote": "PLACEHOLDER: paste the public key printed by tools/ManifestTool keygen into manifestPublicKey (docs/AUTO_UPDATE.md). While it is empty, auto-update is disabled.",
-  "manifestPublicKey": "",
+  "manifestPublicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEm59Fv/tQYa3jhZzP4684SsIx+qc5\nD3c9hU4DvtI7OfiGoK9M0kf3vLES7xkULK28vYjSjFQbWcdwuCadP+gFWA==\n-----END PUBLIC KEY-----",
   "defaultRealm": "prontera",
   "realms": [
     {
