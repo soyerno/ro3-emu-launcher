@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,40 @@ public sealed class RemoteUpdateOutcome
 	public bool RestartRequired { get; init; }
 
 	public FileApplyResult? Files { get; init; }
+}
+
+/// <summary>What the main screen shows about the installed build: the applied manifest and the installed client hooks.</summary>
+public static class InstalledBuild
+{
+	/// <summary>Where the manifest entry of the client hooks lands, relative to the launcher folder.</summary>
+	public const string HooksPath = "client/Ro3Emu.ClientHooks.dll";
+
+	/// <summary>The first 8 lowercase hex digits of the installed hooks' SHA-256, or null when the file cannot be read.</summary>
+	public static string? HooksHash(string launcherDir)
+	{
+		try
+		{
+			using FileStream stream = File.OpenRead(Path.Combine(launcherDir, HooksPath.Replace('/', Path.DirectorySeparatorChar)));
+			return Convert.ToHexStringLower(SHA256.HashData(stream))[..8];
+		}
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+		{
+			return null;
+		}
+	}
+
+	/// <summary>
+	/// The sequence of the manifest whose files are in place after <paramref name="outcome"/>: its own once every file
+	/// was applied, otherwise <paramref name="previous"/> (a manifest fetched but not fully applied does not count).
+	/// Never lower than <paramref name="previous"/>: manifests only move forward (a rollback is refused), so a later,
+	/// lower sequence cannot replace a higher one already known to be applied.
+	/// </summary>
+	public static long? AppliedSequence(RemoteUpdateOutcome outcome, long? previous)
+	{
+		return outcome.Manifest is { } manifest && outcome.Files is { NotWritable: false, Failed.Count: 0 }
+			? Math.Max(manifest.Sequence, previous ?? long.MinValue)
+			: previous;
+	}
 }
 
 /// <summary>
