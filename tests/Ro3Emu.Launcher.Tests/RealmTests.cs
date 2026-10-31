@@ -158,8 +158,8 @@ public class RealmTests
 		Assert.Equal("prontera", config.SelectRealm(null).Id);
 		RealmSpec prontera = config.SelectRealm("prontera");
 		RealmSpec payon = config.SelectRealm("payon");
-		Assert.Equal("Prontera (5x)", prontera.Name);
-		Assert.Equal("Payon (1x)", payon.Name);
+		Assert.Equal("Prontera (5x) · Konsor High", prontera.Name);
+		Assert.Equal("Payon (1x) · Konsor Low", payon.Name);
 		Assert.Equal("http://127.0.0.1:5380", prontera.ServerBaseUrl);
 		Assert.Equal("http://127.0.0.1:5390", payon.ServerBaseUrl);
 		Assert.Equal(
