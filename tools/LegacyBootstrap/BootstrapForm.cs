@@ -43,7 +43,11 @@ namespace Konsor.LegacyBootstrap
 			_retry.Click += (s, e) => Start();
 			_close.Click += (s, e) => Close();
 			Shown += (s, e) => Start();
+			// Closing mid-swap would end the process between the two renames and leave no launcher exe behind.
+			FormClosing += (s, e) => e.Cancel = _swapping;
 		}
+
+		private volatile bool _swapping;
 
 		private void Start()
 		{
@@ -68,6 +72,7 @@ namespace Konsor.LegacyBootstrap
 					SetStatus(string.Format("Descargando el launcher {0}… {1:0.0} / {2:0.0} MB", release.Version, done / 1048576.0, total / 1048576.0));
 				}));
 				Ui(() => SetStatus("Instalando…"));
+				_swapping = true;
 				try
 				{
 					BootstrapSwap.Apply(exe, staged, TimeSpan.FromSeconds(10));
@@ -77,10 +82,21 @@ namespace Konsor.LegacyBootstrap
 					Updater.TryDelete(staged);
 					throw new BootstrapException("No se pudo reemplazar el launcher (" + ex.Message + ").");
 				}
+				finally
+				{
+					_swapping = false;
+				}
 			}
 			catch (BootstrapException ex)
 			{
 				Ui(() => ShowError(ex.Message, canRetry: true));
+				return;
+			}
+			catch (Exception ex)
+			{
+				// Anything unexpected on this thread would otherwise end the process without a word.
+				Updater.TryDelete(staged);
+				Ui(() => ShowError("Error inesperado al actualizar (" + ex.Message + ").", canRetry: true));
 				return;
 			}
 			try
@@ -107,9 +123,16 @@ namespace Konsor.LegacyBootstrap
 
 		private void Ui(Action action)
 		{
-			if (!IsDisposed)
+			try
 			{
-				BeginInvoke(action);
+				if (!IsDisposed)
+				{
+					BeginInvoke(action);
+				}
+			}
+			catch (InvalidOperationException)
+			{
+				// The window closed between the check and the call: nothing left to show.
 			}
 		}
 	}
