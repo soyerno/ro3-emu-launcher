@@ -58,5 +58,13 @@ public class InstalledBuildTests
 		Assert.Equal(7, InstalledBuild.AppliedSequence(outcome, previous: 7));
 	}
 
+	[Fact]
+	public void AppliedSequence_NeverDropsBelowAHigherKnownSequence()
+	{
+		RemoteUpdateOutcome outcome = new RemoteUpdateOutcome { Manifest = Manifest(42), Files = new FileApplyResult() };
+
+		Assert.Equal(50, InstalledBuild.AppliedSequence(outcome, previous: 50));
+	}
+
 	private static RemoteManifest Manifest(long sequence) => new RemoteManifest { Schema = RemoteManifest.SupportedSchema, Sequence = sequence };
 }

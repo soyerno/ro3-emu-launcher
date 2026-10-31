@@ -48,11 +48,13 @@ public static class InstalledBuild
 	/// <summary>
 	/// The sequence of the manifest whose files are in place after <paramref name="outcome"/>: its own once every file
 	/// was applied, otherwise <paramref name="previous"/> (a manifest fetched but not fully applied does not count).
+	/// Never lower than <paramref name="previous"/>: manifests only move forward (a rollback is refused), so a later,
+	/// lower sequence cannot replace a higher one already known to be applied.
 	/// </summary>
 	public static long? AppliedSequence(RemoteUpdateOutcome outcome, long? previous)
 	{
 		return outcome.Manifest is { } manifest && outcome.Files is { NotWritable: false, Failed.Count: 0 }
-			? manifest.Sequence
+			? Math.Max(manifest.Sequence, previous ?? long.MinValue)
 			: previous;
 	}
 }
