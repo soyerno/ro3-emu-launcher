@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Ro3Emu.Patcher;
 
 namespace Ro3Emu.Launcher;
@@ -16,16 +18,24 @@ public class App : Application
 
 	private Mutex? _singleInstance;
 
+	/// <summary>Set once the exit was logged, so the <see cref="AppDomain.ProcessExit"/> backstop does not log it twice.</summary>
+	private static int _exitLogged;
+
 	protected override void OnStartup(StartupEventArgs e)
 	{
+		HookCrashLogging();
 		base.OnStartup(e);
+		LauncherLog.Write($"Launcher start: version {BuildInfo.Version}, pid {Environment.ProcessId}, exe '{Environment.ProcessPath}', args [{string.Join(" ", e.Args)}], "
+			+ $"{Environment.OSVersion.VersionString}, .NET {Environment.Version}.");
 		_singleInstance = new Mutex(initiallyOwned: true, "Local\\Ro3Emu.Launcher", out var createdNew);
 		if (!createdNew && e.Args.Contains(UpdatedArgument))
 		{
+			LauncherLog.Write("Waiting for the previous launcher to exit (restart after update)...");
 			createdNew = WaitForPreviousInstance(_singleInstance);
 		}
 		if (!createdNew)
 		{
+			LauncherLog.Exit.Set("another launcher instance is already running");
 			Shutdown();
 			return;
 		}
@@ -90,6 +100,8 @@ public class App : Application
 				app._singleInstance.Dispose();
 				app._singleInstance = null;
 			}
+			LauncherLog.Exit.Set("self-update restart");
+			LauncherLog.Write($"Restarting into '{exePath}' {UpdatedArgument}.");
 			SelfUpdate.Restart(exePath, UpdatedArgument);
 			Current.Shutdown();
 		});
@@ -97,8 +109,64 @@ public class App : Application
 
 	protected override void OnExit(ExitEventArgs e)
 	{
+		LogExit($"exit code {e.ApplicationExitCode}");
 		_singleInstance?.Dispose();
 		base.OnExit(e);
+	}
+
+	protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+	{
+		LauncherLog.Exit.Set($"Windows session ending ({e.ReasonSessionEnding})");
+		LauncherLog.Write($"Windows session ending ({e.ReasonSessionEnding}).");
+		base.OnSessionEnding(e);
+	}
+
+	private static void LogExit(string how)
+	{
+		if (Interlocked.Exchange(ref _exitLogged, 1) != 0)
+		{
+			return;
+		}
+		TimeSpan uptime = TimeSpan.Zero;
+		try
+		{
+			using Process self = Process.GetCurrentProcess();
+			uptime = DateTime.Now - self.StartTime;
+		}
+		catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException or System.ComponentModel.Win32Exception)
+		{
+		}
+		LauncherLog.Write($"Launcher exit: reason '{LauncherLog.Exit.Reason}', {how}, pid {Environment.ProcessId}, uptime {LauncherLog.FormatDuration(uptime)}.");
+	}
+
+	/// <summary>
+	/// Logs every exception nobody caught, before the process dies: the line is written (and the file closed) inside the
+	/// handler. Only logs: whether the launcher crashes or carries on does not change.
+	/// </summary>
+	private void HookCrashLogging()
+	{
+		AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+		{
+			if (e.IsTerminating)
+			{
+				LauncherLog.Exit.Set("crash (unhandled exception)");
+			}
+			LauncherLog.Write(LauncherLog.FormatException("AppDomain.UnhandledException", e.ExceptionObject, e.IsTerminating));
+			if (e.IsTerminating)
+			{
+				LogExit("crash");
+			}
+		};
+		TaskScheduler.UnobservedTaskException += (_, e) =>
+		{
+			LauncherLog.Write(LauncherLog.FormatException("TaskScheduler.UnobservedTaskException", e.Exception));
+		};
+		DispatcherUnhandledException += (_, e) =>
+		{
+			LauncherLog.Write(LauncherLog.FormatException("Dispatcher.UnhandledException", e.Exception));
+		};
+		// Environment.Exit or a host shutdown that skips OnExit: still leave a last line.
+		AppDomain.CurrentDomain.ProcessExit += (_, _) => LogExit("process exit");
 	}
 
 	[STAThread]

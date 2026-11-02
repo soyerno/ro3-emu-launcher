@@ -26,6 +26,11 @@ public partial class MainWindow : Window
 
 	private readonly string? _uiOverride = Environment.GetEnvironmentVariable("RO3EMU_LAUNCHER_UI");
 
+	/// <summary>UI script errors logged so far; a looping error stops being logged after <see cref="MaxJsErrors"/>.</summary>
+	private int _jsErrors;
+
+	private const int MaxJsErrors = 20;
+
 	
 	public MainWindow(LauncherConfig config, string exePath)
 	{
@@ -51,6 +56,8 @@ public partial class MainWindow : Window
 		};
 		Closing += (object? _, CancelEventArgs _) =>
 		{
+			LauncherLog.Exit.Set("window closed (Alt+F4, taskbar or system)");
+			LauncherLog.Write($"Main window closing (reason so far: {LauncherLog.Exit.Reason}).");
 			_controller.Dispose();
 		};
 	}
@@ -66,6 +73,8 @@ public partial class MainWindow : Window
 		}
 		catch (WebView2RuntimeNotFoundException)
 		{
+			LauncherLog.Write("WebView2 runtime not found.");
+			LauncherLog.Exit.Set("WebView2 runtime missing");
 			if (MessageBox.Show(Strings.Get("webview2.missing"), _config.ServerName, MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
 			{
 				OpenExternal("https://go.microsoft.com/fwlink/p/?LinkId=2124703");
@@ -75,13 +84,8 @@ public partial class MainWindow : Window
 		}
 		catch (Exception ex2)
 		{
-			try
-			{
-				File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "launcher.log"), $"[WebView2 Init] {ex2}\n");
-			}
-			catch
-			{
-			}
+			LauncherLog.Write("WebView2 could not start: " + ex2);
+			LauncherLog.Exit.Set("WebView2 could not start");
 			MessageBox.Show(Strings.Get("webview2.error", ex2.Message), _config.ServerName, MessageBoxButton.OK, MessageBoxImage.Hand);
 			Application.Current.Shutdown();
 			return;
@@ -111,8 +115,22 @@ public partial class MainWindow : Window
 			{
 				await OnMessageAsync(e.WebMessageAsJson);
 			}
-			catch
+			catch (Exception ex)
 			{
+				LauncherLog.Write("UI message failed: " + ex);
+			}
+		};
+		coreWebView.ProcessFailed += (object? _, CoreWebView2ProcessFailedEventArgs e) =>
+		{
+			LauncherLog.Write($"WebView2 process failed: kind {e.ProcessFailedKind}, reason {e.Reason}, exit code {LauncherLog.FormatExitCode(e.ExitCode)}, "
+				+ $"process '{e.ProcessDescription}'.");
+		};
+		coreWebView.NavigationCompleted += (object? _, CoreWebView2NavigationCompletedEventArgs e) =>
+		{
+			// OperationCanceled: an external link, cancelled in NavigationStarting and opened in the browser.
+			if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
+			{
+				LauncherLog.Write($"WebView2 navigation to '{coreWebView.Source}' failed: {e.WebErrorStatus} (HTTP {e.HttpStatusCode}).");
 			}
 		};
 		coreWebView.NavigationStarting += (object? _, CoreWebView2NavigationStartingEventArgs e) =>
@@ -226,7 +244,14 @@ public partial class MainWindow : Window
 				return;
 			}
 			string text = (rootElement.TryGetProperty("cmd", out var value) ? value.GetString() : null);
-			if (text == "window")
+			if (text == "jsError")
+			{
+				if (++_jsErrors <= MaxJsErrors)
+				{
+					LauncherLog.Write(LauncherLog.FormatJsError(rootElement) + (_jsErrors == MaxJsErrors ? "\n(further UI script errors are not logged)" : ""));
+				}
+			}
+			else if (text == "window")
 			{
 				JsonElement value2;
 				switch (rootElement.TryGetProperty("action", out value2) ? value2.GetString() : null)
@@ -235,6 +260,7 @@ public partial class MainWindow : Window
 					WindowState = WindowState.Minimized;
 					break;
 				case "close":
+					LauncherLog.Exit.Set("close button in the launcher window");
 					Close();
 					break;
 				case "drag":
@@ -253,8 +279,9 @@ public partial class MainWindow : Window
 				await _controller.HandleMessageAsync(rootElement);
 			}
 		}
-		catch
+		catch (Exception ex)
 		{
+			LauncherLog.Write("UI message failed: " + ex);
 		}
 	}
 

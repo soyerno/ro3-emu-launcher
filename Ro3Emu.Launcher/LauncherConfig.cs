@@ -230,16 +230,7 @@ public sealed class LauncherConfig
 		return drop;
 	}
 
-	private static void AppendLog(string dir, string message)
-	{
-		try
-		{
-			File.AppendAllText(Path.Combine(dir, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
-		}
-		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-		{
-		}
-	}
+	private static void AppendLog(string dir, string message) => LauncherLog.Write(dir, message);
 
 	/// <summary>A configuration from launcher.json text alone (plus an optional manifest overlay), without the embedded defaults. Invalid JSON gives the defaults.</summary>
 	public static LauncherConfig Parse(string json, RemoteManifest? remote = null)
