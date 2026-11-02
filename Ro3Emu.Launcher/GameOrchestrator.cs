@@ -191,21 +191,9 @@ public sealed class GameOrchestrator
         string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
         string activeLang = (language ?? Strings.Language ?? "es").Trim().ToLowerInvariant();
 
-        try
-        {
-            StageLanguageFiles(gameDir, dataDir, ro3emuTarget, activeLang);
+        void LogLauncher(string message) => AppendLauncherLog(baseDir ?? AppContext.BaseDirectory, message);
 
-            // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3).
-            // Always set "english" so that all Monsters and NPCs use the official English tables natively.
-            // Spanish UI, login screen, menus, and quest titles are applied on top via en_overrides.tsv and Ro3Loc.
-            SetClientLanguagePref("english");
-
-            if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
-            {
-                try { File.Copy(clientLocDll, managedLocDll, overwrite: true); } catch { }
-            }
-        }
-        catch { }
+        PrepareGameLanguage(gameDir, dataDir, ro3emuTarget, activeLang, clientLocDll, managedLocDll, LogLauncher);
 
         onLog?.Invoke(Strings.Get("game.patching"));
 
@@ -288,15 +276,25 @@ public sealed class GameOrchestrator
             }
 
             // Ensure our latest Ro3Emu.Loc.dll and en_overrides.tsv remain active even after RO3Emu join
-            try
+            if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
             {
-                if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
+                try
                 {
                     File.Copy(clientLocDll, managedLocDll, overwrite: true);
                 }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    LogLauncher($"Could not reinstall Ro3Emu.Loc.dll after join: {ex.Message}");
+                }
+            }
+            try
+            {
                 RestageOverridesAfterJoin(dataDir, ro3emuTarget, activeLang);
             }
-            catch { }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                LogLauncher($"Could not restage the {activeLang} overrides after join: {ex.Message}");
+            }
 
             return null; // Success
         }
@@ -307,10 +305,55 @@ public sealed class GameOrchestrator
     }
 
     /// <summary>
+    /// Before RO3Emu.exe join: stages the language files, sets the client's UI language and installs Ro3Emu.Loc.dll.
+    /// Each step runs even when an earlier one fails; failures are reported through <paramref name="log"/>.
+    /// </summary>
+    public static void PrepareGameLanguage(string gameDir, string dataDir, string ro3emuTarget, string activeLang,
+        string clientLocDll, string managedLocDll, Action<string> log, Action<string>? setClientLanguage = null)
+    {
+        try
+        {
+            StageLanguageFiles(gameDir, dataDir, ro3emuTarget, activeLang, log);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            log($"Could not stage the {activeLang} language files: {ex.Message}");
+        }
+
+        // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3).
+        // Always set "english" so that all Monsters and NPCs use the official English tables natively.
+        // Spanish UI, login screen, menus, and quest titles are applied on top via en_overrides.tsv and Ro3Loc.
+        (setClientLanguage ?? (language => SetClientLanguagePref(language, log)))("english");
+
+        if (File.Exists(clientLocDll) && Directory.Exists(Path.GetDirectoryName(managedLocDll)))
+        {
+            try
+            {
+                File.Copy(clientLocDll, managedLocDll, overwrite: true);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                log($"Could not install Ro3Emu.Loc.dll: {ex.Message}");
+            }
+        }
+    }
+
+    private static void AppendLauncherLog(string dir, string message)
+    {
+        try
+        {
+            File.AppendAllText(Path.Combine(dir, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+        }
+    }
+
+    /// <summary>
     /// Before RO3Emu.exe join: writes language.txt (in ro3emu\ and next to the game; Ro3Loc and the client hooks read it)
     /// and stages the text maps and English overrides of <paramref name="activeLang"/> from the launcher's data\ folder.
     /// </summary>
-    public static void StageLanguageFiles(string gameDir, string dataDir, string ro3emuTarget, string activeLang)
+    public static void StageLanguageFiles(string gameDir, string dataDir, string ro3emuTarget, string activeLang, Action<string>? log = null)
     {
         Directory.CreateDirectory(ro3emuTarget);
 
@@ -319,21 +362,9 @@ public sealed class GameOrchestrator
 
         if (activeLang.StartsWith("es"))
         {
-            string locEs = Path.Combine(dataDir, "loc_es.tsv");
-            if (!File.Exists(locEs)) locEs = Path.Combine(dataDir, "loc_en.tsv");
-            if (File.Exists(locEs))
-            {
-                File.Copy(locEs, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
-                File.Copy(locEs, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
-            }
-
-            string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
-            if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
-            if (File.Exists(overEs))
-            {
-                File.Copy(overEs, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
-                File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
-            }
+            // Spanish uses loc_en.tsv and en_overrides.tsv; data\ may ship only those, without the _es copies.
+            StageSpanishFile(dataDir, ro3emuTarget, "loc_es.tsv", "loc_en.tsv", log);
+            StageSpanishFile(dataDir, ro3emuTarget, "en_overrides_es.tsv", "en_overrides.tsv", log);
         }
         else if (IsPortuguese(activeLang))
         {
@@ -363,6 +394,41 @@ public sealed class GameOrchestrator
                 File.WriteAllText(Path.Combine(dataDir, "en_overrides.tsv"), "# en\n");
                 File.WriteAllText(Path.Combine(ro3emuTarget, "en_overrides.tsv"), "# en\n");
             }
+        }
+    }
+
+    /// <summary>
+    /// Stages data\<paramref name="spanishName"/> as <paramref name="activeName"/> in data\ and ro3emu\. Without the
+    /// Spanish file, the existing data\<paramref name="activeName"/> stays in place (it is never copied onto itself)
+    /// and is staged to ro3emu\ as is.
+    /// </summary>
+    private static void StageSpanishFile(string dataDir, string ro3emuTarget, string spanishName, string activeName, Action<string>? log)
+    {
+        string spanish = Path.Combine(dataDir, spanishName);
+        string active = Path.Combine(dataDir, activeName);
+        try
+        {
+            string source = spanish;
+            if (File.Exists(spanish))
+            {
+                File.Copy(spanish, active, overwrite: true);
+            }
+            else
+            {
+                source = active;
+                log?.Invoke(File.Exists(active)
+                    ? $"{spanishName} not found; keeping {activeName} for Spanish."
+                    : $"Neither {spanishName} nor {activeName} found; nothing staged for Spanish.");
+            }
+
+            if (File.Exists(source))
+            {
+                File.Copy(source, Path.Combine(ro3emuTarget, activeName), overwrite: true);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            log?.Invoke($"Could not stage {activeName} for Spanish: {ex.Message}");
         }
     }
 
@@ -397,7 +463,7 @@ public sealed class GameOrchestrator
         }
     }
 
-    private static void SetClientLanguagePref(string clientLanguage)
+    private static void SetClientLanguagePref(string clientLanguage, Action<string> log)
     {
         try
         {
@@ -406,7 +472,10 @@ public sealed class GameOrchestrator
             byte[] value = System.Text.Encoding.UTF8.GetBytes(clientLanguage + "\0");
             key.SetValue("CurrentLanguage_h413354046", value, Microsoft.Win32.RegistryValueKind.Binary);
         }
-        catch { }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            log($"Could not set the client language to {clientLanguage}: {ex.Message}");
+        }
     }
 
     public static async Task<string?> RestoreOfficialAsync(string gameDir, string? baseDir = null, Action<string>? onLog = null)
