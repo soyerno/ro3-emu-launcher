@@ -65,7 +65,6 @@
       },
       notices: {
         title: "AVISOS",
-        badge: "CONTEÚDO ASSINADO",
         sub: "Anúncios oficiais da equipe {server}.",
         foot: "CANAL OFICIAL DE NOTÍCIAS · PT-BR",
         webBtn: "Site Oficial",
@@ -134,7 +133,6 @@
       },
       notices: {
         title: "NOTICES",
-        badge: "VERIFIED CONTENT",
         sub: "Official announcements from the {server} team.",
         foot: "OFFICIAL NEWS CHANNEL · EN",
         webBtn: "Official Web",
@@ -203,7 +201,6 @@
       },
       notices: {
         title: "AVISOS",
-        badge: "SERVIDOR {SERVER}",
         sub: "Anuncios oficiales del servidor privado {server}.",
         foot: "CANAL OFICIAL DE NOTICIAS · ES",
         webBtn: "Web Oficial",
@@ -416,7 +413,6 @@
 
     // Update notices card safely
     if ($("notices-title")) $("notices-title").textContent = t.notices.title;
-    if ($("notices-badge")) $("notices-badge").textContent = fmt(t.notices.badge);
     if ($("notices-sub")) $("notices-sub").textContent = fmt(t.notices.sub);
     if ($("notices-foot")) $("notices-foot").textContent = t.notices.foot;
     if ($("lbl-news-web") && t.notices.webBtn) $("lbl-news-web").textContent = t.notices.webBtn;
