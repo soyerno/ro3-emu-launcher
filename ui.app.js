@@ -698,10 +698,31 @@
       : "";
   }
 
+  // Fields a news item may translate in its optional "i18n" object, keyed by language code ("en", "es", "pt-br").
+  var NEWS_TRANSLATABLE = ["tag", "title", "text", "linkText"];
+
+  // Returns the item with each translatable field taken from item.i18n[lang] when present and non-empty;
+  // every other field, and any missing translation, falls back to the item's own (default-language) value.
+  function localizeNewsItem(item, lang) {
+    var tr = null;
+    if (item && item.i18n && typeof item.i18n === "object") {
+      Object.keys(item.i18n).forEach(function (k) {
+        if (!tr && String(k).toLowerCase() === lang && item.i18n[k] && typeof item.i18n[k] === "object") tr = item.i18n[k];
+      });
+    }
+    if (!tr) return item;
+    var out = {};
+    Object.keys(item).forEach(function (k) { out[k] = item[k]; });
+    NEWS_TRANSLATABLE.forEach(function (f) {
+      if (typeof tr[f] === "string" && tr[f].trim()) out[f] = tr[f];
+    });
+    return out;
+  }
+
   function renderNews(items) {
     var list = $("news-list");
     list.innerHTML = "";
-    var currentNews = (items && items.length) ? items : I18N[currentLang].defaultNews.map(function (n) {
+    var currentNews = (items && items.length) ? items.map(function (n) { return localizeNewsItem(n, currentLang); }) : I18N[currentLang].defaultNews.map(function (n) {
       return { tag: fmt(n.tag), color: n.color, title: fmt(n.title), text: fmt(n.text) };
     });
     currentNews.forEach(function (n) {

@@ -9,7 +9,21 @@
       "text": "Servidor privado no oficial de Ragnarok Origin. ¡Todo listo para explorar el mundo de Midgard en español y sin lag!",
       "date": "2026-10-27",
       "link": "https://konsor.com.ar",
-      "linkText": "Visitar Sitio Web"
+      "linkText": "Visitar Sitio Web",
+      "i18n": {
+        "en": {
+          "tag": "WELCOME",
+          "title": "Welcome to KonsorRO",
+          "text": "Unofficial private server of Ragnarok Origin. Everything is ready to explore the world of Midgard in Spanish and without lag!",
+          "linkText": "Visit Website"
+        },
+        "pt-br": {
+          "tag": "BEM-VINDO",
+          "title": "Bem-vindo ao KonsorRO",
+          "text": "Servidor privado não oficial de Ragnarok Origin. Tudo pronto para explorar o mundo de Midgard em espanhol e sem lag!",
+          "linkText": "Visitar Site"
+        }
+      }
     },
     {
       "tag": "COMUNIDAD",
@@ -18,7 +32,21 @@
       "text": "Únete a nuestro Discord para enterarte de eventos, actualizaciones, soporte y formar grupo con otros aventureros.",
       "date": "2026-10-27",
       "link": "https://discord.gg/43CdywWfM",
-      "linkText": "Unirse al Discord"
+      "linkText": "Unirse al Discord",
+      "i18n": {
+        "en": {
+          "tag": "COMMUNITY",
+          "title": "Official Konsor Discord",
+          "text": "Join our Discord to hear about events, updates and support, and to team up with other adventurers.",
+          "linkText": "Join Discord"
+        },
+        "pt-br": {
+          "tag": "COMUNIDADE",
+          "title": "Discord Oficial do Konsor",
+          "text": "Entre no nosso Discord para ficar por dentro de eventos, atualizações e suporte, e formar grupo com outros aventureiros.",
+          "linkText": "Entrar no Discord"
+        }
+      }
     },
     {
       "tag": "ESTADO",
@@ -27,7 +55,21 @@
       "text": "Conexión segura mediante túneles Cloudflare. MicroGate y GameGate funcionando con normalidad.",
       "date": "2026-10-27",
       "link": "https://konsor.com.ar",
-      "linkText": "Ver Estado Web"
+      "linkText": "Ver Estado Web",
+      "i18n": {
+        "en": {
+          "tag": "STATUS",
+          "title": "Server Online",
+          "text": "Secure connection through Cloudflare tunnels. MicroGate and GameGate are running normally.",
+          "linkText": "View Web Status"
+        },
+        "pt-br": {
+          "tag": "STATUS",
+          "title": "Servidor Operacional",
+          "text": "Conexão segura por túneis Cloudflare. MicroGate e GameGate funcionando normalmente.",
+          "linkText": "Ver Status na Web"
+        }
+      }
     },
     {
       "tag": "GUÍAS",
@@ -36,7 +78,21 @@
       "text": "Escribe !help en el chat del juego para consultar los comandos disponibles. Visita konsor.com.ar para más información.",
       "date": "2026-10-25",
       "link": "https://konsor.com.ar",
-      "linkText": "Guías en konsor.com.ar"
+      "linkText": "Guías en konsor.com.ar",
+      "i18n": {
+        "en": {
+          "tag": "GUIDES",
+          "title": "Commands and Help",
+          "text": "Type !help in the game chat to see the available commands. Visit konsor.com.ar for more information.",
+          "linkText": "Guides at konsor.com.ar"
+        },
+        "pt-br": {
+          "tag": "GUIAS",
+          "title": "Comandos e Ajuda",
+          "text": "Digite !help no chat do jogo para ver os comandos disponíveis. Visite konsor.com.ar para mais informações.",
+          "linkText": "Guias em konsor.com.ar"
+        }
+      }
     }
   ]
 }
