@@ -28,11 +28,13 @@ public class GameLanguageTests
 
 		public bool ClientHas(string name) => File.Exists(Path.Combine(Ro3emu, name));
 
-		public void Stage(string lang)
+		public string PathOf(string relative) => _dir.File(relative);
+
+		public void Stage(string lang, List<string>? log = null)
 		{
 			Directory.CreateDirectory(GameDir);
 			Directory.CreateDirectory(DataDir);
-			GameOrchestrator.StageLanguageFiles(GameDir, DataDir, Ro3emu, lang);
+			GameOrchestrator.StageLanguageFiles(GameDir, DataDir, Ro3emu, lang, log == null ? null : log.Add);
 		}
 
 		public void Dispose() => _dir.Dispose();
@@ -74,6 +76,67 @@ public class GameLanguageTests
 		Assert.Equal("zh\tes", l.ReadData("loc_en.tsv"));
 		Assert.Equal("Hello\tHola", l.ReadClient("en_overrides.tsv"));
 		Assert.Equal("Hello\tHola", l.ReadData("en_overrides.tsv"));
+	}
+
+	[Fact]
+	public void Spanish_without_loc_es_keeps_loc_en_and_still_stages_overrides()
+	{
+		// Konsor's brand/patch/data ships loc_en.tsv and en_overrides.tsv with no _es copies.
+		using var l = new Layout();
+		l.Data("loc_en.tsv", "zh	en");
+		l.Data("en_overrides_es.tsv", "Hello	Hola");
+		var log = new List<string>();
+
+		l.Stage("es", log);
+
+		Assert.Equal("zh	en", l.ReadData("loc_en.tsv"));
+		Assert.Equal("zh	en", l.ReadClient("loc_en.tsv"));
+		Assert.Equal("Hello	Hola", l.ReadClient("en_overrides.tsv"));
+		Assert.Equal("Hello	Hola", l.ReadData("en_overrides.tsv"));
+		Assert.Contains(log, m => m.Contains("loc_es.tsv"));
+	}
+
+	[Fact]
+	public void Spanish_without_overrides_es_keeps_en_overrides()
+	{
+		using var l = new Layout();
+		l.Data("loc_es.tsv", "zh	es");
+		l.Data("en_overrides.tsv", "Hello	Hola");
+		var log = new List<string>();
+
+		l.Stage("es", log);
+
+		Assert.Equal("Hello	Hola", l.ReadData("en_overrides.tsv"));
+		Assert.Equal("Hello	Hola", l.ReadClient("en_overrides.tsv"));
+		Assert.Equal("zh	es", l.ReadClient("loc_en.tsv"));
+		Assert.Contains(log, m => m.Contains("en_overrides_es.tsv"));
+	}
+
+	[Fact]
+	public void Spanish_without_loc_es_still_sets_the_client_language_and_installs_the_loc_dll()
+	{
+		using var l = new Layout();
+		l.Data("loc_en.tsv", "zh	en");
+		l.Data("en_overrides.tsv", "Hello	Hola");
+		string clientDll = l.PathOf("launcher/client/Ro3Emu.Loc.dll");
+		string managedDll = l.PathOf("game/ro3_Data/Managed/Ro3Emu.Loc.dll");
+		Directory.CreateDirectory(Path.GetDirectoryName(clientDll)!);
+		Directory.CreateDirectory(Path.GetDirectoryName(managedDll)!);
+		File.WriteAllText(clientDll, "loc dll");
+		Directory.CreateDirectory(l.GameDir);
+		Directory.CreateDirectory(l.DataDir);
+		string? clientLanguage = null;
+		var log = new List<string>();
+
+		GameOrchestrator.PrepareGameLanguage(l.GameDir, l.DataDir, l.Ro3emu, "es", clientDll, managedDll, log.Add,
+			language => clientLanguage = language);
+
+		Assert.Equal("es", l.ReadClient("language.txt"));
+		Assert.Equal("english", clientLanguage);
+		Assert.Equal("loc dll", File.ReadAllText(managedDll));
+		Assert.Equal("zh	en", l.ReadClient("loc_en.tsv"));
+		Assert.Equal("Hello	Hola", l.ReadClient("en_overrides.tsv"));
+		Assert.DoesNotContain(log, m => m.StartsWith("Could not"));
 	}
 
 	[Fact]
