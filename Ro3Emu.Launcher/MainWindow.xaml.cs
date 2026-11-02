@@ -105,7 +105,8 @@ public partial class MainWindow : Window
 			serverName = _config.ServerName,
 			language = Strings.GameLanguage,
 			website = LauncherConfig.TryParseHttpUrl(_config.Website, out Uri? website) ? website!.AbsoluteUri : null,
-			discord = LauncherConfig.TryParseHttpUrl(_config.Discord, out Uri? discord) ? discord!.AbsoluteUri : null
+			discord = LauncherConfig.TryParseHttpUrl(_config.Discord, out Uri? discord) ? discord!.AbsoluteUri : null,
+			voteUrl = LauncherConfig.TryParseHttpUrl(_config.VoteUrl, out Uri? vote) ? vote!.AbsoluteUri : null
 		}) + ";");
 		coreWebView.AddWebResourceRequestedFilter("https://launcher.ro3emu/*", (CoreWebView2WebResourceContext)0);
 		coreWebView.WebResourceRequested += OnWebResourceRequested;

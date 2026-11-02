@@ -53,6 +53,10 @@ public sealed class LauncherConfig
 	[JsonPropertyName("discord")]
 	public string? Discord { get; set; }
 
+	/// <summary>Optional page where players vote for the server (a server ranking); the vote buttons are hidden when empty.</summary>
+	[JsonPropertyName("voteUrl")]
+	public string? VoteUrl { get; set; }
+
 	/// <summary>
 	/// Optional page the game's purchase / recharge buttons open, passed to RO3Emu.exe join --purchase-url. Empty: those
 	/// buttons open nothing (RO3Emu never sends a player to the publisher's store).
@@ -98,7 +102,7 @@ public sealed class LauncherConfig
 	/// The launcher.json fields a manifest "config" may replace. The update source ("manifestUrl", "manifestPublicKey",
 	/// "repository") is never among them, so a manifest cannot move the launcher to another key or server.
 	/// </summary>
-	public static readonly string[] RemoteFields = ["realms", "defaultRealm", "tunnels", "server", "newsUrl", "website", "discord", "purchaseUrl"];
+	public static readonly string[] RemoteFields = ["realms", "defaultRealm", "tunnels", "server", "newsUrl", "website", "discord", "voteUrl", "purchaseUrl"];
 
 	/// <summary><see cref="ManifestUrl"/> when it is https (or http to a loopback address, for local testing); otherwise null.</summary>
 	[JsonIgnore]
