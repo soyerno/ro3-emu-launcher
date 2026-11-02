@@ -16,7 +16,18 @@ public static class Strings
 	private static volatile string _language = DefaultLanguage;
 	private static volatile string _serverName = "RO3 Server";
 
+	private static volatile string _gameLanguage = DefaultLanguage;
+
+	/// <summary>Brazilian Portuguese as the game and the launcher UI name it.</summary>
+	public const string Portuguese = "pt-br";
+
 	public static string Language => _language;
+
+	/// <summary>
+	/// The language the player picked, for the game texts: "es", "pt-br" or "en" (<see cref="NormalizeGame"/>). The host's
+	/// own messages (<see cref="Language"/>) are English or Spanish only, so a Portuguese player gets those in English.
+	/// </summary>
+	public static string GameLanguage => _gameLanguage;
 
 	public static string ServerName => _serverName;
 
@@ -26,9 +37,24 @@ public static class Strings
 		return language != null && language.Trim().StartsWith("es", StringComparison.OrdinalIgnoreCase) ? "es" : DefaultLanguage;
 	}
 
+	/// <summary>
+	/// Maps any language tag to a game language, the value of ro3emu\language.txt that Ro3Emu.Loc.dll reads:
+	/// "es", "es-AR" -> "es"; "pt", "pt-BR" -> "pt-br"; everything else -> "en".
+	/// </summary>
+	public static string NormalizeGame(string? language)
+	{
+		string tag = language?.Trim() ?? "";
+		if (tag.StartsWith("es", StringComparison.OrdinalIgnoreCase))
+		{
+			return "es";
+		}
+		return tag.StartsWith("pt", StringComparison.OrdinalIgnoreCase) ? Portuguese : DefaultLanguage;
+	}
+
 	public static void Configure(string? language, string? serverName)
 	{
 		_language = Normalize(language);
+		_gameLanguage = NormalizeGame(language);
 		if (!string.IsNullOrWhiteSpace(serverName))
 		{
 			_serverName = serverName.Trim();
@@ -38,6 +64,7 @@ public static class Strings
 	public static void SetLanguage(string? language)
 	{
 		_language = Normalize(language);
+		_gameLanguage = NormalizeGame(language);
 	}
 
 	public static string Get(string key, params object[] args)

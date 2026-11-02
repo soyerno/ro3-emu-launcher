@@ -43,7 +43,7 @@ Errors only go to `launcher.log`. The player keeps whatever files and configurat
   | `client/<name>.dll` | One level only |
   | `data/<name>.tsv` | One level only |
 
-  It refuses everything else, including the launcher exe, `launcher.json`, subfolders, `..`, rooted paths and drive letters. A refused entry is logged and skipped. Leave `data/loc_en.tsv` and `data/en_overrides.tsv` out: they are rewritten at each Play. Publish their sources instead (`loc_es.tsv`, `loc_en_us.tsv`, `en_overrides_es.tsv`, `en_overrides_en.tsv`).
+  It refuses everything else, including the launcher exe, `launcher.json`, subfolders, `..`, rooted paths and drive letters. A refused entry is logged and skipped. Leave `data/loc_en.tsv` and `data/en_overrides.tsv` out: they are rewritten at each Play. Publish their sources instead (`loc_es.tsv`, `loc_en_us.tsv`, `en_overrides_es.tsv`, `en_overrides_en.tsv`). Portuguese needs no map here: `RO3Emu.exe join` builds `loc_pt-br.tsv` and `loc_sid_pt-br.tsv` from the player's client, and `Ro3Emu.Loc.dll` embeds `en_overrides_pt-br.tsv`; an optional `data/en_overrides_pt-br.tsv` is copied to `ro3emu\` at each Play and is read on top of the embedded one.
 - **config**: may set only `realms`, `defaultRealm`, `tunnels`, `server`, `statusUrl`, `newsUrl`, `website`, `discord` and `purchaseUrl`. These values win over the embedded `launcher.json` and the `launcher.json` beside the exe. A manifest can never change `manifestUrl`, `manifestPublicKey` or `repository`.
 
 ## Version stamping

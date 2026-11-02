@@ -189,54 +189,11 @@ public sealed class GameOrchestrator
         string ro3emuTarget = Path.Combine(gameDir, "ro3emu");
         string clientLocDll = Path.Combine(baseDirectory, "client", "Ro3Emu.Loc.dll");
         string managedLocDll = Path.Combine(gameDir, "ro3_Data", "Managed", "Ro3Emu.Loc.dll");
+        string activeLang = (language ?? Strings.Language ?? "es").Trim().ToLowerInvariant();
 
         try
         {
-            string activeLang = (language ?? Strings.Language ?? "es").Trim().ToLowerInvariant();
-            Directory.CreateDirectory(ro3emuTarget);
-
-            File.WriteAllText(Path.Combine(ro3emuTarget, "language.txt"), activeLang);
-            File.WriteAllText(Path.Combine(gameDir, "language.txt"), activeLang);
-
-            if (activeLang.StartsWith("es"))
-            {
-                string locEs = Path.Combine(dataDir, "loc_es.tsv");
-                if (!File.Exists(locEs)) locEs = Path.Combine(dataDir, "loc_en.tsv");
-                if (File.Exists(locEs))
-                {
-                    File.Copy(locEs, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
-                    File.Copy(locEs, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
-                }
-
-                string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
-                if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
-                if (File.Exists(overEs))
-                {
-                    File.Copy(overEs, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
-                    File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
-                }
-            }
-            else
-            {
-                string locEn = Path.Combine(dataDir, "loc_en_us.tsv");
-                if (File.Exists(locEn))
-                {
-                    File.Copy(locEn, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
-                    File.Copy(locEn, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
-                }
-
-                string overEn = Path.Combine(dataDir, "en_overrides_en.tsv");
-                if (File.Exists(overEn))
-                {
-                    File.Copy(overEn, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
-                    File.Copy(overEn, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
-                }
-                else
-                {
-                    File.WriteAllText(Path.Combine(dataDir, "en_overrides.tsv"), "# en\n");
-                    File.WriteAllText(Path.Combine(ro3emuTarget, "en_overrides.tsv"), "# en\n");
-                }
-            }
+            StageLanguageFiles(gameDir, dataDir, ro3emuTarget, activeLang);
 
             // The client's own UI language (Unity PlayerPrefs, HKCU\Software\gravity\ro3).
             // Always set "english" so that all Monsters and NPCs use the official English tables natively.
@@ -337,12 +294,7 @@ public sealed class GameOrchestrator
                 {
                     File.Copy(clientLocDll, managedLocDll, overwrite: true);
                 }
-                string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
-                if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
-                if (File.Exists(overEs))
-                {
-                    File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
-                }
+                RestageOverridesAfterJoin(dataDir, ro3emuTarget, activeLang);
             }
             catch { }
 
@@ -351,6 +303,97 @@ public sealed class GameOrchestrator
         catch (Exception ex)
         {
             return Strings.Get("game.error", ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Before RO3Emu.exe join: writes language.txt (in ro3emu\ and next to the game; Ro3Loc and the client hooks read it)
+    /// and stages the text maps and English overrides of <paramref name="activeLang"/> from the launcher's data\ folder.
+    /// </summary>
+    public static void StageLanguageFiles(string gameDir, string dataDir, string ro3emuTarget, string activeLang)
+    {
+        Directory.CreateDirectory(ro3emuTarget);
+
+        File.WriteAllText(Path.Combine(ro3emuTarget, "language.txt"), activeLang);
+        File.WriteAllText(Path.Combine(gameDir, "language.txt"), activeLang);
+
+        if (activeLang.StartsWith("es"))
+        {
+            string locEs = Path.Combine(dataDir, "loc_es.tsv");
+            if (!File.Exists(locEs)) locEs = Path.Combine(dataDir, "loc_en.tsv");
+            if (File.Exists(locEs))
+            {
+                File.Copy(locEs, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
+                File.Copy(locEs, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+            }
+
+            string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
+            if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
+            if (File.Exists(overEs))
+            {
+                File.Copy(overEs, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
+                File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+            }
+        }
+        else if (IsPortuguese(activeLang))
+        {
+            // Ro3Loc reads ro3emu\loc_pt-br.tsv and loc_sid_pt-br.tsv, which RO3Emu.exe join builds from the player's
+            // client and copies there, plus its embedded en_overrides_pt-br.tsv and ro3emu\en_overrides_pt-br.tsv. It
+            // reads neither loc_en.tsv nor en_overrides.tsv in Portuguese, and a hand-made ro3emu\loc_en.tsv would stop
+            // join from refreshing it, so only the published Portuguese overrides are staged.
+            CopyPortugueseOverrides(dataDir, ro3emuTarget);
+        }
+        else
+        {
+            string locEn = Path.Combine(dataDir, "loc_en_us.tsv");
+            if (File.Exists(locEn))
+            {
+                File.Copy(locEn, Path.Combine(dataDir, "loc_en.tsv"), overwrite: true);
+                File.Copy(locEn, Path.Combine(ro3emuTarget, "loc_en.tsv"), overwrite: true);
+            }
+
+            string overEn = Path.Combine(dataDir, "en_overrides_en.tsv");
+            if (File.Exists(overEn))
+            {
+                File.Copy(overEn, Path.Combine(dataDir, "en_overrides.tsv"), overwrite: true);
+                File.Copy(overEn, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+            }
+            else
+            {
+                File.WriteAllText(Path.Combine(dataDir, "en_overrides.tsv"), "# en\n");
+                File.WriteAllText(Path.Combine(ro3emuTarget, "en_overrides.tsv"), "# en\n");
+            }
+        }
+    }
+
+    /// <summary>After RO3Emu.exe join: puts the launcher's English overrides back in ro3emu\ in case join replaced them.</summary>
+    public static void RestageOverridesAfterJoin(string dataDir, string ro3emuTarget, string activeLang)
+    {
+        if (IsPortuguese(activeLang))
+        {
+            CopyPortugueseOverrides(dataDir, ro3emuTarget);
+            return;
+        }
+
+        string overEs = Path.Combine(dataDir, "en_overrides_es.tsv");
+        if (!File.Exists(overEs)) overEs = Path.Combine(dataDir, "en_overrides.tsv");
+        if (File.Exists(overEs))
+        {
+            File.Copy(overEs, Path.Combine(ro3emuTarget, "en_overrides.tsv"), overwrite: true);
+        }
+    }
+
+    /// <summary>language.txt selects Brazilian Portuguese when it starts with "pt" (Ro3Loc.GetConfiguredLanguage).</summary>
+    private static bool IsPortuguese(string activeLang) => activeLang.StartsWith("pt", StringComparison.Ordinal);
+
+    /// <summary>Copies the published data\en_overrides_pt-br.tsv, when there is one, to ro3emu\ for Ro3Loc.</summary>
+    private static void CopyPortugueseOverrides(string dataDir, string ro3emuTarget)
+    {
+        string name = "en_overrides_" + Strings.Portuguese + ".tsv";
+        string overPt = Path.Combine(dataDir, name);
+        if (File.Exists(overPt))
+        {
+            File.Copy(overPt, Path.Combine(ro3emuTarget, name), overwrite: true);
         }
     }
 

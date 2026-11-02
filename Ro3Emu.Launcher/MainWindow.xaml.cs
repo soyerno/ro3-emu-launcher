@@ -99,7 +99,7 @@ public partial class MainWindow : Window
 		await coreWebView.AddScriptToExecuteOnDocumentCreatedAsync("window.LAUNCHER_CONFIG = " + JsonSerializer.Serialize(new
 		{
 			serverName = _config.ServerName,
-			language = Strings.Language,
+			language = Strings.GameLanguage,
 			website = LauncherConfig.TryParseHttpUrl(_config.Website, out Uri? website) ? website!.AbsoluteUri : null,
 			discord = LauncherConfig.TryParseHttpUrl(_config.Discord, out Uri? discord) ? discord!.AbsoluteUri : null
 		}) + ";");

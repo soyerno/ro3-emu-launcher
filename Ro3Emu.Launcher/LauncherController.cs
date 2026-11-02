@@ -217,7 +217,7 @@ public sealed class LauncherController : IDisposable
 			{
 				Strings.SetLanguage(l);
 				_config.Language = Strings.Language;
-				UserSettings.SaveLanguage(Strings.Language);
+				UserSettings.SaveLanguage(Strings.GameLanguage);
 			}
 			break;
 		}
@@ -997,7 +997,7 @@ public sealed class LauncherController : IDisposable
 		PostState("launching", Strings.Get("state.patching"));
 		// No account is passed on: players sign in inside the game.
 		Trace($"Calling JoinAndLaunchAsync with gameDir='{gameDir}', realm='{realm.Id}'...");
-		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, realm.ServerBaseUrl, baseDir, null, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.Language);
+		Task<string?> Join() => GameOrchestrator.JoinAndLaunchAsync(gameDir, realm.ServerBaseUrl, baseDir, null, msg => PostState("launching", msg), _config.PurchaseUrl, Strings.GameLanguage);
 		string? err = await Join();
 		if (err != null && GameOrchestrator.LastJoinNeedsOfficialFiles)
 		{
