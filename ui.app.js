@@ -4,6 +4,30 @@
 (function () {
   "use strict";
 
+  // Script errors go to launcher.log through the host ({ cmd: "jsError" }); the host also caps how many it logs.
+  (function reportScriptErrors() {
+    var wv = window.chrome && window.chrome.webview;
+    if (!wv) return;
+    var sent = 0;
+    function report(kind, message, source, line, col, stack) {
+      if (sent >= 20) return;
+      sent++;
+      try {
+        wv.postMessage({
+          cmd: "jsError", kind: kind, message: String(message || ""), source: String(source || ""),
+          line: line || 0, col: col || 0, stack: String(stack || "")
+        });
+      } catch (_) { /* the host is gone: nothing left to tell */ }
+    }
+    window.addEventListener("error", function (e) {
+      report("error", e.message, e.filename, e.lineno, e.colno, e.error && e.error.stack);
+    });
+    window.addEventListener("unhandledrejection", function (e) {
+      var r = e.reason;
+      report("unhandledrejection", r && r.message ? r.message : r, "", 0, 0, r && r.stack);
+    });
+  })();
+
   var $ = function (id) { return document.getElementById(id); };
   var host;
   var state = { phase: "checking" };
@@ -756,9 +780,12 @@
       case "state":
         busy = (m.phase === "updating");
         var launcher = state.launcher;
+        // The footer versions arrive in their own message; a state update must not drop them.
+        var versions = state.versions;
         if (!busy) {
           state = m;
           state.launcher = launcher;
+          state.versions = versions;
           stage = null;
         } else {
           state.installed = m.installed || state.installed;

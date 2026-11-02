@@ -403,13 +403,15 @@ public sealed class LauncherController : IDisposable
 				// A newer refresh (for example after an update) started meanwhile; its values win.
 				return;
 			}
+			string? update = _appliedSequence?.ToString(CultureInfo.InvariantCulture);
 			_post(new
 			{
 				type = "versions",
 				launcher = _version,
-				update = _appliedSequence?.ToString(CultureInfo.InvariantCulture),
+				update,
 				hooks
 			});
+			Trace($"Footer versions: launcher {_version}, update sequence {update ?? "none"}, hooks {hooks ?? "none"}.");
 		}
 		catch (Exception ex)
 		{
@@ -583,16 +585,7 @@ public sealed class LauncherController : IDisposable
 		});
 	}
 
-	private void Trace(string message)
-	{
-		try
-		{
-			File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
-		}
-		catch
-		{
-		}
-	}
+	private static void Trace(string message) => LauncherLog.Write(message);
 
 	private async Task CheckAsync()
 	{
@@ -1032,7 +1025,7 @@ public sealed class LauncherController : IDisposable
 			{
 				Trace("ro3.exe process ended.");
 				PostState("ready", Strings.Get("state.closed"));
-			}, _life.Token);
+			}, _life.Token, Trace);
 		});
 	}
 	/// <summary>

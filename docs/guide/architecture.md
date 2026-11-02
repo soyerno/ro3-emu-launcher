@@ -41,6 +41,7 @@ Messages sent between the UI and C# host are structured JSON objects containing 
 - `browse_folder`: Opens a native Windows folder browser dialog to select the game directory.
 - `open_url`: Opens external URLs (Discord, Website, Forums) in the default system browser.
 - `language`: Tells the host which language the player picked (`{ "cmd": "language", "lang": "es" }`) so host messages follow the UI.
+- `jsError`: A script error or unhandled promise rejection of the UI (`kind`, `message`, `source`, `line`, `col`, `stack`), written to `launcher.log`.
 
 ### Host to UI Notifications
 - `state_change`: Updates UI state (`checking`, `ready`, `patching`, `playing`, `error`).
@@ -58,3 +59,13 @@ With `gameFiles` set to `official` (the default), `GenesisInstall/GameInstaller`
 ## Configuration Hand-off
 
 Before the page loads, the host injects `window.LAUNCHER_CONFIG = { serverName, language, website, discord }` (from `launcher.json`) with `AddScriptToExecuteOnDocumentCreatedAsync`. The UI reads it for the title, logo caption, default language and link buttons; when it is absent (the page opened in a plain browser for UI work) it falls back to neutral defaults.
+
+## Diagnostics (`launcher.log`)
+
+`LauncherLog` appends developer lines, in plain English, to `launcher.log` beside the exe. Each line is `[yyyy-MM-dd HH:mm:ss] message` and is written with the file opened and closed again, so nothing is lost when the process dies right after. It records:
+
+- **Lifecycle**: `Launcher start:` (version, pid, exe, arguments) and `Launcher exit:` with its reason: window closed, close button, self-update restart, another instance running, Windows session ending, WebView2 missing, or a crash.
+- **Crashes**: `CRASH [source]:` with the full exception, from `AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException` and `Application.DispatcherUnhandledException` (logged only; behaviour is unchanged).
+- **WebView2**: process failures, failed navigations, failed UI messages, and `UI script error` lines that `ui.app.js` reports (`{ cmd: "jsError" }` from `window.onerror` / `unhandledrejection`, at most 20 per session).
+- **Game**: the `RO3Emu.exe join` command line (the login account travels in the environment and is never logged), its pid, exit code and run time, its output as `[RO3Emu]` lines, then each `ro3.exe` seen afterwards with its pid, exit code (hex for crash codes such as `0xC0000005`) and run time.
+- **Footer**: the launcher version, update sequence and hooks hash posted to the UI on each refresh.
