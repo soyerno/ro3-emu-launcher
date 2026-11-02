@@ -780,9 +780,12 @@
       case "state":
         busy = (m.phase === "updating");
         var launcher = state.launcher;
+        // The footer versions arrive in their own message; a state update must not drop them.
+        var versions = state.versions;
         if (!busy) {
           state = m;
           state.launcher = launcher;
+          state.versions = versions;
           stage = null;
         } else {
           state.installed = m.installed || state.installed;
