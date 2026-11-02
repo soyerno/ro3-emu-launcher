@@ -39,7 +39,7 @@ Messages sent between the UI and C# host are structured JSON objects containing 
 - `login`: Sends credentials to authenticate against the server or local session store.
 - `register`: Submits account registration details.
 - `browse_folder`: Opens a native Windows folder browser dialog to select the game directory.
-- `open_url`: Opens external URLs (Discord, Website, Forums) in the default system browser.
+- `open_url`: Opens external URLs (Discord, Website, vote page, Forums) in the default system browser.
 - `language`: Tells the host which language the player picked (`{ "cmd": "language", "lang": "es" }`) so host messages follow the UI.
 - `jsError`: A script error or unhandled promise rejection of the UI (`kind`, `message`, `source`, `line`, `col`, `stack`), written to `launcher.log`.
 
@@ -58,7 +58,7 @@ With `gameFiles` set to `official` (the default), `GenesisInstall/GameInstaller`
 
 ## Configuration Hand-off
 
-Before the page loads, the host injects `window.LAUNCHER_CONFIG = { serverName, language, website, discord }` (from `launcher.json`) with `AddScriptToExecuteOnDocumentCreatedAsync`. The UI reads it for the title, logo caption, default language and link buttons; when it is absent (the page opened in a plain browser for UI work) it falls back to neutral defaults.
+Before the page loads, the host injects `window.LAUNCHER_CONFIG = { serverName, language, website, discord, voteUrl }` (from `launcher.json`) with `AddScriptToExecuteOnDocumentCreatedAsync`. The UI reads it for the title, logo caption, default language and link buttons; when it is absent (the page opened in a plain browser for UI work) it falls back to neutral defaults.
 
 ## Diagnostics (`launcher.log`)
 

@@ -17,6 +17,7 @@ The `launcher.json` embedded in the build is overlaid field by field with the on
   "language": "en",
   "website": "https://myserver.com",
   "discord": "https://discord.gg/your-invite",
+  "voteUrl": "https://toplist.example.com/myserver#vote",
   "statusUrl": "https://myserver.com/status.json",
   "purchaseUrl": "https://myserver.com/donate",
   "tunnels": [
@@ -36,6 +37,7 @@ The `launcher.json` embedded in the build is overlaid field by field with the on
 | `serverName` | `My RO3 Server` | Name shown in the window title, the logo caption, dialogs and e-mails. |
 | `language` | `en` | Default language of the interface and of host messages: `en` or `es`. Players can switch it in the launcher (the UI also offers `pt-br`; the messages the host itself produces, such as sign-in results, launch status and e-mails, are English or Spanish only, so a Portuguese player sees those in English); their choice is remembered and wins over this default. At Play the choice also picks the game texts: the launcher writes `es`, `pt-br` or `en` to `<client>\ro3emu\language.txt`, which `Ro3Emu.Loc.dll` reads. |
 | `website`, `discord` | none | Optional `http(s)` URLs. The matching buttons (top bar and news card) are hidden when the field is empty. |
+| `voteUrl` | none | Optional `http(s)` page where players vote for the server, such as a server ranking. The vote buttons (top bar and news card) open it in the system browser, label it with `serverName`, and are hidden when the field is empty. A signed manifest `config` may change it. |
 | `statusUrl` | none | Optional public URL (no login required) that returns `{ "enabled": true }` or `{ "registration_enabled": true }`. When it reports `false` the launcher disables the registration form. Without it, registration is assumed open. `status.json` in this repository is a sample of the format. |
 | `purchaseUrl` | none | Optional `http(s)` page the game's purchase, shop top-up and monthly-card buttons open (passed to `RO3Emu.exe join --purchase-url`; needs an RO3Emu with that option). Without it those buttons open nothing: RO3Emu never sends a player to the publisher's payment page. An invalid value stops the launch with an error that names the field. |
 | `tunnels` | `[]` | Cloudflare TCP tunnels opened with `cloudflared.exe` before launching, one per `{ hostname, port }`. Leave it empty if players reach the server directly; `cloudflared.exe` is then not needed. |

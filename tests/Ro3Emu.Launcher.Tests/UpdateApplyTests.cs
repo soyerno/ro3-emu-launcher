@@ -159,6 +159,27 @@ public class RemoteConfigOverlayTests
 	}
 
 	[Fact]
+	public void ManifestConfig_CanSetTheVoteUrl()
+	{
+		JsonObject config = new() { ["voteUrl"] = "https://vote.example.test/server#vote" };
+		RemoteManifest manifest = RemoteManifest.Parse(ManifestJson.Build(5, config: config));
+
+		LauncherConfig merged = LauncherConfig.Parse(BaseJson, manifest);
+
+		Assert.Equal("https://vote.example.test/server#vote", merged.VoteUrl);
+	}
+
+	[Fact]
+	public void VoteUrl_IsReadFromLauncherJsonAndOptional()
+	{
+		LauncherConfig without = LauncherConfig.Parse(BaseJson, null);
+		LauncherConfig with = LauncherConfig.Parse(BaseJson.Replace("\"serverName\": \"Base\",", "\"serverName\": \"Base\", \"voteUrl\": \"https://vote.example.test/\","), null);
+
+		Assert.Null(without.VoteUrl);
+		Assert.Equal("https://vote.example.test/", with.VoteUrl);
+	}
+
+	[Fact]
 	public void ManifestConfigWithServerButNoRealms_ReplacesTheInheritedRealms()
 	{
 		JsonObject config = new() { ["server"] = "http://127.0.0.1:6000" };

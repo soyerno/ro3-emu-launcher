@@ -104,6 +104,7 @@ El lanzador lee la configuración desde `launcher.json` embebida durante la comp
 | `serverName` | `My RO3 Server` | Nombre que se muestra en el título de la ventana, los textos, los diálogos y los correos. |
 | `language` | `en` | Idioma por defecto de la interfaz y los mensajes: `en` o `es`. Los jugadores pueden cambiarlo en el launcher. |
 | `website`, `discord` | ninguno | Enlaces opcionales; los botones se ocultan si el campo está vacío. |
+| `voteUrl` | ninguno | Página opcional donde los jugadores votan por el servidor (por ejemplo, un ranking de servidores); los botones de votar se ocultan si el campo está vacío. |
 | `statusUrl` | ninguno | Control de registros opcional: una URL pública, sin login (ver abajo). |
 | `tunnels` | `[]` | Túneles de Cloudflare a abrir, como `{ "hostname", "port" }`. Vacío: sin `cloudflared`. |
 

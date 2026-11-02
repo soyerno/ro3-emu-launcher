@@ -69,7 +69,8 @@
         sub: "Anúncios oficiais da equipe {server}.",
         foot: "CANAL OFICIAL DE NOTÍCIAS · PT-BR",
         webBtn: "Site Oficial",
-        discordBtn: "Discord"
+        discordBtn: "Discord",
+        voteBtn: "Votar em {server}"
       },
       defaultNews: [
         {
@@ -137,7 +138,8 @@
         sub: "Official announcements from the {server} team.",
         foot: "OFFICIAL NEWS CHANNEL · EN",
         webBtn: "Official Web",
-        discordBtn: "Discord"
+        discordBtn: "Discord",
+        voteBtn: "Vote for {server}"
       },
       defaultNews: [
         {
@@ -205,7 +207,8 @@
         sub: "Anuncios oficiales del servidor privado {server}.",
         foot: "CANAL OFICIAL DE NOTICIAS · ES",
         webBtn: "Web Oficial",
-        discordBtn: "Discord"
+        discordBtn: "Discord",
+        voteBtn: "Votar por {server}"
       },
       defaultNews: [
         {
@@ -265,6 +268,7 @@
       repairTitle: "Reparar arquivos",
       webTitle: "Abrir o site",
       discordTitle: "Entrar na comunidade do Discord",
+      voteTitle: "Votar em {server} no ranking de servidores",
       realmLabel: "Reino",
       realmTitle: "Escolha o reino para jogar",
       realmOffline: " (desligado)",
@@ -278,6 +282,7 @@
       repairTitle: "Repair files",
       webTitle: "Open the website",
       discordTitle: "Join the Discord community",
+      voteTitle: "Vote for {server} on the server ranking",
       realmLabel: "Realm",
       realmTitle: "Choose the realm to play on",
       realmOffline: " (offline)",
@@ -291,6 +296,7 @@
       repairTitle: "Reparar archivos",
       webTitle: "Abrir el sitio web",
       discordTitle: "Unirse a la comunidad de Discord",
+      voteTitle: "Votar por {server} en el ranking de servidores",
       realmLabel: "Reino",
       realmTitle: "Elige el reino en el que jugar",
       realmOffline: " (apagado)",
@@ -311,19 +317,19 @@
     document.querySelectorAll("[data-i18n-title]").forEach(function (el) { el.title = ui(el.getAttribute("data-i18n-title")); });
   }
 
-  // Server name, logo caption and the website / Discord links, all from launcher.json.
+  // Server name, logo caption and the website / Discord / vote links, all from launcher.json.
   function applyConfig() {
     document.title = SERVER_NAME;
     var logo = document.querySelector(".logo");
     if (logo) logo.alt = SERVER_NAME;
-    [["tab-register", CFG.website], ["news-btn-web", CFG.website], ["tab-discord", CFG.discord], ["news-btn-discord", CFG.discord]].forEach(function (l) {
+    [["tab-register", CFG.website], ["news-btn-web", CFG.website], ["tab-discord", CFG.discord], ["news-btn-discord", CFG.discord], ["tab-vote", CFG.voteUrl], ["news-btn-vote", CFG.voteUrl]].forEach(function (l) {
       var el = $(l[0]);
       if (!el) return;
       el.href = l[1] || "#";
       el.style.display = l[1] ? "" : "none";
     });
     var bar = $("news-links-bar");
-    if (bar) bar.style.display = (CFG.website || CFG.discord) ? "" : "none";
+    if (bar) bar.style.display = (CFG.website || CFG.discord || CFG.voteUrl) ? "" : "none";
   }
 
   function normalizeLang(lang) {
@@ -404,6 +410,7 @@
     if ($("tab-news")) $("tab-news").textContent = t.tabs.news;
     if ($("tab-register")) $("tab-register").title = t.tabs.register || ui("webTitle");
     if ($("tab-discord")) $("tab-discord").title = t.tabs.discord || ui("discordTitle");
+    if ($("tab-vote")) $("tab-vote").title = ui("voteTitle");
     var tabSet = $("tab-settings");
     if (tabSet) tabSet.textContent = t.tabs.settings;
 
@@ -414,6 +421,7 @@
     if ($("notices-foot")) $("notices-foot").textContent = t.notices.foot;
     if ($("lbl-news-web") && t.notices.webBtn) $("lbl-news-web").textContent = t.notices.webBtn;
     if ($("lbl-news-discord") && t.notices.discordBtn) $("lbl-news-discord").textContent = t.notices.discordBtn;
+    if ($("lbl-news-vote") && t.notices.voteBtn) $("lbl-news-vote").textContent = fmt(t.notices.voteBtn);
 
     // Update settings card if present
     var sTitle = $("settings-title"); if (sTitle) sTitle.textContent = t.settings.title;
@@ -913,6 +921,20 @@
       tabDiscLink.onclick = function (e) {
         e.preventDefault();
         if (CFG.discord) openExternalUrl(CFG.discord);
+      };
+    }
+    var btnNewsVote = $("news-btn-vote");
+    if (btnNewsVote) {
+      btnNewsVote.onclick = function (e) {
+        e.preventDefault();
+        if (CFG.voteUrl) openExternalUrl(CFG.voteUrl);
+      };
+    }
+    var tabVoteLink = $("tab-vote");
+    if (tabVoteLink) {
+      tabVoteLink.onclick = function (e) {
+        e.preventDefault();
+        if (CFG.voteUrl) openExternalUrl(CFG.voteUrl);
       };
     }
 
