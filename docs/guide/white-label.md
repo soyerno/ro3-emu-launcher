@@ -57,9 +57,10 @@ The `launcher.json` embedded in the build is overlaid field by field with the on
 
 The launcher shows, in this order of preference:
 
-1. `news.json` at the root of `repository` (the one you publish with your patches).
-2. A `news.json` next to the executable.
-3. The `news.json` embedded in the build.
+1. `newsUrl` from `launcher.json`, when set.
+2. `news.json` at the root of `repository` (the one you publish with your patches).
+3. A `news.json` next to the executable.
+4. The `news.json` embedded in the build.
 
 ```json
 {
@@ -71,13 +72,19 @@ The launcher shows, in this order of preference:
       "text": "Join our community Discord and download the latest patch.",
       "date": "2026-10-28",
       "link": "https://myserver.com/news/1",
-      "linkText": "Read more"
+      "linkText": "Read more",
+      "i18n": {
+        "es": { "tag": "BIENVENIDO", "title": "¡Bienvenido al servidor!", "text": "Únete a nuestro Discord y descarga el último parche.", "linkText": "Leer más" },
+        "pt-br": { "tag": "BEM-VINDO", "title": "Bem-vindo ao servidor!", "text": "Entre no nosso Discord e baixe o patch mais recente.", "linkText": "Leia mais" }
+      }
     }
   ]
 }
 ```
 
 `color` is `blue`, `green`, `orange` or `red`. `link` and `linkText` are optional; an item only gets a link button when it has a `link`.
+
+**Languages.** An item's own `tag`, `title`, `text` and `linkText` are its default language, the one every player sees when there is no translation. The optional `i18n` object holds translations keyed by the launcher's language codes (`en`, `es`, `pt-br`); each entry may override any of `tag`, `title`, `text` and `linkText`. The launcher picks the entry for the language selected in the UI and falls back field by field to the default: a missing language, a missing field or an empty string shows the default value. `color`, `date` and `link` are never translated. Switching the language re-renders the news. Launchers older than this feature ignore `i18n` and show the default fields, so adding translations is always safe.
 
 ---
 

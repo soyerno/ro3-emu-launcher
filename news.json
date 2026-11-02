@@ -7,7 +7,19 @@
       "color": "blue",
       "title": "Welcome to My RO3 Server",
       "text": "This is the default announcement feed. Edit news.json next to the launcher, or host it at the root of your repository, to publish your own news.",
-      "date": "2026-10-28"
+      "date": "2026-10-28",
+      "i18n": {
+        "es": {
+          "tag": "BIENVENIDO",
+          "title": "Bienvenido a My RO3 Server",
+          "text": "Este es el feed de anuncios por defecto. Edita news.json junto al launcher, o publícalo en la raíz de tu repositorio, para publicar tus propias noticias."
+        },
+        "pt-br": {
+          "tag": "BEM-VINDO",
+          "title": "Bem-vindo ao My RO3 Server",
+          "text": "Este é o feed de anúncios padrão. Edite o news.json ao lado do launcher, ou publique-o na raiz do seu repositório, para publicar suas próprias notícias."
+        }
+      }
     },
     {
       "tag": "GUIDE",
@@ -16,7 +28,21 @@
       "text": "Point launcher.json at your server, set your server name, language and links, and replace the logo and artwork. No code changes needed.",
       "date": "2026-10-28",
       "link": "https://github.com/soyerno/ro3-emu-launcher/blob/main/docs/guide/white-label.md",
-      "linkText": "White-label guide"
+      "linkText": "White-label guide",
+      "i18n": {
+        "es": {
+          "tag": "GUÍA",
+          "title": "Haz tuyo este launcher",
+          "text": "Apunta launcher.json a tu servidor, define el nombre del servidor, el idioma y los enlaces, y reemplaza el logo y las imágenes. Sin cambios de código.",
+          "linkText": "Guía de marca blanca"
+        },
+        "pt-br": {
+          "tag": "GUIA",
+          "title": "Deixe este launcher com a sua cara",
+          "text": "Aponte o launcher.json para o seu servidor, defina o nome do servidor, o idioma e os links, e troque o logo e as imagens. Sem mudanças de código.",
+          "linkText": "Guia white-label"
+        }
+      }
     }
   ]
 }
