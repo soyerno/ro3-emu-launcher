@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -231,11 +232,7 @@ public sealed class GameOrchestrator
                 if (logBuffer.Count > 50) logBuffer.RemoveAt(0);
                 logBuffer.Add(line);
             }
-            try
-            {
-                File.AppendAllText(Path.Combine(baseDir ?? AppContext.BaseDirectory, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] [RO3Emu] {line}\n");
-            }
-            catch { }
+            LogLauncher("[RO3Emu] " + line);
             onLog?.Invoke(line);
         }
 
@@ -249,12 +246,19 @@ public sealed class GameOrchestrator
             if (!string.IsNullOrEmpty(e.Data)) AppendLog("[ERR] " + e.Data);
         };
 
+        // The login account travels in the environment and is never logged; the arguments carry no secret.
+        LogLauncher("Starting " + LauncherLog.FormatCommandLine(ro3emu, psi.ArgumentList));
+        var clock = Stopwatch.StartNew();
+        int pid = 0;
         try
         {
             process.Start();
+            pid = process.Id;
+            LogLauncher($"RO3Emu.exe started (pid {pid}).");
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
+            LogLauncher(LauncherLog.FormatProcessExit("RO3Emu.exe", pid, process.ExitCode, clock.Elapsed));
 
             if (process.ExitCode != 0)
             {
@@ -300,6 +304,7 @@ public sealed class GameOrchestrator
         }
         catch (Exception ex)
         {
+            LogLauncher($"RO3Emu.exe join failed (pid {pid}, after {LauncherLog.FormatDuration(clock.Elapsed)}): {ex}");
             return Strings.Get("game.error", ex.Message);
         }
     }
@@ -338,16 +343,7 @@ public sealed class GameOrchestrator
         }
     }
 
-    private static void AppendLauncherLog(string dir, string message)
-    {
-        try
-        {
-            File.AppendAllText(Path.Combine(dir, "launcher.log"), $"[{DateTime.Now:HH:mm:ss}] {message}\n");
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-        }
-    }
+    private static void AppendLauncherLog(string dir, string message) => LauncherLog.Write(dir, message);
 
     /// <summary>
     /// Before RO3Emu.exe join: writes language.txt (in ro3emu\ and next to the game; Ro3Loc and the client hooks read it)
@@ -509,17 +505,23 @@ public sealed class GameOrchestrator
             if (!string.IsNullOrEmpty(e.Data)) onLog?.Invoke("[ERR] " + e.Data);
         };
 
+        string logDir = baseDir ?? AppContext.BaseDirectory;
+        AppendLauncherLog(logDir, $"Starting {ro3emu} {psi.Arguments}");
+        var clock = Stopwatch.StartNew();
         try
         {
             process.Start();
+            int pid = process.Id;
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
+            AppendLauncherLog(logDir, LauncherLog.FormatProcessExit("RO3Emu.exe restore", pid, process.ExitCode, clock.Elapsed));
 
             return process.ExitCode == 0 ? null : Strings.Get("game.restore.exit", process.ExitCode);
         }
         catch (Exception ex)
         {
+            AppendLauncherLog(logDir, "RO3Emu.exe restore failed: " + ex);
             return ex.Message;
         }
     }
@@ -532,27 +534,114 @@ public sealed class GameOrchestrator
         return procs.Length > 0;
     }
 
-    public static async Task MonitorGameProcessAsync(Action onGameExited, CancellationToken ct = default)
+    public static async Task MonitorGameProcessAsync(Action onGameExited, CancellationToken ct = default, Action<string>? log = null)
     {
-        // Wait a few seconds for ro3 process to appear
-        for (int i = 0; i < 20; i++)
+        var watched = new Dictionary<int, WatchedProcess>();
+        try
         {
-            if (ct.IsCancellationRequested) return;
-            if (Process.GetProcessesByName("ro3").Length > 0) break;
-            await Task.Delay(500, ct);
-        }
-
-        // Now monitor while ro3 is running
-        while (!ct.IsCancellationRequested)
-        {
-            var procs = Process.GetProcessesByName("ro3");
-            if (procs.Length == 0)
+            // Wait a few seconds for ro3 process to appear
+            for (int i = 0; i < 20; i++)
             {
-                break;
+                ct.ThrowIfCancellationRequested();
+                if (WatchNewGameProcesses(watched, log) > 0) break;
+                await Task.Delay(500, ct);
             }
-            await Task.Delay(2000, ct);
+            if (watched.Count == 0)
+            {
+                log?.Invoke("ro3.exe was not seen within 10 s of the join: the game did not start, or closed at once.");
+            }
+
+            // Now monitor while ro3 is running
+            while (true)
+            {
+                WatchNewGameProcesses(watched, log);
+                ReportExitedGameProcesses(watched, log);
+                if (watched.Count == 0) break;
+                await Task.Delay(2000, ct);
+            }
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            log?.Invoke($"Stopped watching ro3.exe: the launcher is closing ({watched.Count} game process(es) still running).");
+            return;
+        }
+        finally
+        {
+            foreach (WatchedProcess w in watched.Values) w.Process.Dispose();
         }
 
         onGameExited();
+    }
+
+    private sealed record WatchedProcess(Process Process, DateTime StartedAt);
+
+    /// <summary>Adds the ro3.exe processes not watched yet, holding a handle on each so its exit code stays readable.</summary>
+    private static int WatchNewGameProcesses(Dictionary<int, WatchedProcess> watched, Action<string>? log)
+    {
+        int added = 0;
+        foreach (Process p in Process.GetProcessesByName("ro3"))
+        {
+            if (watched.ContainsKey(p.Id))
+            {
+                p.Dispose();
+                continue;
+            }
+            DateTime started = DateTime.Now;
+            try
+            {
+                _ = p.SafeHandle;
+                started = p.StartTime;
+            }
+            catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+            {
+                // Not ours to open (another user or elevated): the exit is still noticed, without its code.
+            }
+            watched[p.Id] = new WatchedProcess(p, started);
+            added++;
+            log?.Invoke($"ro3.exe detected (pid {p.Id}, started {started:HH:mm:ss}).");
+        }
+        return added;
+    }
+
+    private static void ReportExitedGameProcesses(Dictionary<int, WatchedProcess> watched, Action<string>? log)
+    {
+        foreach (KeyValuePair<int, WatchedProcess> entry in watched.ToList())
+        {
+            bool exited;
+            try
+            {
+                exited = entry.Value.Process.HasExited;
+            }
+            catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+            {
+                exited = !IsGameProcessAlive(entry.Key);
+            }
+            if (!exited) continue;
+
+            int? code = null;
+            try
+            {
+                code = entry.Value.Process.ExitCode;
+            }
+            catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+            {
+            }
+            log?.Invoke(LauncherLog.FormatProcessExit("ro3.exe", entry.Key, code, DateTime.Now - entry.Value.StartedAt));
+            entry.Value.Process.Dispose();
+            watched.Remove(entry.Key);
+        }
+    }
+
+    private static bool IsGameProcessAlive(int pid)
+    {
+        try
+        {
+            using Process p = Process.GetProcessById(pid);
+            return string.Equals(p.ProcessName, "ro3", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return false;
+        }
     }
 }
