@@ -119,13 +119,23 @@ public static class ManifestBuilder
 	/// </summary>
 	public static string PublishedName(string fileName, string sha256)
 	{
-		string name = $"{Path.GetFileNameWithoutExtension(fileName)}.{sha256[..12]}{Path.GetExtension(fileName)}";
+		string extension = Path.GetExtension(fileName);
+		string name = UnservedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
+			? $"{fileName}.{sha256[..12]}.txt"
+			: $"{Path.GetFileNameWithoutExtension(fileName)}.{sha256[..12]}{extension}";
 		if (!PublishedNamePattern.IsMatch(name))
 		{
 			throw new ToolException($"'{fileName}' cannot be published: the server only serves names matching {PublishedNamePattern}");
 		}
 		return name;
 	}
+
+	/// <summary>
+	/// Patch overlay extensions the /launcher/ route does not serve. They are published as "&lt;name&gt;.&lt;sha12&gt;.txt"
+	/// (for example <c>assetmeta.data.&lt;sha12&gt;.txt</c>); the manifest "path" keeps the real name and the launcher
+	/// stages the bytes under it.
+	/// </summary>
+	private static readonly string[] UnservedExtensions = [".bundle", ".data", ".manifest"];
 
 	/// <summary>Top-level file names the /launcher/ route of the web server serves.</summary>
 	public static readonly Regex PublishedNamePattern = new Regex(@"^[A-Za-z0-9._-]+\.(exe|dll|tsv|txt|zip)$", RegexOptions.CultureInvariant);

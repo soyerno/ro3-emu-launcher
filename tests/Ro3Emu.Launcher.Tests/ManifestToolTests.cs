@@ -89,6 +89,65 @@ public class ManifestToolTests
 	}
 
 	[Fact]
+	public void PatchOverlayFiles_GetServableNames_ButKeepTheirRealManifestPath()
+	{
+		string bundle = ManifestBuilder.PublishedName("0123456789abcdef.bundle", ManifestJson.Sha256("b"));
+		string meta = ManifestBuilder.PublishedName("assetmeta.data", ManifestJson.Sha256("m"));
+		string manifestFile = ManifestBuilder.PublishedName("ro3.manifest", ManifestJson.Sha256("r"));
+
+		Assert.Matches(ManifestBuilder.PublishedNamePattern, bundle);
+		Assert.Matches(ManifestBuilder.PublishedNamePattern, meta);
+		Assert.Matches(ManifestBuilder.PublishedNamePattern, manifestFile);
+		Assert.StartsWith("0123456789abcdef.bundle.", bundle);
+		Assert.EndsWith(".txt", meta);
+	}
+
+	[Fact]
+	public async Task PatchOverlay_IsBuiltSignedVerifiedAndStagedByTheLauncher()
+	{
+		using TempDir dist = new();
+		dist.Write("RO3Emu.exe", "ro3emu");
+		dist.Write("patch/ab/0123456789abcdef.bundle", "bundle bytes");
+		dist.Write("patch/assetmeta.data", "meta");
+		dist.Write("patch/ro3.manifest", "mani");
+		dist.Write("patch/patched.data", "patched");
+		dist.Write("patch/ab/UPPER.bundle", "x");
+		dist.Write("patch/notes.txt", "x");
+		using TempDir output = new();
+		using TempDir player = new();
+		using TempDir cache = new();
+		(string privateKey, string publicKey) = ManifestSigner.GenerateKey();
+
+		BuildResult built = ManifestBuilder.Build(new BuildOptions(dist.Path, output.Path, "1.4.0", 7, null, null));
+		byte[] manifestBytes = File.ReadAllBytes(built.ManifestPath);
+		string signature = ManifestSigner.Sign(manifestBytes, privateKey);
+
+		Assert.Equal(["patch/ab/UPPER.bundle", "patch/notes.txt"], built.Skipped);
+		Assert.True(ManifestSignature.Verify(manifestBytes, signature, publicKey));
+		RemoteManifest manifest = RemoteManifest.Parse(manifestBytes);
+		Assert.Equal(
+			["RO3Emu.exe", "patch/ab/0123456789abcdef.bundle", "patch/assetmeta.data", "patch/patched.data", "patch/ro3.manifest"],
+			manifest.Files.Select(f => f.Path).Order(StringComparer.Ordinal));
+		Assert.All(manifest.Files, f => Assert.Matches(ManifestBuilder.PublishedNamePattern, f.Url));
+
+		FakeHttpHandler handler = new();
+		foreach (string file in Directory.GetFiles(output.Path, "*", SearchOption.AllDirectories))
+		{
+			handler.Serve(PublishedRoot + Path.GetRelativePath(output.Path, file).Replace('\\', '/'), File.ReadAllBytes(file));
+		}
+		handler.Serve(PublishedRoot + "manifest.json.sig", signature);
+		player.Write("KonsorRO.exe", "launcher dev");
+		LauncherConfig launcherConfig = new() { ManifestUrl = PublishedRoot + "manifest.json", ManifestPublicKey = publicKey };
+
+		RemoteUpdateOutcome outcome = await new RemoteUpdater(launcherConfig, player.File("KonsorRO.exe"), "0.0.0-dev", handler, cache.Path).RunAsync(null, CancellationToken.None);
+
+		Assert.Equal(5, outcome.Files!.Updated.Count);
+		Assert.Equal("bundle bytes", File.ReadAllText(player.File("patch/ab/0123456789abcdef.bundle")));
+		Assert.Equal("meta", File.ReadAllText(player.File("patch/assetmeta.data")));
+		Assert.Equal("patched", File.ReadAllText(player.File("patch/patched.data")));
+	}
+
+	[Fact]
 	public void DevelopmentVersion_CannotBePublishedAsTheLauncher()
 	{
 		using TempDir dist = Dist();
