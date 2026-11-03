@@ -94,10 +94,13 @@ public class ManifestToolTests
 		string bundle = ManifestBuilder.PublishedName("0123456789abcdef.bundle", ManifestJson.Sha256("b"));
 		string meta = ManifestBuilder.PublishedName("assetmeta.data", ManifestJson.Sha256("m"));
 		string manifestFile = ManifestBuilder.PublishedName("ro3.manifest", ManifestJson.Sha256("r"));
+		string baseJson = ManifestBuilder.PublishedName("base.json", ManifestJson.Sha256("j"));
 
 		Assert.Matches(ManifestBuilder.PublishedNamePattern, bundle);
 		Assert.Matches(ManifestBuilder.PublishedNamePattern, meta);
 		Assert.Matches(ManifestBuilder.PublishedNamePattern, manifestFile);
+		Assert.Matches(ManifestBuilder.PublishedNamePattern, baseJson);
+		Assert.StartsWith("base.json.", baseJson);
 		Assert.StartsWith("0123456789abcdef.bundle.", bundle);
 		Assert.EndsWith(".txt", meta);
 	}
@@ -111,6 +114,7 @@ public class ManifestToolTests
 		dist.Write("patch/assetmeta.data", "meta");
 		dist.Write("patch/ro3.manifest", "mani");
 		dist.Write("patch/patched.data", "patched");
+		dist.Write("patch/base.json", "{}");
 		dist.Write("patch/ab/UPPER.bundle", "x");
 		dist.Write("patch/notes.txt", "x");
 		using TempDir output = new();
@@ -126,7 +130,7 @@ public class ManifestToolTests
 		Assert.True(ManifestSignature.Verify(manifestBytes, signature, publicKey));
 		RemoteManifest manifest = RemoteManifest.Parse(manifestBytes);
 		Assert.Equal(
-			["RO3Emu.exe", "patch/ab/0123456789abcdef.bundle", "patch/assetmeta.data", "patch/patched.data", "patch/ro3.manifest"],
+			["RO3Emu.exe", "patch/ab/0123456789abcdef.bundle", "patch/assetmeta.data", "patch/base.json", "patch/patched.data", "patch/ro3.manifest"],
 			manifest.Files.Select(f => f.Path).Order(StringComparer.Ordinal));
 		Assert.All(manifest.Files, f => Assert.Matches(ManifestBuilder.PublishedNamePattern, f.Url));
 
@@ -141,10 +145,11 @@ public class ManifestToolTests
 
 		RemoteUpdateOutcome outcome = await new RemoteUpdater(launcherConfig, player.File("KonsorRO.exe"), "0.0.0-dev", handler, cache.Path).RunAsync(null, CancellationToken.None);
 
-		Assert.Equal(5, outcome.Files!.Updated.Count);
+		Assert.Equal(6, outcome.Files!.Updated.Count);
 		Assert.Equal("bundle bytes", File.ReadAllText(player.File("patch/ab/0123456789abcdef.bundle")));
 		Assert.Equal("meta", File.ReadAllText(player.File("patch/assetmeta.data")));
 		Assert.Equal("patched", File.ReadAllText(player.File("patch/patched.data")));
+		Assert.Equal("{}", File.ReadAllText(player.File("patch/base.json")));
 	}
 
 	[Fact]

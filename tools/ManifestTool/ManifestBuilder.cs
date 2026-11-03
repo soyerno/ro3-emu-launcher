@@ -135,7 +135,7 @@ public static class ManifestBuilder
 	/// (for example <c>assetmeta.data.&lt;sha12&gt;.txt</c>); the manifest "path" keeps the real name and the launcher
 	/// stages the bytes under it.
 	/// </summary>
-	private static readonly string[] UnservedExtensions = [".bundle", ".data", ".manifest"];
+	private static readonly string[] UnservedExtensions = [".bundle", ".data", ".manifest", ".json"];
 
 	/// <summary>Top-level file names the /launcher/ route of the web server serves.</summary>
 	public static readonly Regex PublishedNamePattern = new Regex(@"^[A-Za-z0-9._-]+\.(exe|dll|tsv|txt|zip)$", RegexOptions.CultureInvariant);

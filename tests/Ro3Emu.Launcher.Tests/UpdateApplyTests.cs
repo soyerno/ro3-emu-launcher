@@ -17,6 +17,7 @@ public class ManagedFilePathTests
 	[InlineData("patch/assetmeta.data", "patch/assetmeta.data")]
 	[InlineData("patch/ro3.manifest", "patch/ro3.manifest")]
 	[InlineData("patch/patched.data", "patch/patched.data")]
+	[InlineData("patch/base.json", "patch/base.json")]
 	public void AllowedPaths_AreAccepted(string path, string expected)
 	{
 		Assert.True(ManagedFiles.TryNormalizePath(path, out string normalized));
@@ -56,6 +57,10 @@ public class ManagedFilePathTests
 	[InlineData("patch/0123456789abcdef.bundle")]
 	[InlineData("patch/other.data")]
 	[InlineData("patch/Assetmeta.data")]
+	[InlineData("patch/Base.json")]
+	[InlineData("patch/other.json")]
+	[InlineData("patch/sub/base.json")]
+	[InlineData("base.json")]
 	[InlineData("patch/assetmeta.data:stream")]
 	[InlineData("patch/sub/patched.data")]
 	[InlineData("patch/")]
@@ -199,6 +204,8 @@ public class ManagedFilesApplyTests
 	{
 		using TempDir dir = new();
 		dir.Write("patch/assetmeta.data.old", "x");
+		dir.Write("patch/base.json.new", "x");
+		dir.Write("patch/base.json", "live");
 		dir.Write("patch/ab/0123456789abcdef.bundle.new", "x");
 		dir.Write("patch/cd/fedcba9876543210.bundle.old", "x");
 		dir.Write("patch/assetmeta.data", "live");
@@ -209,6 +216,7 @@ public class ManagedFilesApplyTests
 		Assert.Empty(Directory.GetFiles(dir.Path, "*.old", SearchOption.AllDirectories));
 		Assert.Empty(Directory.GetFiles(dir.Path, "*.new", SearchOption.AllDirectories));
 		Assert.True(File.Exists(dir.File("patch/assetmeta.data")));
+		Assert.True(File.Exists(dir.File("patch/base.json")));
 		Assert.True(File.Exists(dir.File("patch/ab/0123456789abcdef.bundle")));
 	}
 }

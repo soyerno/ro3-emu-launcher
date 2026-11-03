@@ -43,7 +43,7 @@ public static class ManagedFiles
 
 	private const string PatchDirectory = "patch";
 
-	private static readonly string[] PatchRootFiles = ["assetmeta.data", "ro3.manifest", "patched.data"];
+	private static readonly string[] PatchRootFiles = ["assetmeta.data", "ro3.manifest", "patched.data", "base.json"];
 
 	private static readonly Regex PatchBundleName = new Regex("^[0-9a-f]{16}\\.bundle$", RegexOptions.CultureInvariant);
 
@@ -55,7 +55,7 @@ public static class ManagedFiles
 	/// True when <paramref name="path"/> is one of the files the manifest may update: <c>RO3Emu.exe</c> or
 	/// <c>cloudflared.exe</c> in the launcher folder, a <c>client/*.dll</c> or a <c>data/*.tsv</c> (one level, no
 	/// subfolders), or a patch overlay file: <c>patch/&lt;hh&gt;/&lt;16 hex&gt;.bundle</c> (lowercase hex) or
-	/// <c>patch/assetmeta.data</c>, <c>patch/ro3.manifest</c>, <c>patch/patched.data</c>. Rooted paths, drive letters, "..", "." and empty segments, streams and device names are refused.
+	/// <c>patch/assetmeta.data</c>, <c>patch/ro3.manifest</c>, <c>patch/patched.data</c>, <c>patch/base.json</c> (stale-index sidecar). Rooted paths, drive letters, "..", "." and empty segments, streams and device names are refused.
 	/// <paramref name="normalized"/> uses "/" separators.
 	/// </summary>
 	public static bool TryNormalizePath(string? path, out string normalized)
