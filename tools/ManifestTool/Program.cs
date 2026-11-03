@@ -17,6 +17,10 @@ const string Usage = """
 	      Writes <out>/<name> (default manifest.json) and copies each file flat beside it under a content-addressed
 	      name (RO3Emu.exe -> RO3Emu.<first 12 hex of sha256>.exe); a published name never changes content.
 	      --sequence defaults to the current Unix time, so every build is higher than the previous one.
+	  add --dist <folder> --out <folder> --base-manifest <live manifest> --base-url <url> [--sequence <n>] [--name <file>]
+	      Adds (or replaces by path) the patch overlay files of <folder> (laid out as manifest paths, patch/...) in an
+	      existing manifest. Other entries, launcher, version and config stay untouched; only sequence (default: base + 1)
+	      and generated change. New urls are <base-url>/<published name>.
 	  sign --manifest <file> --key <private-key.pem>
 	      Writes <file>.sig (base64 DER ECDSA P-256 / SHA-256 signature of the exact manifest bytes).
 	  verify --manifest <file> --public-key <public-key.pem | launcher.json>
@@ -37,7 +41,9 @@ try
 		return Keygen(Required(options, "out"));
 	case "build":
 		return Build(options);
-	case "sign":
+	case "add":
+			return Add(options);
+		case "sign":
 		return Sign(Required(options, "manifest"), Required(options, "key"));
 	case "verify":
 		return Verify(Required(options, "manifest"), Required(options, "public-key"));
@@ -108,6 +114,27 @@ static int Build(Dictionary<string, string> options)
 	foreach (string file in result.Skipped)
 	{
 		Console.WriteLine("  - " + file + " (not updated by the launcher; left out)");
+	}
+	Console.WriteLine("Next: sign it with the private key, then verify.");
+	return 0;
+}
+
+static int Add(Dictionary<string, string> options)
+{
+	long? sequence = options.TryGetValue("sequence", out string? text)
+		? (long.TryParse(text, out long parsed) ? parsed : throw new ToolException($"--sequence '{text}' is not a number"))
+		: null;
+	AddResult result = ManifestBuilder.Add(new AddOptions(
+		Required(options, "dist"),
+		Required(options, "out"),
+		Required(options, "base-manifest"),
+		Required(options, "base-url"),
+		sequence,
+		options.GetValueOrDefault("name") ?? "konsor.json"));
+	Console.WriteLine($"Manifest {result.ManifestPath}: {result.Added.Count} entr(y/ies) added or replaced:");
+	foreach (string file in result.Added)
+	{
+		Console.WriteLine("  + " + file);
 	}
 	Console.WriteLine("Next: sign it with the private key, then verify.");
 	return 0;

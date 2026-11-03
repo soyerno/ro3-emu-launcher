@@ -12,6 +12,12 @@ public class ManagedFilePathTests
 	[InlineData("client/Ro3Emu.Loc.dll", "client/Ro3Emu.Loc.dll")]
 	[InlineData("client\\Ro3Emu.ClientHooks.dll", "client/Ro3Emu.ClientHooks.dll")]
 	[InlineData("data/loc_es.tsv", "data/loc_es.tsv")]
+	[InlineData("patch/ab/0123456789abcdef.bundle", "patch/ab/0123456789abcdef.bundle")]
+	[InlineData("patch\\00\\ffffffffffffffff.bundle", "patch/00/ffffffffffffffff.bundle")]
+	[InlineData("patch/assetmeta.data", "patch/assetmeta.data")]
+	[InlineData("patch/ro3.manifest", "patch/ro3.manifest")]
+	[InlineData("patch/patched.data", "patch/patched.data")]
+	[InlineData("patch/base.json", "patch/base.json")]
 	public void AllowedPaths_AreAccepted(string path, string expected)
 	{
 		Assert.True(ManagedFiles.TryNormalizePath(path, out string normalized));
@@ -37,6 +43,33 @@ public class ManagedFilePathTests
 	[InlineData("client/CON.dll")]
 	[InlineData("data/loc_es.tsv:stream")]
 	[InlineData("data/.tsv")]
+	[InlineData("patch/../RO3Emu.exe")]
+	[InlineData("patch/ab/../../RO3Emu.exe")]
+	[InlineData("patch/AB/0123456789abcdef.bundle")]
+	[InlineData("patch/ab/0123456789ABCDEF.bundle")]
+	[InlineData("patch/a/0123456789abcdef.bundle")]
+	[InlineData("patch/abc/0123456789abcdef.bundle")]
+	[InlineData("patch/ab/0123456789abcde.bundle")]
+	[InlineData("patch/ab/0123456789abcdef0.bundle")]
+	[InlineData("patch/ab/0123456789abcdef.dll")]
+	[InlineData("patch/ab/0123456789abcdef")]
+	[InlineData("patch/ab/cd/0123456789abcdef.bundle")]
+	[InlineData("patch/0123456789abcdef.bundle")]
+	[InlineData("patch/other.data")]
+	[InlineData("patch/Assetmeta.data")]
+	[InlineData("patch/Base.json")]
+	[InlineData("patch/other.json")]
+	[InlineData("patch/sub/base.json")]
+	[InlineData("base.json")]
+	[InlineData("patch/assetmeta.data:stream")]
+	[InlineData("patch/sub/patched.data")]
+	[InlineData("patch/")]
+	[InlineData("patch")]
+	[InlineData("/patch/assetmeta.data")]
+	[InlineData("C:patch/assetmeta.data")]
+	[InlineData("C:\\patch\\assetmeta.data")]
+	[InlineData("patch//assetmeta.data")]
+	[InlineData("patch/ab/0123456789abcdef.bundle.old")]
 	public void OtherPaths_AreRejected(string path)
 	{
 		Assert.False(ManagedFiles.TryNormalizePath(path, out _));
@@ -121,6 +154,70 @@ public class ManagedFilesApplyTests
 		Assert.Empty(Directory.GetFiles(dir.Path, "*.old", SearchOption.AllDirectories));
 		Assert.Empty(Directory.GetFiles(dir.Path, "*.new", SearchOption.AllDirectories));
 		Assert.True(File.Exists(dir.File("client/keep.dll")));
+	}
+
+	[Fact]
+	public async Task PatchFiles_AreStagedUnderThePatchFolder_AndUpToDateOnesSkipped()
+	{
+		using TempDir dir = new();
+		dir.Write("patch/patched.data", "same");
+		dir.Write("patch/ab/0123456789abcdef.bundle", "old bundle");
+		FakeHttpHandler handler = new();
+		handler.Serve(BaseUrl + "bundle.txt", "new bundle");
+		handler.Serve(BaseUrl + "meta.txt", "meta");
+		RemoteManifest manifest = Manifest(
+			ManifestJson.FileEntry("patch/patched.data", "same", "patched.txt"),
+			ManifestJson.FileEntry("patch/ab/0123456789abcdef.bundle", "new bundle", "bundle.txt"),
+			ManifestJson.FileEntry("patch/assetmeta.data", "meta", "meta.txt"),
+			ManifestJson.FileEntry("patch/ab/../../evil.bundle", "x", "x.txt"));
+
+		FileApplyResult result = await ManagedFiles.ApplyAsync(manifest.Files, new Uri(BaseUrl), dir.Path, new HttpClient(handler), null, null, CancellationToken.None);
+
+		Assert.Equal(["patch/ab/0123456789abcdef.bundle", "patch/assetmeta.data"], result.Updated);
+		Assert.Equal(1, result.UpToDate);
+		Assert.Equal(["patch/ab/../../evil.bundle"], result.Rejected);
+		Assert.Empty(result.Failed);
+		Assert.Equal("new bundle", File.ReadAllText(dir.File("patch/ab/0123456789abcdef.bundle")));
+		Assert.Equal("meta", File.ReadAllText(dir.File("patch/assetmeta.data")));
+		Assert.Empty(Directory.GetFiles(dir.Path, "*.old", SearchOption.AllDirectories));
+		Assert.Empty(Directory.GetFiles(dir.Path, "*.new", SearchOption.AllDirectories));
+	}
+
+	[Fact]
+	public async Task PatchFileWithTheWrongHash_KeepsThePreviousCopy()
+	{
+		using TempDir dir = new();
+		dir.Write("patch/assetmeta.data", "old meta");
+		FakeHttpHandler handler = new();
+		handler.Serve(BaseUrl + "meta.txt", "tampered");
+		RemoteManifest manifest = Manifest(ManifestJson.FileEntry("patch/assetmeta.data", "new meta", "meta.txt"));
+
+		FileApplyResult result = await ManagedFiles.ApplyAsync(manifest.Files, new Uri(BaseUrl), dir.Path, new HttpClient(handler), null, null, CancellationToken.None);
+
+		Assert.Equal(["patch/assetmeta.data"], result.Failed);
+		Assert.Equal("old meta", File.ReadAllText(dir.File("patch/assetmeta.data")));
+		Assert.Empty(Directory.GetFiles(dir.Path, "*.new", SearchOption.AllDirectories));
+	}
+
+	[Fact]
+	public void PatchLeftovers_AreCleaned_AndLiveFilesKept()
+	{
+		using TempDir dir = new();
+		dir.Write("patch/assetmeta.data.old", "x");
+		dir.Write("patch/base.json.new", "x");
+		dir.Write("patch/base.json", "live");
+		dir.Write("patch/ab/0123456789abcdef.bundle.new", "x");
+		dir.Write("patch/cd/fedcba9876543210.bundle.old", "x");
+		dir.Write("patch/assetmeta.data", "live");
+		dir.Write("patch/ab/0123456789abcdef.bundle", "live");
+
+		ManagedFiles.CleanLeftovers(dir.Path);
+
+		Assert.Empty(Directory.GetFiles(dir.Path, "*.old", SearchOption.AllDirectories));
+		Assert.Empty(Directory.GetFiles(dir.Path, "*.new", SearchOption.AllDirectories));
+		Assert.True(File.Exists(dir.File("patch/assetmeta.data")));
+		Assert.True(File.Exists(dir.File("patch/base.json")));
+		Assert.True(File.Exists(dir.File("patch/ab/0123456789abcdef.bundle")));
 	}
 }
 

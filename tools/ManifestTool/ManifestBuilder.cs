@@ -97,18 +97,24 @@ public static class ManifestBuilder
 		return new BuildResult(manifestPath, included, skipped);
 	}
 
+	/// <summary>Adds the files of a folder to an existing manifest, leaving its other entries alone; see <see cref="ManifestAdder"/>.</summary>
+	public static AddResult Add(AddOptions options) => ManifestAdder.Add(options);
+
 	private static (string Sha256, long Size, string Url) Publish(string source, BuildOptions options)
+		=> Publish(source, options.OutDir, options.BaseUrl);
+
+	internal static (string Sha256, long Size, string Url) Publish(string source, string outDir, string? baseUrl)
 	{
 		byte[] data = File.ReadAllBytes(source);
 		string sha256 = Convert.ToHexStringLower(SHA256.HashData(data));
 		string relativeUrl = PublishedName(Path.GetFileName(source), sha256);
-		string target = Path.Combine(options.OutDir, relativeUrl);
+		string target = Path.Combine(outDir, relativeUrl);
 		if (File.Exists(target) && !File.ReadAllBytes(target).AsSpan().SequenceEqual(data))
 		{
 			throw new ToolException($"{target} already exists with other bytes; a published name must never change content");
 		}
 		File.WriteAllBytes(target, data);
-		string url = string.IsNullOrWhiteSpace(options.BaseUrl) ? relativeUrl : options.BaseUrl.TrimEnd('/') + "/" + relativeUrl;
+		string url = string.IsNullOrWhiteSpace(baseUrl) ? relativeUrl : baseUrl.TrimEnd('/') + "/" + relativeUrl;
 		return (sha256, data.LongLength, url);
 	}
 
@@ -119,13 +125,23 @@ public static class ManifestBuilder
 	/// </summary>
 	public static string PublishedName(string fileName, string sha256)
 	{
-		string name = $"{Path.GetFileNameWithoutExtension(fileName)}.{sha256[..12]}{Path.GetExtension(fileName)}";
+		string extension = Path.GetExtension(fileName);
+		string name = UnservedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
+			? $"{fileName}.{sha256[..12]}.txt"
+			: $"{Path.GetFileNameWithoutExtension(fileName)}.{sha256[..12]}{extension}";
 		if (!PublishedNamePattern.IsMatch(name))
 		{
 			throw new ToolException($"'{fileName}' cannot be published: the server only serves names matching {PublishedNamePattern}");
 		}
 		return name;
 	}
+
+	/// <summary>
+	/// Patch overlay extensions the /launcher/ route does not serve. They are published as "&lt;name&gt;.&lt;sha12&gt;.txt"
+	/// (for example <c>assetmeta.data.&lt;sha12&gt;.txt</c>); the manifest "path" keeps the real name and the launcher
+	/// stages the bytes under it.
+	/// </summary>
+	private static readonly string[] UnservedExtensions = [".bundle", ".data", ".manifest", ".json"];
 
 	/// <summary>Top-level file names the /launcher/ route of the web server serves.</summary>
 	public static readonly Regex PublishedNamePattern = new Regex(@"^[A-Za-z0-9._-]+\.(exe|dll|tsv|txt|zip)$", RegexOptions.CultureInvariant);

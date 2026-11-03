@@ -41,12 +41,21 @@ public static class ManagedFiles
 
 	private static readonly (string Directory, string Extension)[] Folders = [("client", ".dll"), ("data", ".tsv")];
 
+	private const string PatchDirectory = "patch";
+
+	private static readonly string[] PatchRootFiles = ["assetmeta.data", "ro3.manifest", "patched.data", "base.json"];
+
+	private static readonly Regex PatchBundleName = new Regex("^[0-9a-f]{16}\\.bundle$", RegexOptions.CultureInvariant);
+
+	private static readonly Regex PatchShard = new Regex("^[0-9a-f]{2}$", RegexOptions.CultureInvariant);
+
 	private static readonly Regex DeviceName = new Regex("^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
 	/// <summary>
 	/// True when <paramref name="path"/> is one of the files the manifest may update: <c>RO3Emu.exe</c> or
 	/// <c>cloudflared.exe</c> in the launcher folder, a <c>client/*.dll</c> or a <c>data/*.tsv</c> (one level, no
-	/// subfolders). Rooted paths, drive letters, "..", "." and empty segments, streams and device names are refused.
+	/// subfolders), or a patch overlay file: <c>patch/&lt;hh&gt;/&lt;16 hex&gt;.bundle</c> (lowercase hex) or
+	/// <c>patch/assetmeta.data</c>, <c>patch/ro3.manifest</c>, <c>patch/patched.data</c>, <c>patch/base.json</c> (stale-index sidecar). Rooted paths, drive letters, "..", "." and empty segments, streams and device names are refused.
 	/// <paramref name="normalized"/> uses "/" separators.
 	/// </summary>
 	public static bool TryNormalizePath(string? path, out string normalized)
@@ -81,6 +90,10 @@ public static class ManagedFiles
 			}
 			return false;
 		}
+		if (string.Equals(segments[0], PatchDirectory, StringComparison.Ordinal))
+		{
+			return TryNormalizePatch(segments, out normalized);
+		}
 		if (segments.Length == 2)
 		{
 			foreach ((string directory, string extension) in Folders)
@@ -93,6 +106,22 @@ public static class ManagedFiles
 					return true;
 				}
 			}
+		}
+		return false;
+	}
+
+	private static bool TryNormalizePatch(string[] segments, out string normalized)
+	{
+		normalized = "";
+		if (segments.Length == 2 && Array.IndexOf(PatchRootFiles, segments[1]) >= 0)
+		{
+			normalized = PatchDirectory + "/" + segments[1];
+			return true;
+		}
+		if (segments.Length == 3 && PatchShard.IsMatch(segments[1]) && PatchBundleName.IsMatch(segments[2]))
+		{
+			normalized = PatchDirectory + "/" + segments[1] + "/" + segments[2];
+			return true;
 		}
 		return false;
 	}
@@ -130,6 +159,20 @@ public static class ManagedFiles
 			{
 				candidates.AddRange(Directory.GetFiles(folder, "*" + extension + ".old"));
 				candidates.AddRange(Directory.GetFiles(folder, "*" + extension + ".new"));
+			}
+			catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+			{
+			}
+		}
+		string patchFolder = Path.Combine(launcherDir, PatchDirectory);
+		if (Directory.Exists(patchFolder))
+		{
+			try
+			{
+				foreach (string suffix in new[] { ".old", ".new" })
+				{
+					candidates.AddRange(Directory.GetFiles(patchFolder, "*" + suffix, SearchOption.AllDirectories));
+				}
 			}
 			catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 			{
