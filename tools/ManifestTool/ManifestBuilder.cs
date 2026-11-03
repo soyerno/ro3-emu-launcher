@@ -97,18 +97,24 @@ public static class ManifestBuilder
 		return new BuildResult(manifestPath, included, skipped);
 	}
 
+	/// <summary>Adds the files of a folder to an existing manifest, leaving its other entries alone; see <see cref="ManifestAdder"/>.</summary>
+	public static AddResult Add(AddOptions options) => ManifestAdder.Add(options);
+
 	private static (string Sha256, long Size, string Url) Publish(string source, BuildOptions options)
+		=> Publish(source, options.OutDir, options.BaseUrl);
+
+	internal static (string Sha256, long Size, string Url) Publish(string source, string outDir, string? baseUrl)
 	{
 		byte[] data = File.ReadAllBytes(source);
 		string sha256 = Convert.ToHexStringLower(SHA256.HashData(data));
 		string relativeUrl = PublishedName(Path.GetFileName(source), sha256);
-		string target = Path.Combine(options.OutDir, relativeUrl);
+		string target = Path.Combine(outDir, relativeUrl);
 		if (File.Exists(target) && !File.ReadAllBytes(target).AsSpan().SequenceEqual(data))
 		{
 			throw new ToolException($"{target} already exists with other bytes; a published name must never change content");
 		}
 		File.WriteAllBytes(target, data);
-		string url = string.IsNullOrWhiteSpace(options.BaseUrl) ? relativeUrl : options.BaseUrl.TrimEnd('/') + "/" + relativeUrl;
+		string url = string.IsNullOrWhiteSpace(baseUrl) ? relativeUrl : baseUrl.TrimEnd('/') + "/" + relativeUrl;
 		return (sha256, data.LongLength, url);
 	}
 

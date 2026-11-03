@@ -75,6 +75,23 @@ dotnet run --project tools\ManifestTool -c Release -- verify --manifest <out>\ko
 
 - **keygen**: writes the private key and `<name>.pub.pem` beside it (the public key, for `verify`), and prints the `manifestPublicKey` value. It refuses to write the key inside a git repository or over an existing file. `.gitignore` also ignores `*.pem` and `*.key`. Back the private key up offline: anyone who has it can update every launcher.
 - **build**: copies each file flat beside the manifest under a content-addressed name, `<name>.<first 12 hex of its sha256>.<ext>` (for example `RO3Emu.3f2a9c01b7de.exe`), and points `url` at it. Different bytes always get a different name, so a published name never changes content. The `/launcher/` route serves these names with `Cache-Control: public, max-age=31536000, immutable`. It only serves top-level names matching `^[A-Za-z0-9._-]+\.(exe|dll|tsv|txt|zip)$`, with no subfolders, and the tool refuses any other name. The patch overlay extensions the route does not serve (`.bundle`, `.data`, `.manifest`, `.json`) are published as `<file name>.<sha12>.txt` (for example `assetmeta.data.3f2a9c01b7de.txt`) while the manifest `path` keeps the real `patch/...` path, so the launcher stages the bytes under the real name. Only the manifest and its `.sig` are served with `no-cache`. `--sequence` defaults to the current Unix time.
+- **add**: `add --dist <folder> --out <folder> --base-manifest <live konsor.json> --base-url <url> [--sequence <n>] [--name <file>]` extends an existing manifest with the `patch/...` files of `<folder>` (laid out as manifest paths). Existing entries, `launcher`, `version` and `config` are kept as they are; a file whose path is already listed is replaced in place. Only `sequence` (default: base + 1; must be higher than the base) and `generated` change. Use it for the overlay instead of `build`, which rewrites every entry and url.
+
+## Publishing the patch overlay
+
+`tools\publish-overlay.ps1` (Windows PowerShell 5.1) prepares a signed manifest that adds the overlay to the live one. It never uploads anything.
+
+```powershell
+curl.exe -o live\konsor.json     https://konsor.com.ar/launcher/konsor.json
+curl.exe -o live\konsor.json.sig https://konsor.com.ar/launcher/konsor.json.sig
+powershell -File tools\publish-overlay.ps1 `
+  -OverlayDir '...\content\W00\overlay\persistent\patch' -ClientDir '<shipped ROO_PC>' `
+  -LiveManifestDir live -OutDir <new empty folder> [-KeyPath C:\keys\konsor-manifest.pem]
+```
+
+It (1) checks that the overlay's `assetmeta.data` and `ro3.manifest` are the shipped client's files plus added records (the count header changes and new bundle records go before the `bytes`/`raw` sections, so it is not a plain byte prefix) and aborts otherwise: the overlay was built against another client, rebuild it; (2) writes `patch/base.json` from the sha256 of the shipped files (without it `join` skips the overlay); (3) runs `add` against the live manifest, then `sign` (key by path only) and `verify`; (4) re-checks every added file against the manifest and that every live entry is unchanged; (5) writes `UPLOAD.txt` into the output folder.
+
+Upload by hand, only with explicit approval of destination and operation: all published files first, then `konsor.json.sig`, then `konsor.json` last, into the site's `launcher\` folder. Published names are never overwritten, so rolling back is re-uploading the previous manifest and signature.
 
 ## First release (operator steps)
 
