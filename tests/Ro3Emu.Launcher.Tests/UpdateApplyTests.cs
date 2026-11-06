@@ -12,6 +12,8 @@ public class ManagedFilePathTests
 	[InlineData("client/Ro3Emu.Loc.dll", "client/Ro3Emu.Loc.dll")]
 	[InlineData("client\\Ro3Emu.ClientHooks.dll", "client/Ro3Emu.ClientHooks.dll")]
 	[InlineData("data/loc_es.tsv", "data/loc_es.tsv")]
+	[InlineData("data/quest-pack.json", "data/quest-pack.json")]
+	[InlineData("data\\quest-pack.json", "data/quest-pack.json")]
 	[InlineData("patch/ab/0123456789abcdef.bundle", "patch/ab/0123456789abcdef.bundle")]
 	[InlineData("patch\\00\\ffffffffffffffff.bundle", "patch/00/ffffffffffffffff.bundle")]
 	[InlineData("patch/assetmeta.data", "patch/assetmeta.data")]
@@ -70,6 +72,14 @@ public class ManagedFilePathTests
 	[InlineData("C:\\patch\\assetmeta.data")]
 	[InlineData("patch//assetmeta.data")]
 	[InlineData("patch/ab/0123456789abcdef.bundle.old")]
+	[InlineData("data/other.json")]
+	[InlineData("data/Quest-Pack.json")]
+	[InlineData("data/sub/quest-pack.json")]
+	[InlineData("data/quest-pack.json:stream")]
+	[InlineData("data/quest-pack.json.old")]
+	[InlineData("quest-pack.json")]
+	[InlineData("client/quest-pack.json")]
+	[InlineData("patch/quest-pack.json")]
 	public void OtherPaths_AreRejected(string path)
 	{
 		Assert.False(ManagedFiles.TryNormalizePath(path, out _));
@@ -147,6 +157,8 @@ public class ManagedFilesApplyTests
 		dir.Write("RO3Emu.exe.old", "x");
 		dir.Write("client/Ro3Emu.Loc.dll.old", "x");
 		dir.Write("data/loc_es.tsv.new", "x");
+		dir.Write("data/quest-pack.json.old", "x");
+		dir.Write("data/quest-pack.json.new", "x");
 		dir.Write("client/keep.dll", "x");
 
 		ManagedFiles.CleanLeftovers(dir.Path);

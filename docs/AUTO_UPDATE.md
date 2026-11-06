@@ -42,6 +42,7 @@ Errors only go to `launcher.log`. The player keeps whatever files and configurat
   | `RO3Emu.exe`, `cloudflared.exe` | Exact names, in the launcher folder |
   | `client/<name>.dll` | One level only |
   | `data/<name>.tsv` | One level only |
+  | `data/quest-pack.json` | Exact name: the server's quest pack. `RO3Emu.exe join` copies it to the game's `ro3emu\` folder, where the client hooks load it instead of their embedded copy |
   | `patch/<hh>/<16 hex>.bundle` | Patch overlay bundle: `hh` is 2 lowercase hex digits, the name 16 lowercase hex digits |
   | `patch/assetmeta.data`, `patch/ro3.manifest`, `patch/patched.data`, `patch/base.json` | Patch overlay index files, exact names, directly under `patch/` |
 
