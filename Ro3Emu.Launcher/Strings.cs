@@ -135,6 +135,8 @@ public static class Strings
 		["tunnel.opening"] = ("Opening the tunnels to the {server} server...", "Abriendo túneles con el servidor {server}..."),
 		["tunnel.error"] = ("Could not start the tunnel for {0}: {1}", "Error iniciando túnel para {0}: {1}"),
 		["tunnel.connected"] = ("Connected to the {server} server.", "Conexión con el servidor {server} establecida."),
+		["tunnel.portbusy"] = ("Port {0} is in use by another program: {1}. Close it and try again, or the game would connect to that program instead of the {server} server.", "Otro programa está usando el puerto {0}: {1}. Ciérralo y vuelve a intentarlo; si no, el juego se conectaría a ese programa en lugar del servidor {server}."),
+		["tunnel.portbusy.unknown"] = ("unknown program", "programa desconocido"),
 		["tunnel.timeout"] = ("Timed out while connecting to the server.", "Tiempo de espera agotado al conectar con el servidor."),
 
 		// window

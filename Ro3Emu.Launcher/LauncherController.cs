@@ -981,8 +981,9 @@ public sealed class LauncherController : IDisposable
 			bool tunnelOk = await tunnels.StartTunnelsAsync(baseDir, _life.Token, msg => PostState("launching", msg));
 			if (!tunnelOk)
 			{
-				Trace("The tunnels could not connect.");
-				PostState("error", Strings.Get("state.tunnels.fail"));
+				Trace($"The tunnels could not connect: {tunnels.LastError}");
+				// A busy port names the program to close; other failures keep the generic connection hint.
+				PostState("error", tunnels.PortInUse && tunnels.LastError != null ? tunnels.LastError : Strings.Get("state.tunnels.fail"));
 				return;
 			}
 		}
@@ -1109,7 +1110,7 @@ public sealed class LauncherController : IDisposable
 		try
 		{
 			bool ok = await tunnels.StartTunnelsAsync(baseDir, ct, msg => Trace($"tunnel: {msg}"));
-			if (ok) Trace("Tunnels active and connected.");
+			Trace(ok ? "Tunnels active and connected." : $"The tunnels could not connect: {tunnels.LastError}");
 		}
 		catch (OperationCanceledException) when (ct.IsCancellationRequested)
 		{
