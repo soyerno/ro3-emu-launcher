@@ -27,7 +27,8 @@ public sealed class FileApplyResult
 }
 
 /// <summary>
-/// The server's files kept loose beside the launcher (RO3Emu.exe, cloudflared.exe, client\*.dll, data\*.tsv) and
+/// The server's files kept loose beside the launcher (RO3Emu.exe, cloudflared.exe, client\*.dll, data\*.tsv,
+/// data\quest-pack.json) and
 /// updated from the manifest: each mismatched file is downloaded to "&lt;file&gt;.new", checked against the manifest's
 /// size and SHA-256, then swapped in by renaming the current file to "&lt;file&gt;.old" (a running exe can be renamed).
 /// A "*.old" still in use is deleted on the next start by <see cref="CleanLeftovers"/>.
@@ -39,7 +40,15 @@ public static class ManagedFiles
 
 	private static readonly string[] RootFiles = ["RO3Emu.exe", "cloudflared.exe"];
 
-	private static readonly (string Directory, string Extension)[] Folders = [("client", ".dll"), ("data", ".tsv")];
+	private static readonly (string Directory, string Extension)[] Folders = [("client", ".dll"), (DataDirectory, ".tsv")];
+
+	private const string DataDirectory = "data";
+
+	/// <summary>
+	/// Exact names accepted in data\ besides the *.tsv maps: the quest pack, which RO3Emu.exe join copies to the game's
+	/// ro3emu\ folder for the client hooks to load.
+	/// </summary>
+	private static readonly string[] DataFiles = ["quest-pack.json"];
 
 	private const string PatchDirectory = "patch";
 
@@ -54,7 +63,7 @@ public static class ManagedFiles
 	/// <summary>
 	/// True when <paramref name="path"/> is one of the files the manifest may update: <c>RO3Emu.exe</c> or
 	/// <c>cloudflared.exe</c> in the launcher folder, a <c>client/*.dll</c> or a <c>data/*.tsv</c> (one level, no
-	/// subfolders), or a patch overlay file: <c>patch/&lt;hh&gt;/&lt;16 hex&gt;.bundle</c> (lowercase hex) or
+	/// subfolders), <c>data/quest-pack.json</c> (exact name), or a patch overlay file: <c>patch/&lt;hh&gt;/&lt;16 hex&gt;.bundle</c> (lowercase hex) or
 	/// <c>patch/assetmeta.data</c>, <c>patch/ro3.manifest</c>, <c>patch/patched.data</c>, <c>patch/base.json</c> (stale-index sidecar). Rooted paths, drive letters, "..", "." and empty segments, streams and device names are refused.
 	/// <paramref name="normalized"/> uses "/" separators.
 	/// </summary>
@@ -106,6 +115,11 @@ public static class ManagedFiles
 					return true;
 				}
 			}
+			if (string.Equals(segments[0], DataDirectory, StringComparison.OrdinalIgnoreCase) && Array.IndexOf(DataFiles, segments[1]) >= 0)
+			{
+				normalized = DataDirectory + "/" + segments[1];
+				return true;
+			}
 		}
 		return false;
 	}
@@ -147,6 +161,11 @@ public static class ManagedFiles
 		{
 			candidates.Add(Path.Combine(launcherDir, root + ".old"));
 			candidates.Add(Path.Combine(launcherDir, root + ".new"));
+		}
+		foreach (string name in DataFiles)
+		{
+			candidates.Add(Path.Combine(launcherDir, DataDirectory, name + ".old"));
+			candidates.Add(Path.Combine(launcherDir, DataDirectory, name + ".new"));
 		}
 		foreach ((string directory, string extension) in Folders)
 		{
