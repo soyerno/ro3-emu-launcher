@@ -106,7 +106,7 @@ The launcher reads configuration from `launcher.json` embedded at compile-time o
 | `website`, `discord` | none | Optional links; the buttons are hidden when empty. |
 | `voteUrl` | none | Optional page where players vote for the server (for example a server ranking); the vote buttons are hidden when empty. |
 | `statusUrl` | none | Optional registration gate: a public URL, no login required (see below). |
-| `tunnels` | `[]` | Cloudflare tunnels to open, as `{ "hostname", "port" }`. Empty: no `cloudflared`. |
+| `tunnels` | `[]` | Cloudflare tunnels to open, as `{ "hostname", "port" }`. Empty: no `cloudflared`. Each port must be free on `127.0.0.1`: a stale `cloudflared` is replaced, but any other program on it (a local test server, for example) stops the launch with an error naming that program and its PID, since the game would otherwise reach it instead of the server. |
 
 Every field is covered in the [White-Label Customization Guide](docs/guide/white-label.md).
 

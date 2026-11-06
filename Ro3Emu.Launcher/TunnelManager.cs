@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,12 @@ public sealed class TunnelManager : IDisposable
 
     public bool IsConnected { get; private set; }
 
+    /// <summary>Why the last <see cref="StartTunnelsAsync"/> failed, in the player's language; null when it did not fail.</summary>
+    public string? LastError { get; private set; }
+
+    /// <summary>True when the last start failed because another program listens on a tunnel port.</summary>
+    public bool PortInUse { get; private set; }
+
     public static string? FindCloudflared(string? baseDir = null)
     {
         string baseDirectory = baseDir ?? AppContext.BaseDirectory;
@@ -47,6 +54,8 @@ public sealed class TunnelManager : IDisposable
 
     public async Task<bool> StartTunnelsAsync(string? baseDir = null, CancellationToken ct = default, Action<string>? onStatus = null)
     {
+        LastError = null;
+        PortInUse = false;
         if (!HasTunnels)
         {
             IsConnected = true;
@@ -58,28 +67,42 @@ public sealed class TunnelManager : IDisposable
             string? invalid = Validate(t);
             if (invalid != null)
             {
-                onStatus?.Invoke(invalid);
-                return false;
+                return Fail(invalid);
             }
         }
 
         string? cloudflared = FindCloudflared(baseDir);
         if (string.IsNullOrEmpty(cloudflared))
         {
-            onStatus?.Invoke(Strings.Get("tunnel.nocloudflared"));
-            return false;
+            return Fail(Strings.Get("tunnel.nocloudflared"));
         }
 
         onStatus?.Invoke(Strings.Get("tunnel.ports"));
 
         foreach (var t in _tunnels)
         {
-            if (TestLocalPort(t.Port))
+            if (!TestLocalPort(t.Port))
             {
-                // Kill stale cloudflared if holding this port
+                continue;
+            }
+
+            // A stale cloudflared (an earlier launcher run) is ours to replace. Anything else, such as a local test
+            // server, keeps the port: the game would then reach that program instead of the realm, so stop here.
+            PortOwner? owner = FindPortOwner(t.Port);
+            if (owner == null || owner.IsCloudflared)
+            {
                 KillCloudflaredOnPort(t.Port);
                 await Task.Delay(500, ct);
+                if (!TestLocalPort(t.Port))
+                {
+                    continue;
+                }
+                owner = FindPortOwner(t.Port);
             }
+
+            string holder = owner == null ? Strings.Get("tunnel.portbusy.unknown") : $"{owner.ProcessName} (PID {owner.ProcessId})";
+            PortInUse = true;
+            return Fail(Strings.Get("tunnel.portbusy", t.Port, holder));
         }
 
         onStatus?.Invoke(Strings.Get("tunnel.opening"));
@@ -114,8 +137,7 @@ public sealed class TunnelManager : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    onStatus?.Invoke(Strings.Get("tunnel.error", t.Hostname, ex.Message));
-                    return false;
+                    return Fail(Strings.Get("tunnel.error", t.Hostname, ex.Message));
                 }
             }
         }
@@ -145,9 +167,85 @@ public sealed class TunnelManager : IDisposable
             await Task.Delay(300, ct);
         }
 
-        onStatus?.Invoke(Strings.Get("tunnel.timeout"));
-        return false;
+        return Fail(Strings.Get("tunnel.timeout"));
+
+        bool Fail(string message)
+        {
+            LastError = message;
+            onStatus?.Invoke(message);
+            return false;
+        }
     }
+
+    /// <summary>The process listening on <paramref name="port"/> at 127.x.x.x or any IPv4 address; null when none or unknown.</summary>
+    public static PortOwner? FindPortOwner(int port)
+    {
+        const int AfInet = 2;
+        const int TcpTableOwnerPidListener = 3;
+        const uint ErrorInsufficientBuffer = 122;
+        const int RowSize = 24; // MIB_TCPROW_OWNER_PID: state, local addr, local port, remote addr, remote port, pid
+        try
+        {
+            int size = 0;
+            GetExtendedTcpTable(IntPtr.Zero, ref size, false, AfInet, TcpTableOwnerPidListener, 0);
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                IntPtr table = Marshal.AllocHGlobal(size);
+                try
+                {
+                    uint result = GetExtendedTcpTable(table, ref size, false, AfInet, TcpTableOwnerPidListener, 0);
+                    if (result == ErrorInsufficientBuffer)
+                    {
+                        continue; // the table grew between the two calls; size now holds the new length
+                    }
+                    if (result != 0)
+                    {
+                        return null;
+                    }
+
+                    int count = Marshal.ReadInt32(table);
+                    for (int i = 0; i < count; i++)
+                    {
+                        IntPtr row = table + 4 + i * RowSize;
+                        uint localAddr = (uint)Marshal.ReadInt32(row, 4);
+                        int rawPort = Marshal.ReadInt32(row, 8);
+                        int localPort = ((rawPort & 0xFF) << 8) | ((rawPort >> 8) & 0xFF); // network byte order
+                        bool loopbackReachable = localAddr == 0 || (localAddr & 0xFF) == 127;
+                        if (localPort == port && loopbackReachable)
+                        {
+                            int pid = Marshal.ReadInt32(row, 20);
+                            return new PortOwner(pid, ProcessNameOf(pid));
+                        }
+                    }
+                    return null;
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(table);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is DllNotFoundException or EntryPointNotFoundException or OutOfMemoryException)
+        {
+        }
+        return null;
+    }
+
+    private static string ProcessNameOf(int pid)
+    {
+        try
+        {
+            using Process p = Process.GetProcessById(pid);
+            return p.ProcessName;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return "?";
+        }
+    }
+
+    [DllImport("iphlpapi.dll")]
+    private static extern uint GetExtendedTcpTable(IntPtr table, ref int size, bool order, int addressFamily, int tableClass, uint reserved);
 
     private static string? Validate(TunnelSpec t)
     {
@@ -223,6 +321,12 @@ public sealed class TunnelManager : IDisposable
         _disposed = true;
         StopTunnels();
     }
+}
+
+/// <summary>A process listening on a local TCP port.</summary>
+public sealed record PortOwner(int ProcessId, string ProcessName)
+{
+    public bool IsCloudflared => string.Equals(ProcessName, "cloudflared", StringComparison.OrdinalIgnoreCase);
 }
 
 public sealed record TunnelSpec(
